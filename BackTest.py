@@ -1,18 +1,16 @@
-# import hashlib
-# import hmac
-import requests
-# import datetime
-# import json
-# from pprint import pprint
+from pprint import pprint
+
 import numpy as np
 import pandas as pd
+import requests
 from matplotlib import pyplot as plt
-
 
 # -----------------------------------------------------------------
 # 取引所関係のmethod
 
 # bitFlyerのAPIを読み込んで終値のデータをpandasのSeriesにして返す関数
+
+
 def get_price_data():
     response = requests.get(
         "https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc",
@@ -96,31 +94,37 @@ def RSI(p):
 # 評価値系
 
 # RSIとMACDによる売りサイン
-def sell_signal():
-    return True
+def sell_signal(response, i):
+    if True:
+        return True
+    else:
+        return False
 
 
 # RSIとMACDによる買いサイン
-def buy_signal():
+def buy_signal(response):
     if RSI:
         print("pass")
         return True
     else:
         return False
 
-
 # --------------------------------------------------------------
 # ここからアルゴリズム
 
+
 # 設定
-# 何秒足か
+upper_limit = 1.008
+lower_limit = 0.2
+comm = 0.0015
+comm2 = comm * 2
+# 何秒足
 period = 60
 # 終値配列の長さ
 data_n = 100
 # flag
 flag = {
     "check": True,
-    "sell_position": False,
     "buy_position": False
 }
 close_data = get_price_data()
@@ -131,11 +135,22 @@ response_data = requests.get(
         "after": 1})
 response_data = response_data.json()
 i = profit = loss = count1 = count2 = drawdown = start = 0
-asset_list = [0]
+price2 = 0
+RSI1 = 50
 
+myjpy = 100000
+mybtc = 0
+
+asset_list = [myjpy]
+
+pprint(len(response_data["result"][str(period)]))
 
 while i < 5500:
     while(flag["check"]):
+
+        if i > 5500:
+            break
+
         response = []
         closelist = []
         for j in range(data_n):
@@ -144,52 +159,18 @@ while i < 5500:
             closelist.append(close_data[i + j + start])
         arr = np.array(closelist)
         close = pd.Series(arr)
-        print(response[data_n - 1][0])
-        print(close[data_n - 1])
+        # print(response[data_n-1][0])
 
-        if buy_signal():
-            print("買い注文をします")
-            print("ATR:" + str(int(ATR(14))))
+        if buy_signal(response):
+            print("Send buy order")
             price = close[data_n - 1]
-            width = int(2 * ATR(14))
+            price2 = close[data_n - 1]
+            mybtc = myjpy / price * (1 - comm)
+            myjpy = 0
             flag["buy_position"] = True
             flag["check"] = False
         # else:print("買い注文しません")
 
-        if sell_signal():
-            print("売り注文をします")
-            print("ATR:" + str(int(ATR(14))))
-            price = close[data_n - 1]
-            width = int(2 * ATR(14))
-            flag["sell_position"] = True
-            flag["check"] = False
-        # else:print("売り注文しません")
-
-        i += 1
-
-    while(flag["sell_position"]):
-        response = []
-        closelist = []
-        for j in range(data_n):
-            response.append(response_data["result"]
-                            [str(period)][i + j + start])
-            closelist.append(close_data[i + j + start])
-        arr = np.array(closelist)
-        close = pd.Series(arr)
-        print(response[data_n - 1][0])
-        print(close[data_n - 1])
-        if response[data_n - 1][3] < price - width:
-            print("利確:+" + str(width))
-            count1 += 1
-            profit += width
-            flag["sell_position"] = False
-            flag["check"] = True
-        if response[data_n - 1][2] > price + width:
-            print("損切り:-" + str(width))
-            count2 += 1
-            loss += width
-            flag["sell_position"] = False
-            flag["check"] = True
         i += 1
 
     while(flag["buy_position"]):
@@ -201,33 +182,42 @@ while i < 5500:
             closelist.append(close_data[i + j + start])
         arr = np.array(closelist)
         close = pd.Series(arr)
-        print(response[data_n - 1][0])
-        print(close[data_n - 1])
-        if response[data_n - 1][2] > price + width:
-            print("利確:+" + str(width))
+        price2 = close[data_n - 1]
+        # print(i)
+        if response[data_n - 1][2] > price * upper_limit:
+            print("rikaku:")
             count1 += 1
-            profit += width
+            profit += price * (upper_limit - 1 - comm2)
+            myjpy = mybtc * close[data_n - 1] * (1 - comm)
+            mybtc = 0
             flag["buy_position"] = False
             flag["check"] = True
-        if response[data_n - 1][3] < price - width:
-            print("損切り:-" + str(width))
+        if response[data_n - 1][3] < price * lower_limit:
+            print("sonkiri:")
             count2 += 1
-            loss += width
+            loss += price * (1 - lower_limit + comm2)
+            myjpy = mybtc * close[data_n - 1] * (1 - comm)
+            mybtc = 0
             flag["buy_position"] = False
             flag["check"] = True
         i += 1
+        if i > 5500:
+            break
 
-    asset_list.append(profit - loss)
+    asset_list.append(myjpy + mybtc * price2)
 
     if drawdown > profit - loss:
         drawdown = profit - loss
 
 
-print("利益合計：" + str(profit))
-print("損失合計：" + str(loss))
-print("儲け：" + str(profit - loss))
-print("利確回数：" + str(count1))
-print("損切り回数：" + str(count2))
+print("profit:" + str(profit))
+print("loss:" + str(loss))
+if myjpy != 0:
+    print("earn:" + str(myjpy))
+else:
+    print("earn:" + str(mybtc * price))
+print("count1:" + str(count1))
+print("count2:" + str(count2))
 ts = pd.Series(np.array(asset_list))
 ts.plot()
 plt.show()
