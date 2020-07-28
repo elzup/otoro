@@ -3,7 +3,10 @@ from pprint import pprint
 import numpy as np
 import pandas as pd
 import requests
-from matplotlib import pyplot as plt
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+
+
 
 from config import Tradeconfig
 from ExecLogic import ExecLogic
@@ -19,9 +22,10 @@ def get_price_data():
             "periods": period,
             "after": 1})
     response = response.json()
+    result = response["result"][str(period)]
     response_data = []
-    for i in range(6000):
-        response_data.append(response["result"][str(period)][i])
+    for i in range(len(result)):
+        response_data.append(result[i])
     return response_data
 
 
@@ -59,7 +63,7 @@ i = 0
 profit = loss = count1 = count2 = drawdown = start = 0
 price2 = 0
 
-myjpy = 10000
+myjpy = 100000
 mybtc = 0
 
 asset_list = [myjpy]
@@ -115,11 +119,25 @@ while i < 5500:
         drawdown = profit - loss
 
 
+# chart = list(map(lambda v: v[4], res))
+# ts = pd.Series(chart, index=date_range('2000-01-01', periods=1000))
+
+x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res)))
+v = np.array(list(map(lambda v: v[4], res)))
+df = pd.DataFrame(
+    index=x,
+    data=dict(v=v)
+)
+
+fig, ax = plt.subplots()
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
+
 print("profit:" + str(profit))
 print("loss:" + str(loss))
 print("earn:" + str(myjpy + mybtc * res[i][4]))
 print("count1:" + str(count1))
 print("count2:" + str(count2))
-ts = pd.Series(np.array(asset_list))
-ts.plot()
+# ts = pd.Series(np.array(chart))
+# # ts = pd.Series(np.array(asset_list))
+plt.plot(df.index, df['v'])
 plt.show()

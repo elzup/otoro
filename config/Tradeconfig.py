@@ -1,11 +1,12 @@
 product_code = "BTC_JPY"    # currency pair (BTC_JPY,)
 logic = "NO_CUT"            # Judge Logic of Entry and Close(NO_CUT, )
-sleep_time = 30             # waiting time to get data(1=1sec)
+sleep_time = 60 * 5             # waiting time to get data(1=1sec)
 check_sleep_time = 20       # waiting time to check status
 check_count = 10           # the number of check trial
 discord_webhook_url = ''
 
-size_candle = 300
+# size_candle = 300
+size_candle = 3600
 buy_judge_limit = 2
 buy_sleep_time = 20
 buy_count = 3
