@@ -9,11 +9,6 @@ import pandas as pd
 import time
 import requests
 import datetime
-from pubnub.callbacks import SubscribeCallback
-from pubnub.enums import PNStatusCategory
-from pubnub.pnconfiguration import PNConfiguration
-from pubnub.pubnub_tornado import PubNubTornado
-from pubnub.pnconfiguration import PNReconnectionPolicy
 from tornado import gen
 import threading
 from collections import deque
@@ -354,9 +349,9 @@ class ChannelBreakOut:
             e_hour = 23
             e_min = 59
             number = int((e_hour - s_hour)*60 + e_min - s_min)
-            start_timestamp = datetime.datetime(2018, 3, 24, s_hour, s_min, 0, 0).timestamp()
-            end_timestamp = datetime.datetime(2018, 3, 24, e_hour, e_min, 0, 0).timestamp()
-            candleStick = self.getSpecifiedCandlestick(number, "60", start_timestamp, end_timestamp)
+            start_timestamp = datetime.datetime(2020, 1, 1, s_hour, s_min, 0, 0).timestamp()
+            end_timestamp = datetime.datetime(2020, 7, 30, e_hour, e_min, 0, 0).timestamp()
+            candleStick = self.getSpecifiedCandlestick(number, "14400", start_timestamp, end_timestamp)
         else:
             candleStick = self.readDataFromFile(fileName)
 
@@ -526,9 +521,6 @@ class ChannelBreakOut:
         """
         注文の実行ループを回す関数
         """
-        self.executionsProcess()
-        #pubnubが回り始めるまで待つ．
-        time.sleep(20)
         pos = 0
         pl = []
         pl.append(0)
@@ -657,30 +649,6 @@ class ChannelBreakOut:
                 print(message)
                 self.lineNotify(message)
 
-    def executionsProcess(self):
-        """
-        pubnubで価格を取得する場合の処理（基本的に不要．）
-        """
-        channels = ["lightning_executions_FX_BTC_JPY"]
-        executions = self.executions
-        class BFSubscriberCallback(SubscribeCallback):
-            def message(self, pubnub, message):
-                execution = message.message
-                for i in execution:
-                    executions.append(i)
-
-        config = PNConfiguration()
-        config.subscribe_key = 'sub-c-52a9ab50-291b-11e5-baaa-0619f8945a4f'
-        config.reconnect_policy = PNReconnectionPolicy.LINEAR
-        config.ssl = False
-        config.set_presence_timeout(60)
-        pubnub = PubNubTornado(config)
-        listener = BFSubscriberCallback()
-        pubnub.add_listener(listener)
-        pubnub.subscribe().channels(channels).execute()
-        pubnubThread = threading.Thread(target=pubnub.start)
-        pubnubThread.start()
-
     def getSpecifiedCandlestick(self,number, period, start_timestamp, end_timestamp):
         """
         number:ローソク足の数．period:ローソク足の期間（文字列で秒数を指定，Ex:1分足なら"60"）．cryptowatchはときどきおかしなデータ（price=0）が含まれるのでそれを除く
@@ -706,7 +674,6 @@ class ChannelBreakOut:
                     column = column[0:6]
                     data.append(column)
         return data[::-1]
-
 
 #注文処理をまとめている
 class Order:
