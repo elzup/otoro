@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
-
 from config import Tradeconfig
 from ExecLogic import ExecLogic
 
@@ -72,8 +71,9 @@ pprint(len(res))
 
 while i < 5500:
     while(flag["check"]):
+        asset_list.append(myjpy + mybtc * res[i][4])
         if i > 5500:
-            asset_list.append(myjpy + mybtc * res[i][4])
+            # asset_list.append(myjpy + mybtc * res[i][4])
             break
 
         if buy_signal(res, i):
@@ -88,6 +88,7 @@ while i < 5500:
         i += 1
 
     while(flag["buy_position"]):
+        asset_list.append(myjpy + mybtc * res[i][4])
         if res[i][2] > price * upper_limit:
             print("rikaku:")
             count1 += 1
@@ -110,10 +111,8 @@ while i < 5500:
             flag["check"] = True
         i += 1
         if i > 5500:
-            asset_list.append(myjpy + mybtc * res[i][4])
+            # asset_list.append(myjpy + mybtc * res[i][4])
             break
-
-    asset_list.append(myjpy + mybtc * res[i][4])
 
     if drawdown > profit - loss:
         drawdown = profit - loss
@@ -122,12 +121,14 @@ while i < 5500:
 # chart = list(map(lambda v: v[4], res))
 # ts = pd.Series(chart, index=date_range('2000-01-01', periods=1000))
 
-x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res)))
-v = np.array(list(map(lambda v: v[4], res)))
-df = pd.DataFrame(
-    index=x,
-    data=dict(v=v)
-)
+x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
+v = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
+yen = np.array(asset_list)
+print(len(x))
+print(len(yen))
+
+df = pd.DataFrame({'i': x, 'v': v, 'yen': yen})
+# df2 = pd.DataFrame(index=x, data=dict(v=v2))
 
 fig, ax = plt.subplots()
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
@@ -141,14 +142,15 @@ print("count2:" + str(count2))
 
 pr_pre = None
 diff_pre = None
-for v in res:
-    pr = v[4]
-    if pr_pre is not None:
-        diff = pr_pre - pr
-        print(pr, diff, diff_pre)
-        diff_pre = diff
-    pr_pre = pr
+# for v in res:
+#     pr = v[4]
+#     if pr_pre is not None:
+#         diff = pr_pre - pr
+#         print(pr, diff, diff_pre)
+#         diff_pre = diff
+#     pr_pre = pr
 
-# ts = pd.Series(np.array(asset_list))
-plt.plot(df.index, df['v'])
+plt.plot('i', 'v', data=df)
+plt.plot('i', 'yen', data=df)
+# plt.plot(df2.index, df2['v'])
 plt.show()

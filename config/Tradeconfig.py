@@ -6,7 +6,8 @@ check_count = 10           # the number of check trial
 discord_webhook_url = ''
 
 # size_candle = 300
-size_candle = 3600
+size_candle = 14400
+
 buy_judge_limit = 2
 buy_sleep_time = 20
 buy_count = 3
