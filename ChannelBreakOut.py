@@ -4,7 +4,11 @@ import pandas as pd
 import requests
 
 
+def tstr(d): return str(d)[:10]
+
 # OHLCデータ取得関数
+
+
 def get_data(period, before=0, after=0):
 
     # パラメータ設定する
@@ -24,7 +28,8 @@ def get_data(period, before=0, after=0):
 
 def judge_high_and_low(df, ref_date, period_day):
     for j in range(len(df)):
-        if str(df['Time'][j]) == str(ref_date):  # DataFrameの中に「基準日」を見つけた！
+        if tstr(df['Time'][j]) == tstr(ref_date):  # DataFrameの中に「基準日」を見つけた！
+            print("hit")
             s_idx = j - (period_day - 1)  # 20日前の日のインデックス ※基準日を含むため-1
             if s_idx >= 0:  # DataFrameの範囲内（最低限の判定）
                 return df[s_idx:j]['high'].max(), df[s_idx:j]['low'].min()  # 過去20日分の高値と安値
@@ -35,7 +40,7 @@ def judge_high_and_low(df, ref_date, period_day):
 
 def get_close_price(df, ref_date):
     for j in range(len(df)):
-        if str(df['Time'][j]) == str(ref_date):  # DataFrameの中に「基準日」を見つけた！
+        if tstr(df['Time'][j]) == tstr(ref_date):  # DataFrameの中に「基準日」を見つけた！
             return df['close'][j]  # 終値を返す
 
 
