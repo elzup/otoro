@@ -137,7 +137,18 @@ print("loss:" + str(loss))
 print("earn:" + str(myjpy + mybtc * res[i][4]))
 print("count1:" + str(count1))
 print("count2:" + str(count2))
-# ts = pd.Series(np.array(chart))
-# # ts = pd.Series(np.array(asset_list))
+
+
+pr_pre = None
+diff_pre = None
+for v in res:
+    pr = v[4]
+    if pr_pre is not None:
+        diff = pr_pre - pr
+        print(pr, diff, diff_pre)
+        diff_pre = diff
+    pr_pre = pr
+
+# ts = pd.Series(np.array(asset_list))
 plt.plot(df.index, df['v'])
 plt.show()
