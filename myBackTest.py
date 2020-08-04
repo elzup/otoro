@@ -5,6 +5,7 @@ import pandas as pd
 import requests
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.cm as cm
 
 
 from config import Tradeconfig
@@ -133,6 +134,10 @@ df = pd.DataFrame({'i': x, 'v': v, 'yen': yen})
 fig, ax = plt.subplots()
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
 
+ax.plot('i', 'v', data=df, color=cm.Set1.colors[0])
+ax2 = ax.twinx()
+ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
+
 print("profit:" + str(profit))
 print("loss:" + str(loss))
 print("earn:" + str(myjpy + mybtc * res[i][4]))
@@ -150,7 +155,5 @@ diff_pre = None
 #         diff_pre = diff
 #     pr_pre = pr
 
-plt.plot('i', 'v', data=df)
-plt.plot('i', 'yen', data=df)
 # plt.plot(df2.index, df2['v'])
 plt.show()
