@@ -20,7 +20,8 @@ def get_price_data():
         "https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc",
         params={
             "periods": period,
-            "after": 1})
+            "after": 1596182640 - Tradeconfig.size_candle * 6000})
+    # "after": 1})
     response = response.json()
     result = response["result"][str(period)]
     return np.array(result)
@@ -47,6 +48,7 @@ def sell_signal(response, i):
 upper_limit = Tradeconfig.sell_rate
 lower_limit = Tradeconfig.close_rate
 comm = 0.0015
+# comm = 0
 comm2 = comm * 2
 # 何秒足
 period = Tradeconfig.size_candle
@@ -76,7 +78,7 @@ while i < 5500:
             break
 
         if buy_signal(res, i):
-            print("Send buy order")
+            print("Buy order")
             print(i)
             print(datetime.fromtimestamp(res[i][0]))
 
@@ -92,11 +94,10 @@ while i < 5500:
     while(flag["buy_position"]):
         asset_list.append(myjpy + mybtc * res[i][4])
         if sell_signal(res, i):
-            print("Sell buy order")
+            print("Sell order")
             print(i)
             print(datetime.fromtimestamp(res[i][0]))
             count1 += 1
-            profit += price * (upper_limit - 1 - comm2)
             myjpy = mybtc * res[i][4] * (1 - comm)
             mybtc = 0
             # print(myjpy+mybtc*res[i][4])
@@ -107,9 +108,6 @@ while i < 5500:
         if i > 5500:
             # asset_list.append(myjpy + mybtc * res[i][4])
             break
-
-    if drawdown > profit - loss:
-        drawdown = profit - loss
 
 
 # chart = list(map(lambda v: v[4], res))
@@ -136,6 +134,11 @@ print("loss:" + str(loss))
 print("earn:" + str(myjpy + mybtc * res[i][4]))
 print("count1:" + str(count1))
 print("count2:" + str(count2))
+print(datetime.fromtimestamp(res[0][0]))
+print(res[0][0])
+print("〜")
+print(datetime.fromtimestamp(res[-1][0]))
+print(res[-1][0])
 
 
 pr_pre = None
