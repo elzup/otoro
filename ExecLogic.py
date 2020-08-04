@@ -34,7 +34,11 @@ class ExecLogic:
 
     def buy_judge(self, i=0, data=None):
         # return self.__buy_judge_candle(i=i, data=data)
-        return self.__buy_judge_goldencross(i=i, data=data)
+        return self.__buy_judge_channelbreakout(i=i, data=data)
+
+    def sell_judge(self, i=0, data=None):
+        # return self.__buy_judge_candle(i=i, data=data)
+        return self.__sell_judge_channelbreakout(i=i, data=data)
 
     def __buy_judge_candle(self, i, data=None):
         min_datasize = 3
@@ -57,6 +61,23 @@ class ExecLogic:
             return True
         else:
             return False
+
+    def __buy_judge_channelbreakout(self, i, data=None):
+        min_datasize = 10
+        if data is None:
+            data = self.get_price(Tradeconfig.size_candle, min_datasize)
+            i = min_datasize - 1
+        if i < min_datasize:
+            return False
+
+        # print(data[i])
+        # print(data[i - 1])
+
+        # print(data[i - min_datasize:i, 4])
+        max_v = max(data[i - min_datasize + 1:i + 1, 4])
+        # min_v = min(data[i - min_datasize:i, 4])
+        # print(max_v, min_v)
+        return max_v == data[i, 4]
 
     def __buy_judge_goldencross(self, i, data=None):
         min_datasize = 11
@@ -86,3 +107,14 @@ class ExecLogic:
             return True
         else:
             return False
+
+    def __sell_judge_channelbreakout(self, i, data=None):
+        min_datasize = 10
+        if data is None:
+            data = self.get_price(Tradeconfig.size_candle, min_datasize)
+            i = min_datasize - 1
+        if i < min_datasize:
+            return False
+
+        min_v = min(data[i - min_datasize + 1:i + 1, 4])
+        return min_v == data[i, 4]

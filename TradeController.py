@@ -82,6 +82,8 @@ while True:
             trader.d_message(msg)
             raise Exception(msg)
         elif res[1] == "BUY":
+            if not logic.sell_judge():
+                continue
             amount = res[3] * comm
             price = res[2] * Tradeconfig.sell_rate
 

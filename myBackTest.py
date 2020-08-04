@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.cm as cm
 
-
+from datetime import datetime
 from config import Tradeconfig
 from ExecLogic import ExecLogic
 
@@ -23,10 +23,7 @@ def get_price_data():
             "after": 1})
     response = response.json()
     result = response["result"][str(period)]
-    response_data = []
-    for i in range(len(result)):
-        response_data.append(result[i])
-    return response_data
+    return np.array(result)
 
 
 # --------------------------------------------------------------------
@@ -35,11 +32,12 @@ def get_price_data():
 # RSIとMACDによる買いサイン
 def buy_signal(response, i):
     ex = ExecLogic()
-    if ex.buy_judge(data=response, i=i):
-        print("pass")
-        return True
-    else:
-        return False
+    return ex.buy_judge(data=response, i=i)
+
+
+def sell_signal(response, i):
+    ex = ExecLogic()
+    return ex.sell_judge(data=response, i=i)
 
 # --------------------------------------------------------------
 # ここからアルゴリズム
@@ -79,6 +77,9 @@ while i < 5500:
 
         if buy_signal(res, i):
             print("Send buy order")
+            print(i)
+            print(datetime.fromtimestamp(res[i][0]))
+
             price = res[i][4]
             mybtc = myjpy / price * (1 - comm)
             myjpy = 0
@@ -90,20 +91,12 @@ while i < 5500:
 
     while(flag["buy_position"]):
         asset_list.append(myjpy + mybtc * res[i][4])
-        if res[i][2] > price * upper_limit:
-            print("rikaku:")
+        if sell_signal(res, i):
+            print("Sell buy order")
+            print(i)
+            print(datetime.fromtimestamp(res[i][0]))
             count1 += 1
             profit += price * (upper_limit - 1 - comm2)
-            myjpy = mybtc * res[i][4] * (1 - comm)
-            mybtc = 0
-            # print(myjpy+mybtc*res[i][4])
-
-            flag["buy_position"] = False
-            flag["check"] = True
-        elif res[i][3] < price * lower_limit:
-            print("sonkiri:")
-            count2 += 1
-            loss += price * (1 - lower_limit + comm2)
             myjpy = mybtc * res[i][4] * (1 - comm)
             mybtc = 0
             # print(myjpy+mybtc*res[i][4])
@@ -123,18 +116,18 @@ while i < 5500:
 # ts = pd.Series(chart, index=date_range('2000-01-01', periods=1000))
 
 x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
-v = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
+btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
 yen = np.array(asset_list)
 print(len(x))
 print(len(yen))
 
-df = pd.DataFrame({'i': x, 'v': v, 'yen': yen})
+df = pd.DataFrame({'i': x, 'btc': btc, 'yen': yen})
 # df2 = pd.DataFrame(index=x, data=dict(v=v2))
 
 fig, ax = plt.subplots()
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
 
-ax.plot('i', 'v', data=df, color=cm.Set1.colors[0])
+ax.plot('i', 'btc', data=df, color=cm.Set1.colors[0])
 ax2 = ax.twinx()
 ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
 
@@ -156,4 +149,5 @@ diff_pre = None
 #     pr_pre = pr
 
 # plt.plot(df2.index, df2['v'])
-plt.show()
+if __name__ == "__main__":
+    plt.show()
