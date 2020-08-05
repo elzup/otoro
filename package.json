@@ -1,5 +1,6 @@
 {
   "scripts": {
-    "start": "python TradeController.py"
+    "start": "python TradeController.py",
+    "download-tradedata": "https://api.bitcoincharts.com/v1/csv/bitflyerJPY.csv.gz"
   }
 }
