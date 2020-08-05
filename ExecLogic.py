@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+# from datetime import datetime
 
 import requests
 
@@ -73,10 +73,11 @@ class ExecLogic:
         # print(data[i])
         # print(data[i - 1])
 
-        max_v = max(data[i - min_datasize + 1:i + 1, 4])
+        max_v = max(data[i - min_datasize + 1:i, 4])
+        min_v = min(data[i - min_datasize + 1:i, 4])
 
-        if max_v == data[i][4]:
-            print(data[i - min_datasize + 1:i + 1, 4], data[i][4])
+        if max_v != min_v and max_v <= data[i][4]:
+            # print(data[i - min_datasize + 1:i + 1, 4], data[i][4])
             return True
         return False
 
@@ -117,8 +118,9 @@ class ExecLogic:
         if i < min_datasize:
             return False
 
-        min_v = min(data[i - min_datasize + 1:i + 1, 4])
-        if min_v == data[i][4]:
+        max_v = max(data[i - min_datasize + 1:i, 4])
+        min_v = min(data[i - min_datasize + 1:i, 4])
+        if max_v != min_v and min_v >= data[i][4]:
             # print(data[i - min_datasize + 1:i + 1, 4], data[i][4])
             return True
         return False
