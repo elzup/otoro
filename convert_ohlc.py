@@ -5,7 +5,7 @@ import datetime
 # 元データのCSVファイル名　※元データのCSVファイルは「https://api.bitcoincharts.com/v1/csv/」で取得できます
 input_file_name = "./data/bitflyerJPY.csv"
 # 作成する4本値のCSVファイル名
-output_file_name = "5min.csv"
+output_file_name = "btcjpn_2017_2020_5m.csv"
 # 集計を開始する日付＋時刻
 # 2017/07/04 17:01:38
 kijyun_date = datetime.datetime.strptime('20170704 17:15:00', '%Y%m%d %H:%M:%S')
@@ -52,7 +52,8 @@ for row in f:
             priceH = priceO
             priceL = priceO
             priceC = priceO
-        datalist_new = '{0:%Y%m%d %H:%M:%S}'.format(kijyun_date + kizami_date), priceO, priceH, priceL, priceC, priceV
+        # datalist_new = '{0:%Y%m%d %H:%M:%S}'.format(kijyun_date + kizami_date), priceO, priceH, priceL, priceC, priceV
+        datalist_new = int((kijyun_date + kizami_date).timestamp()), priceO, priceH, priceL, priceC, priceV
         datalist.append(datalist_new)
         # 次ループの下処理
         kijyun_date = kijyun_date + kizami_date

@@ -8,11 +8,27 @@ import matplotlib.dates as mdates
 import matplotlib.cm as cm
 
 from datetime import datetime
-from config import Tradeconfig
+from config import Tradeconfig as tconf
 from ExecLogic import ExecLogic
 
 # -----------------------------------------------------------------
 # 取引所関係のmethod
+
+
+def parse_csv_line(line):
+    return list(map(float, line.split(",")))
+
+# 2017~ からの5分足データ
+
+
+def get_local_data():
+    f = open("./data/btcjpn_2017_2020_5m.csv")
+    txt = f.read()
+    f.close()
+    csvarr = list(map(parse_csv_line, txt.strip().split("\n")))
+
+    # print(len(list(csvarr)))
+    return np.array(list(csvarr)[tconf.backtest_bgn:tconf.backtest_end])
 
 
 def get_price_data():
@@ -20,8 +36,7 @@ def get_price_data():
         "https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc",
         params={
             "periods": period,
-            "after": 1596182640 - Tradeconfig.size_candle * 6000})
-    # "after": 1})
+            "after": 1})
     response = response.json()
     result = response["result"][str(period)]
     return np.array(result)
@@ -45,20 +60,23 @@ def sell_signal(response, i):
 
 
 # 設定
-upper_limit = Tradeconfig.sell_rate
-lower_limit = Tradeconfig.close_rate
+upper_limit = tconf.sell_rate
+lower_limit = tconf.close_rate
 comm = 0.0015
 # comm = 0
 comm2 = comm * 2
 # 何秒足
-period = Tradeconfig.size_candle
+period = tconf.size_candle
 # flag
 flag = {
     "check": True,
     "buy_position": False
 }
 
-res = get_price_data()
+# res = get_price_data()
+res = get_local_data()
+
+
 i = 0
 profit = loss = count1 = count2 = drawdown = start = 0
 price2 = 0
@@ -68,19 +86,24 @@ mybtc = 0
 
 asset_list = [myjpy]
 
-pprint(len(res))
+count = len(res)
+pprint(count)
 
-while i < 5500:
+while i < count - 500:
     while(flag["check"]):
-        asset_list.append(myjpy + mybtc * res[i][4])
-        if i > 5500:
+        try:
+            asset_list.append(myjpy + mybtc * res[i][4])
+        except BaseException:
+            print(myjpy, mybtc)
+            print(res[i])
+        if i > count - 500:
             # asset_list.append(myjpy + mybtc * res[i][4])
             break
 
         if buy_signal(res, i):
             print("Buy order")
             print(i)
-            print(datetime.fromtimestamp(res[i][0]))
+            # print(datetime.fromtimestamp(res[i][0]))
 
             price = res[i][4]
             mybtc = myjpy / price * (1 - comm)
@@ -96,7 +119,7 @@ while i < 5500:
         if sell_signal(res, i):
             print("Sell order")
             print(i)
-            print(datetime.fromtimestamp(res[i][0]))
+            # print(datetime.fromtimestamp(res[i][0]))
             count1 += 1
             myjpy = mybtc * res[i][4] * (1 - comm)
             mybtc = 0
@@ -105,7 +128,7 @@ while i < 5500:
             flag["buy_position"] = False
             flag["check"] = True
         i += 1
-        if i > 5500:
+        if i > count - 500:
             # asset_list.append(myjpy + mybtc * res[i][4])
             break
 

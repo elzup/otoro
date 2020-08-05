@@ -57,7 +57,7 @@ class ExecLogic:
         limit = Tradeconfig.buy_judge_limit
 
         if ((d0 > 0) and (d1 > 0) and (d2 > 0)) and (d0 / d2 > limit and d1 / d2 > limit):
-            print(datetime.fromtimestamp(data[i][0]))
+            # print(datetime.fromtimestamp(data[i][0]))
             return True
         else:
             return False
