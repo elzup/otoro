@@ -1,4 +1,5 @@
 import os
+import re
 
 # import datetime
 from config import Apikey as conf
@@ -8,6 +9,10 @@ from load_data.coinapi_rest_v1 import CoinAPIv1
 
 test_key = conf.coin_api_key
 api = CoinAPIv1(test_key)
+period_id = '5MIN'
+
+regex_ts = r'\d\d\d\d-\d\d-\d\d.\d\d:\d\d:\d\d'
+p1 = re.compile(regex_ts)
 
 
 def write(path, fileName, filemode, Msg):
@@ -21,37 +26,34 @@ def write(path, fileName, filemode, Msg):
         print(str(TimeCurrent()), " Exception => Output Write: ", fileName, str(e))
 
 
-def writeFile(res, path, file_Name):
+def row_to_line(row):
+    timeVal = row['time_period_start']
+    timeStr = timeRegex(timeVal)
 
+    # _O = row['price_open']
+    # _H = row['price_high']
+    # _L = row['price_low']
+    _C = row['price_close']
+
+    return ",".join([timeStr, timeVal, str(_C)])
+
+
+def convert2csv(res):
+    return "\n".join(map(row_to_line, res))
+
+
+def writeFile(text, path, filename):
     try:
-        for i in range(len(res)):
-
-            timeVal = res[i]['time_period_start']
-            timestmp = timeRegex(timeVal)
-
-            _O = res[i]['price_open']
-            _H = res[i]['price_high']
-            _L = res[i]['price_low']
-            _C = res[i]['price_close']
-
-            val = "{0};{1};{2};{3};{4}{5}".format(timestmp, str(_O), str(_H), str(_L), str(_C), "\n")
-
-            write(path, file_Name, "a", val)
-
-        print(str(TimeCurrent()), "作業中")
+        write(path, filename, "a", text)
 
     except Exception as e:
         print("Exception => writeFile: " + str(e))
 
 
 def timeRegex(timeVal):
-    import re
-    regex_1 = r'\d\d\d\d-\d\d-\d\d.\d\d:\d\d:\d\d'
 
     try:
-        p1 = re.compile(regex_1)
-        text = timeVal
-        m1 = p1.match(text)
+        m1 = p1.match(timeVal)
         src = m1.group()
         dst = src.replace('T', ' ')
         return dst
@@ -69,17 +71,24 @@ def TimeCurrent():
 if __name__ == '__main__':
 
     # 日付を指定する
-    start_of = datetime.date(2014, 11, 17).isoformat()
+    start_of = datetime.date(2017, 1, 1).isoformat()
     # 例
-    # ohlcv_historical = api.ohlcv_historical_data('BITFINEX_SPOT_BTC_USD', {'period_id': '1MIN', 'time_start': start_of, 'limit': 10000})
+    # hist = api.ohlcv_historical_data('BITFINEX_SPOT_BTC_USD', {'period_id': '1MIN', 'time_start': start_of, 'limit': 10000})
 
-    ohlcv_historical = api.ohlcv_historical_data(conf.simbpl_id, {'period_id': '1MIN', 'time_start': start_of, 'limit': 10000})
-    print("len: ", len(ohlcv_historical))
+    hist = api.ohlcv_historical_data(conf.simbpl_id, {'period_id': period_id, 'time_start': start_of, 'limit': 10000})
+    print("len: ", len(hist))
 
     # 保存
-    PATH = "./"
-    FILE_NAME = "HistData_1.csv"  # ファイル名
+    PATH = "./data"
+    FILE_NAME = "{0}_.csv".format(period_id)
 
-    writeFile(ohlcv_historical, PATH, FILE_NAME)
+    text = convert2csv(hist)
 
-    print(str(TimeCurrent()), "作業完了")
+    fst_time = timeRegex(hist[0]['time_period_start'])
+    end_time = timeRegex(hist[-1]['time_period_start'])
+    print(fst_time)
+    print(end_time)
+
+    writeFile(text, PATH, FILE_NAME)
+
+    print(str(TimeCurrent()), "Complete")
