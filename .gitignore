@@ -3,3 +3,4 @@ config/Apikey.py
 __pycache__
 data/*
 !.gitkeep
+node_modules

@@ -5,6 +5,8 @@ check_sleep_time = 20       # waiting time to check status
 check_count = 10           # the number of check trial
 discord_webhook_url = ''
 
+log = False
+
 # x1.5 / 6 month
 # size_candle = 60 * 60 * 1
 # channel_breakout_size = 10 * 4
@@ -14,8 +16,8 @@ size_candle = 60 * 5
 h = int(60 * 60 / size_candle)
 channel_breakout_size = 10 * h
 
-backtest_range = 100000
-backtest_season = 2  # 0, 1, 2 ...
+backtest_range = 10000
+backtest_season = 0  # 0, 1, 2 ...
 backtest_bgn = backtest_range * backtest_season
 backtest_end = backtest_bgn + backtest_range
 
