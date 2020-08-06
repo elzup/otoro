@@ -32,11 +32,11 @@ class ExecLogic:
                 print("60秒待機してやり直します")
                 time.sleep(60)
 
-    def buy_judge(self, i=0, data=None):
-        return self.__buy_judge_channelbreakout(i=i, data=data)
+    def buy_judge(self, i=0, data=None, size=Tradeconfig.channel_breakout_size):
+        return self.__buy_judge_channelbreakout(i=i, data=data, size=size)
 
-    def sell_judge(self, i=0, data=None):
-        return self.__sell_judge_channelbreakout(i=i, data=data)
+    def sell_judge(self, i=0, data=None, size=Tradeconfig.channel_breakout_size):
+        return self.__sell_judge_channelbreakout(i=i, data=data, size=size)
 
     def __buy_judge_candle(self, i, data=None):
         min_datasize = 3
@@ -85,7 +85,7 @@ class ExecLogic:
 
         return sm_post > wm_post and sm_now < wm_now and sm_now < sm_post
 
-    def __sell_judge_channelbreakout(self, i, data=None, size=Tradeconfig.channel_breakout_size):
+    def __sell_judge_channelbreakout(self, i, size, data=None):
         if data is None:
             data = self.get_price(Tradeconfig.size_candle, size)
             i = size - 1
@@ -95,7 +95,7 @@ class ExecLogic:
         min_v = min(data[i - size + 1:i, 4])
         return max_v != min_v and min_v >= data[i][4]
 
-    def __buy_judge_channelbreakout(self, i, data=None, size=Tradeconfig.channel_breakout_size):
+    def __buy_judge_channelbreakout(self, i, size, data=None):
         if data is None:
             data = self.get_price(Tradeconfig.size_candle, size)
             i = size - 1

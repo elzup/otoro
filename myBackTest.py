@@ -46,14 +46,14 @@ def get_price_data():
 # 評価値系
 
 # RSIとMACDによる買いサイン
-def buy_signal(response, i):
+def buy_signal(response, i, size):
     ex = ExecLogic()
-    return ex.buy_judge(data=response, i=i)
+    return ex.buy_judge(data=response, i=i, size=size)
 
 
-def sell_signal(response, i):
+def sell_signal(response, i, size):
     ex = ExecLogic()
-    return ex.sell_judge(data=response, i=i)
+    return ex.sell_judge(data=response, i=i, size=size)
 
 # --------------------------------------------------------------
 # ここからアルゴリズム
@@ -66,9 +66,9 @@ period = tconf.size_candle
 # res = get_price_data()
 
 
-def backtest(res, count):
+def backtest(res, count, size):
     i = 0
-    profit = loss = count1 = count2 = 0
+    # profit = loss = count1 = count2 = 0
     flag = {
         "check": True,
         "buy_position": False
@@ -90,7 +90,7 @@ def backtest(res, count):
                 # asset_list.append(myjpy + mybtc * res[i][4])
                 break
 
-            if buy_signal(res, i):
+            if buy_signal(res, i, size):
                 if tconf.log:
                     print("Buy order")
                     print(i)
@@ -107,12 +107,12 @@ def backtest(res, count):
 
         while(flag["buy_position"]):
             asset_list.append(myjpy + mybtc * res[i][4])
-            if sell_signal(res, i):
+            if sell_signal(res, i, size):
                 if tconf.log:
                     print("Sell order")
                     print(i)
                 # print(datetime.fromtimestamp(res[i][0]))
-                count1 += 1
+                # count1 += 1
                 myjpy = mybtc * res[i][4] * (1 - comm)
                 mybtc = 0
                 # print(myjpy+mybtc*res[i][4])
@@ -129,8 +129,6 @@ def backtest(res, count):
     x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
     btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
     yen = np.array(asset_list)
-    print(len(x))
-    print(len(yen))
 
     df = pd.DataFrame({'i': x, 'btc': btc, 'yen': yen})
     # df2 = pd.DataFrame(index=x, data=dict(v=v2))
@@ -142,26 +140,28 @@ def backtest(res, count):
     ax2 = ax.twinx()
     ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
 
-    print("profit:" + str(profit))
-    print("loss:" + str(loss))
-    print("earn:" + str(myjpy + mybtc * res[i][4]))
-    print("count1:" + str(count1))
-    print("count2:" + str(count2))
-    print(datetime.fromtimestamp(res[0][0]))
-    print(res[0][0])
-    print("〜")
-    print(datetime.fromtimestamp(res[-1][0]))
-    print(res[-1][0])
-    print(asset_list[-1])
-
-    fig.savefig("data/img.png")
+    # print("profit:" + str(profit))
+    # print("loss:" + str(loss))
+    # print("earn:" + str(myjpy + mybtc * res[i][4]))
+    # print("count1:" + str(count1))
+    # print("count2:" + str(count2))
+    # print(datetime.fromtimestamp(res[0][0]))
+    # print(res[0][0])
+    # print("〜")
+    # print(datetime.fromtimestamp(res[-1][0]))
+    # print(res[-1][0])
+    print(f"{size}\t{asset_list[-1]}")
+    # fig.savefig(f"data/{tconf.backtest_season}_{size}.png")
 
 
 def main():
     res = get_local_data()
     count = len(res)
     pprint(count)
-    backtest(res, count)
+    # h = int(60 * 60 / tconf.size_candle) * 2
+    h = 1
+    for i in range(6, 12 * 24):
+        backtest(res, count, h * i)
 
 
 if __name__ == "__main__":
