@@ -164,12 +164,12 @@ def main():
     # for s in range(10, 32):
     for s in range(10, 32):
         res = get_local_data(band * s, band * (s + 1))
-        count = len(res)
+        # count = len(res)
         # pprint(count)
-        h = int(60 * 60 / tconf.size_candle)
+        # h = int(60 * 60 / tconf.size_candle)
         # h = 1
         # arr.append(list(map(lambda i: backtest(res, count, h * i), range(6, 48))))
-        arr.append(list(map(lambda i: backtest(res, count, h * i), range(48, 72))))
+        arr.append([str(100000 * res[-1][4] / res[0][4])])
     # print(arr)
 
     print("\n".join(map(lambda a: ",".join(a), np.transpose(arr))))
