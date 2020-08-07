@@ -6,6 +6,7 @@ check_count = 10           # the number of check trial
 discord_webhook_url = ''
 
 log = False
+plot = False
 
 # x1.5 / 6 month
 # size_candle = 60 * 60 * 1
@@ -14,10 +15,10 @@ log = False
 # x1
 size_candle = 60 * 5
 h = int(60 * 60 / size_candle)
-channel_breakout_size = 10 * h
+channel_breakout_size = 63 * h
 
-backtest_range = 10000
-backtest_season = 0  # 0, 1, 2 ...
+backtest_range = 100000
+backtest_season = 4  # 0, 1, 2 ...
 backtest_bgn = backtest_range * backtest_season
 backtest_end = backtest_bgn + backtest_range
 
