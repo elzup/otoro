@@ -129,6 +129,7 @@ def backtest(res, count, size):
     # ts = pd.Series(chart, index=date_range('2000-01-01', periods=1000))
 
     if tconf.plot:
+        print(len(asset_list))
         x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
         btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
         yen = np.array(asset_list)
@@ -142,7 +143,8 @@ def backtest(res, count, size):
         ax.plot('i', 'btc', data=df, color=cm.Set1.colors[0])
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
-        fig.savefig(f"data/{tconf.backtest_season}_{size}.png")
+        plt.show()
+        # fig.savefig(f"data/{tconf.backtest_season}_{size}.png")
 
     # print("profit:" + str(profit))
     # print("loss:" + str(loss))
@@ -153,23 +155,29 @@ def backtest(res, count, size):
     # print(res[0][0])
     # print("〜")
     # print(datetime.fromtimestamp(res[-1][0]))
-    # print(res[-1][0])
+    print(res[-1][0])
     # print(f"{size},{asset_list[-1]}")
     return str(asset_list[-1])
 
 
 def main():
+    res = get_local_data()
+    count = len(res)
+    backtest(res, count, tconf.channel_breakout_size)
+
+
+def range_backtest():
     band = 10000
     arr = []
     # for s in range(10, 32):
     for s in range(10, 32):
         res = get_local_data(band * s, band * (s + 1))
-        # count = len(res)
+        count = len(res)
         # pprint(count)
-        # h = int(60 * 60 / tconf.size_candle)
+        h = int(60 * 60 / tconf.size_candle)
         # h = 1
-        # arr.append(list(map(lambda i: backtest(res, count, h * i), range(6, 48))))
-        arr.append([str(100000 * res[-1][4] / res[0][4])])
+        arr.append(list(map(lambda i: backtest(res, count, h * i), range(6, 48))))
+        # arr.append([str(100000 * res[-1][4] / res[0][4])])
     # print(arr)
 
     print("\n".join(map(lambda a: ",".join(a), np.transpose(arr))))
