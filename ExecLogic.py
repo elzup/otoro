@@ -19,15 +19,18 @@ def timestamp():
 
 class ExecLogic:
 
-    def get_price(self, min, data_size):
+    def get_price(self, periods, data_size):
+        after = int(datetime.now().timestamp() - (periods * (data_size + 100)))
         while True:
             try:
-                response = requests.get("https://api.cryptowat.ch/markets/bitflyer/btcjpy/ohlc", params={"periods": min}, timeout=5)
+                response = requests.get(
+                    "https://api.cryptowat.ch/markets/bitflyer/btcjpy/ohlc",
+                    params={"periods": periods, "after": after}, timeout=5)
                 response.raise_for_status()
                 data = response.json()
                 s = []
                 for i in range(-data_size, 0):
-                    s.append(data["result"][str(min)][i])
+                    s.append(data["result"][str(periods)][i])
                 return np.array(s)
             except requests.exceptions.RequestException as e:
                 print("Cryptowatchの価格取得でエラー発生 : ", e)
