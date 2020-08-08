@@ -1,12 +1,20 @@
 import time
-# from datetime import datetime
-from pprint import pprint
+from datetime import datetime
+# from pprint import pprint
 import numpy as np
 
 import requests
 
 from config import Tradeconfig
 from TradeMethod import TradeMethod
+
+
+def fstr(n):
+    return str(int(n)).rjust(8, ' ')
+
+
+def timestamp():
+    return datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
 
 class ExecLogic:
@@ -96,6 +104,7 @@ class ExecLogic:
             return False
         max_v = max(data[i - size + 1:i, 4])
         min_v = min(data[i - size + 1:i, 4])
+        print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][4])}")
         return max_v != min_v and min_v >= data[i][4]
 
     def __buy_judge_channelbreakout(self, i, size, data=None):
@@ -108,4 +117,6 @@ class ExecLogic:
             return False
         max_v = max(data[i - size + 1:i, 4])
         min_v = min(data[i - size + 1:i, 4])
+
+        print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][4])}")
         return max_v != min_v and max_v <= data[i][4]
