@@ -1,5 +1,7 @@
 import time
 # from datetime import datetime
+from pprint import pprint
+import numpy as np
 
 import requests
 
@@ -16,10 +18,9 @@ class ExecLogic:
                 response.raise_for_status()
                 data = response.json()
                 s = []
-                for i in range(-1 - data_size, -1):
+                for i in range(-data_size, 0):
                     s.append(data["result"][str(min)][i])
-                # pprint(s)
-                return s
+                return np.array(s)
             except requests.exceptions.RequestException as e:
                 print("Cryptowatchの価格取得でエラー発生 : ", e)
                 print("10秒待機してやり直します")
@@ -88,8 +89,10 @@ class ExecLogic:
     def __sell_judge_channelbreakout(self, i, size, data=None):
         if data is None:
             data = self.get_price(Tradeconfig.size_candle, size)
+            if size == 0:
+                return False
             i = size - 1
-        if i < size:
+        elif i < size:
             return False
         max_v = max(data[i - size + 1:i, 4])
         min_v = min(data[i - size + 1:i, 4])
@@ -98,8 +101,10 @@ class ExecLogic:
     def __buy_judge_channelbreakout(self, i, size, data=None):
         if data is None:
             data = self.get_price(Tradeconfig.size_candle, size)
+            if size == 0:
+                return False
             i = size - 1
-        if i < size:
+        elif i < size:
             return False
         max_v = max(data[i - size + 1:i, 4])
         min_v = min(data[i - size + 1:i, 4])

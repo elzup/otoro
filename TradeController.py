@@ -48,9 +48,13 @@ result = None
 
 
 print("Initialize conpleted")
+i = 0
 while True:
-    time.sleep(Tradeconfig.sleep_time)
+    if i > 0:
+        time.sleep(Tradeconfig.sleep_time)
+    i += 1
     # print("Running..."+thread_flag)
+    print(thread_flag)
 
     if thread_flag == buy_jdg:
         # データを取得して買い判定か調べる
