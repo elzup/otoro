@@ -3,9 +3,9 @@ import datetime
 
 # 設定値
 # 元データのCSVファイル名　※元データのCSVファイルは「https://api.bitcoincharts.com/v1/csv/」で取得できます
-input_file_name = "./data/bitflyerJPY.csv"
+input_file_name = "../data/bitflyerJPY.csv"
 # 作成する4本値のCSVファイル名
-output_file_name = "btcjpn_2017_2020_5m.csv"
+output_file_name = "../data/btcjpn_2017_2020_5m.csv"
 # 集計を開始する日付＋時刻
 # 2017/07/04 17:01:38
 kijyun_date = datetime.datetime.strptime('20170704 17:15:00', '%Y%m%d %H:%M:%S')
