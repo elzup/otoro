@@ -1,11 +1,11 @@
+from coinapi_rest_v1 import CoinAPIv1
 import os
 import re
 
 # import datetime
-from config import Apikey as conf
+import Apikey as conf
 import datetime
 
-from load_data.coinapi_rest_v1 import CoinAPIv1
 
 test_key = conf.coin_api_key
 api = CoinAPIv1(test_key)
@@ -28,14 +28,14 @@ def write(path, fileName, filemode, Msg):
 
 def row_to_line(row):
     timeVal = row['time_period_start']
-    timeStr = timeRegex(timeVal)
+    # timeStr = timeRegex(timeVal)
 
-    # _O = row['price_open']
-    # _H = row['price_high']
-    # _L = row['price_low']
+    _O = row['price_open']
+    _H = row['price_high']
+    _L = row['price_low']
     _C = row['price_close']
 
-    return ",".join([timeStr, timeVal, str(_C)])
+    return ",".join([timeVal, str(_O), str(_H), str(_L), str(_C)])
 
 
 def convert2csv(res):
@@ -71,11 +71,12 @@ def TimeCurrent():
 if __name__ == '__main__':
 
     # 日付を指定する
-    start_of = datetime.date(2017, 1, 1).isoformat()
+    start_of = datetime.date(2019, 5, 28).isoformat()
+
     # 例
     # hist = api.ohlcv_historical_data('BITFINEX_SPOT_BTC_USD', {'period_id': '1MIN', 'time_start': start_of, 'limit': 10000})
 
-    hist = api.ohlcv_historical_data(conf.simbpl_id, {'period_id': period_id, 'time_start': start_of, 'limit': 10000})
+    hist = api.ohlcv_historical_data(conf.simbpl_id, {'period_id': period_id, 'time_start': start_of, 'limit': 100000})
     print("len: ", len(hist))
 
     # 保存
@@ -84,10 +85,10 @@ if __name__ == '__main__':
 
     text = convert2csv(hist)
 
-    fst_time = timeRegex(hist[0]['time_period_start'])
-    end_time = timeRegex(hist[-1]['time_period_start'])
-    print(fst_time)
-    print(end_time)
+    # fst_time = timeRegex(hist[0]['time_period_start'])
+    # end_time = timeRegex(hist[-1]['time_period_start'])
+    # print(fst_time)
+    # print(end_time)
 
     writeFile(text, PATH, FILE_NAME)
 
