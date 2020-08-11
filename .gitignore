@@ -1,6 +1,7 @@
-config/Apikey.py
+Apikey.py
 
 __pycache__
 data/*
 !.gitkeep
 node_modules
+.ipynb_checkpoints/
