@@ -6,12 +6,15 @@ import requests
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.cm as cm
+import time
+from datetime import datetime
 
 from config import Tradeconfig as tconf
 from ExecLogic import ExecLogic
-# if tconf.plot:
-#     from datetime import datetime
 
+
+# output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
+output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
 # -----------------------------------------------------------------
 # 取引所関係のmethod
 
@@ -22,14 +25,14 @@ def parse_csv_line(line):
 # 2017~ からの5分足データ
 
 
-def get_local_data(bgn=tconf.backtest_bgn, end=tconf.backtest_end):
-    f = open("./data/btcjpn_2017_2020_5m.csv")
+def get_local_data():
+    f = open(output_file_name)
     txt = f.read()
     f.close()
     csvarr = list(map(parse_csv_line, txt.strip().split("\n")))
 
     # print(len(list(csvarr)))
-    return np.array(list(csvarr)[bgn:end])
+    return list(csvarr)
 
 
 def get_price_data():
@@ -129,7 +132,7 @@ def backtest(res, count, size):
     # ts = pd.Series(chart, index=date_range('2000-01-01', periods=1000))
 
     if tconf.plot:
-        print(len(asset_list))
+        # print(len(asset_list))
         x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
         btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
         yen = np.array(asset_list)
@@ -143,8 +146,10 @@ def backtest(res, count, size):
         ax.plot('i', 'btc', data=df, color=cm.Set1.colors[0])
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
-        plt.show()
-        # fig.savefig(f"data/{tconf.backtest_season}_{size}.png")
+        # plt.show()
+        fig.savefig(f"data/backtest63/{tconf.backtest_season}_{size}.png")
+        time.sleep(1)
+        plt.close()
 
     # print("profit:" + str(profit))
     # print("loss:" + str(loss))
@@ -155,13 +160,13 @@ def backtest(res, count, size):
     # print(res[0][0])
     # print("〜")
     # print(datetime.fromtimestamp(res[-1][0]))
-    print(res[-1][0])
+    # print(res[-1][0])
     # print(f"{size},{asset_list[-1]}")
     return str(asset_list[-1])
 
 
 def main():
-    res = get_local_data()
+    res = np.array(get_local_data()[tconf.backtest_bgn:tconf.backtest_end])
     count = len(res)
     backtest(res, count, tconf.channel_breakout_size)
 
@@ -169,19 +174,31 @@ def main():
 def range_backtest():
     band = 10000
     arr = []
+    btcrates = []
+    times = []
+    data = get_local_data()
+    print(len(data))
     # for s in range(10, 32):
-    for s in range(10, 32):
-        res = get_local_data(band * s, band * (s + 1))
+    print(int(len(data) / band))
+    for s in range(0, int(len(data) / band)):
+        res = np.array(data[band * s: band * (s + 1)])
+        times.append(str(datetime.fromtimestamp(res[0][0])))
         count = len(res)
         # pprint(count)
         h = int(60 * 60 / tconf.size_candle)
         # h = 1
-        arr.append(list(map(lambda i: backtest(res, count, h * i), range(6, 48))))
-        # arr.append([str(100000 * res[-1][4] / res[0][4])])
-    # print(arr)
+        arr.append(list(map(lambda i: backtest(res, count, h * i), [63])))
+        btcrates.append(str(res[-1][4] / res[0][4]))
 
+    print("times")
+    print(",".join(times))
+    print("btc")
+    print(",".join(btcrates))
+
+    print("my")
     print("\n".join(map(lambda a: ",".join(a), np.transpose(arr))))
 
 
 if __name__ == "__main__":
-    main()
+    # main()
+    range_backtest()

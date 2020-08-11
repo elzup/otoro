@@ -5,7 +5,7 @@ import numpy as np
 
 import requests
 
-from config import Tradeconfig
+from config import Tradeconfig as tconf
 from TradeMethod import TradeMethod
 
 
@@ -44,16 +44,16 @@ class ExecLogic:
                 print("60秒待機してやり直します")
                 time.sleep(60)
 
-    def buy_judge(self, i=0, data=None, size=Tradeconfig.channel_breakout_size):
+    def buy_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
         return self.__buy_judge_channelbreakout(i=i, data=data, size=size)
 
-    def sell_judge(self, i=0, data=None, size=Tradeconfig.channel_breakout_size):
+    def sell_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
         return self.__sell_judge_channelbreakout(i=i, data=data, size=size)
 
     def __buy_judge_candle(self, i, data=None):
         min_datasize = 3
         if data is None:
-            data = self.get_price(Tradeconfig.size_candle, min_datasize)
+            data = self.get_price(tconf.size_candle, min_datasize)
             i = min_datasize - 1
         if i < min_datasize:
             return False
@@ -64,7 +64,7 @@ class ExecLogic:
         d1 = data[i - 1][1] - data[i - 1][4]
         d2 = data[i][1] - data[i][4]
 
-        limit = Tradeconfig.buy_judge_limit
+        limit = tconf.buy_judge_limit
 
         if ((d0 > 0) and (d1 > 0) and (d2 > 0)) and (d0 / d2 > limit and d1 / d2 > limit):
             # print(datetime.fromtimestamp(data[i][0]))
@@ -75,7 +75,7 @@ class ExecLogic:
     def __buy_judge_goldencross(self, i, data=None):
         min_datasize = 11
         if data is None:
-            data = self.get_price(Tradeconfig.size_candle, min_datasize)
+            data = self.get_price(tconf.size_candle, min_datasize)
             i = min_datasize - 1
         if i < min_datasize:
             return False
@@ -99,7 +99,7 @@ class ExecLogic:
 
     def __sell_judge_channelbreakout(self, i, size, data=None):
         if data is None:
-            data = self.get_price(Tradeconfig.size_candle, size)
+            data = self.get_price(tconf.size_candle, size)
             if size == 0:
                 return False
             i = size - 1
@@ -107,12 +107,13 @@ class ExecLogic:
             return False
         max_v = max(data[i - size + 1:i, 4])
         min_v = min(data[i - size + 1:i, 4])
-        print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][4])}")
+        if tconf.logic_print:
+            print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][4])}")
         return max_v != min_v and min_v >= data[i][4]
 
     def __buy_judge_channelbreakout(self, i, size, data=None):
         if data is None:
-            data = self.get_price(Tradeconfig.size_candle, size)
+            data = self.get_price(tconf.size_candle, size)
             if size == 0:
                 return False
             i = size - 1
@@ -121,5 +122,6 @@ class ExecLogic:
         max_v = max(data[i - size + 1:i, 4])
         min_v = min(data[i - size + 1:i, 4])
 
-        print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][4])}")
+        if tconf.logic_print:
+            print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][4])}")
         return max_v != min_v and max_v <= data[i][4]

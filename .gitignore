@@ -3,6 +3,7 @@ load_data/Apikey.py
 
 __pycache__
 data/*
-!.gitkeep
 node_modules
 .ipynb_checkpoints/
+!data/.gitkeep
+!data/backtest63/.gitkeep

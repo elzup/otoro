@@ -1,3 +1,5 @@
+import os
+
 product_code = "BTC_JPY"    # currency pair (BTC_JPY,)
 logic = "NO_CUT"            # Judge Logic of Entry and Close(NO_CUT, )
 sleep_time = 60 * 5             # waiting time to get data(1=1sec)
@@ -5,8 +7,14 @@ check_sleep_time = 20       # waiting time to check status
 check_count = 10           # the number of check trial
 discord_webhook_url = ''
 
+
+def getenv(key, defo):
+    return os.environ[key] if key in os.environ else defo
+
+
 log = False
 plot = True
+logic_print = getenv("LOGIC_PRINT", True)
 
 # x1.5 / 6 month
 # size_candle = 60 * 60 * 1
