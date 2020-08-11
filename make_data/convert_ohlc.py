@@ -2,31 +2,54 @@ import csv
 import datetime
 
 # 設定値
-# 元データのCSVファイル名　※元データのCSVファイルは「https://api.bitcoincharts.com/v1/csv/」で取得できます
-input_file_name = "../data/bitflyerJPY.csv"
-# 作成する4本値のCSVファイル名
-output_file_name = "../data/btcjpn_2017_2020_5m.csv"
+#   from https://api.bitcoincharts.com/v1/csv/
+# output_file_name = "./data/btcjpn_skippedrange.csv"
+input_file_name1 = "./data/bitflyerJPY.csv"
+input_file_name2 = "./data/coincheckJPY.csv"
+output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 # 集計を開始する日付＋時刻
 # 2017/07/04 17:01:38
-kijyun_date = datetime.datetime.strptime('20170704 17:15:00', '%Y%m%d %H:%M:%S')
-# 分足の単位。例えば5分足なら「minutes=5」
-kizami_date = datetime.timedelta(minutes=5)
+
+iter_date = datetime.datetime.strptime('2017-07-04 17:15:00', '%Y-%m-%d %H:%M:%S')
+diff_date = datetime.timedelta(minutes=1)
 
 
-# CSV読み込み
-csv_file = open(input_file_name, "r", encoding="ms932", errors="", newline="")
-f = csv.reader(csv_file, delimiter=",", doublequote=True, lineterminator="\r\n", quotechar='"', skipinitialspace=True)
+def read_csv(path):
+    csv_file = open(path, "r", encoding="ms932", errors="", newline="")
+    return csv.reader(csv_file, delimiter=",", doublequote=True, lineterminator="\r\n", quotechar='"', skipinitialspace=True)
 
-# 4本値を計算
+
+f1 = read_csv(input_file_name1)
+f2 = read_csv(input_file_name2)
+
+
+def merge_iter(f1, f2):
+    row1 = next(f1, None)
+    row2 = next(f2, None)
+    t1 = datetime.datetime.fromtimestamp(int(row1[0]))
+    t2 = datetime.datetime.fromtimestamp(int(row2[0]))
+    while row1 and row2:
+        if t1 < t2:
+            yield [t1, row1]
+            row1 = next(f1, None)
+            t1 = row1 and datetime.datetime.fromtimestamp(int(row1[0]))
+        else:
+            yield [t2, row2]
+            row2 = next(f2, None)
+            t2 = row2 and datetime.datetime.fromtimestamp(int(row2[0]))
+
+
 datalist = []
 priceO = 0
 priceH = 0
 priceL = 0
 priceC = 0
 priceV = 0
-for row in f:
+pre_datafull_date = None
+
+for [time, row] in merge_iter(f1, f2):
     # forLoopで読み込まれたタイムスタンプに対応するローカルな日付 < 基準日 + ○分足
-    if (datetime.datetime.fromtimestamp(int(row[0])) < kijyun_date + kizami_date):
+    if (datetime.datetime.fromtimestamp(int(row[0])) < iter_date + diff_date):
         # Openにレートが入っているか。
         if priceO == 0:
             priceO = int(row[1].replace('.000000000000', ''))
@@ -52,11 +75,11 @@ for row in f:
             priceH = priceO
             priceL = priceO
             priceC = priceO
-        # datalist_new = '{0:%Y%m%d %H:%M:%S}'.format(kijyun_date + kizami_date), priceO, priceH, priceL, priceC, priceV
-        datalist_new = int((kijyun_date + kizami_date).timestamp()), priceO, priceH, priceL, priceC, priceV
+        # datalist_new = '{0:%Y%m%d %H:%M:%S}'.format(iter_date + diff_date), priceO, priceH, priceL, priceC, priceV
+        datalist_new = int((iter_date + diff_date).timestamp()), priceO, priceH, priceL, priceC, priceV
         datalist.append(datalist_new)
         # 次ループの下処理
-        kijyun_date = kijyun_date + kizami_date
+        iter_date = iter_date + diff_date
         priceO = priceC
         priceH = 0
         priceL = 0
