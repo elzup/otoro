@@ -9,6 +9,7 @@ otoro is BTC auto trading bot.
 
 Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours). 
 2018〜2020 の BackTest では 34 日(50000 分)ごとに平均 3% の利回りがでています。  
+手数料計算 0.15%(BitFlyer 取引所)
 [期間ごとのチャート](./img/backtest63)
 
 
