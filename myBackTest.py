@@ -147,7 +147,13 @@ def backtest(res, count, size):
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
         # plt.show()
-        fig.savefig(f"data/backtest63/{tconf.backtest_season}_{size}.png")
+
+        def ymdformat(dt):
+            return datetime.fromtimestamp(dt).strftime("%Y-%m-%d")
+
+        filename = f"backtest_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{size}.png"
+        fig.savefig(f"img/backtest63/{filename}")
+
         time.sleep(1)
         plt.close()
 
@@ -180,7 +186,7 @@ def range_backtest():
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / band))
-    for s in range(0, int(len(data) / band)):
+    for s in range(10, int(len(data) / band)):
         res = np.array(data[band * s: band * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         count = len(res)
