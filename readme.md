@@ -23,7 +23,6 @@ Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours).
 
 data source: https://api.bitcoincharts.com/v1/csv/bitflyerJPY.csv.gz  
 初期は bitflyer でやっていましたが 2019 年のデータ抜け(2019-04〜2019-12)がひどいため coincheck のデータに切り替えています。  
-抜けている期間についても大体同じ結果が得られています。
 
 ```
 #  download
