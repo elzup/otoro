@@ -1,24 +1,28 @@
 ## otoro
 
-otoro is BTC auto trading bot.
-単純に ChannelBreakOut をバックテストして良い結果が得られる期間を算出しています。
+otoro is BTC auto trading bot.  
+単純に ChannelBreakOut をバックテストして良い結果が得られる定数を算出しています。
 
 ## version
 
 ### v.apple
 
-Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours)
-2018〜2020 の BackTest では 34 日(50000 分)ごとに平均 3% の利回りがでています。
+Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours). 
+2018〜2020 の BackTest では 34 日(50000 分)ごとに平均 3% の利回りがでています。  
+[期間ごとのチャート](./img/backtest63)
+
 
 <div style="display: flex;">
 <img style="width: 50%;" src="./img/backtest2014-2020.png" />
 <img style="width: 50%;" src="./img/backtest2018-2020.png" />
 </div>
 
+
+
 ## make BackTest data
 
-data source: https://api.bitcoincharts.com/v1/csv/bitflyerJPY.csv.gz
-初期は bitflyer でやっていましたが 2019 年のデータ抜け(2019-04〜2019-12)がひどいため coincheck のデータに切り替えています。
+data source: https://api.bitcoincharts.com/v1/csv/bitflyerJPY.csv.gz  
+初期は bitflyer でやっていましたが 2019 年のデータ抜け(2019-04〜2019-12)がひどいため coincheck のデータに切り替えています。  
 抜けている期間についても大体同じ結果が得られています。
 
 ```
