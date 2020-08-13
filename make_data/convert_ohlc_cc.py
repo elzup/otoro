@@ -44,6 +44,9 @@ for row in f1:
             priceV = float(row[2])
         else:
             if priceH == 0:
+                priceH = v
+                priceL = v
+            else:
                 priceH = max(priceH, v)
                 priceL = min(priceL, v)
             # Closeのレートを更新
