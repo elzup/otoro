@@ -23,7 +23,7 @@ logic_print = getenv("LOGIC_PRINT", True)
 # x1
 size_candle = 60 * 5
 h = int(60 * 60 / size_candle)
-channel_breakout_size = 63 * h
+channel_breakout_size = 39 * h
 
 backtest_range = 100000
 backtest_season = 3  # 0, 1, 2 ...
