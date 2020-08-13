@@ -10,7 +10,7 @@ output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 # 集計を開始する日付＋時刻
 # 2017/07/04 17:01:38
 
-iter_date = datetime.datetime.strptime('2017-07-04 17:15:00', '%Y-%m-%d %H:%M:%S')
+iter_date = datetime.datetime.strptime('2017-01-00 00:00:00', '%Y-%m-%d %H:%M:%S')
 diff_date = datetime.timedelta(minutes=1)
 
 
@@ -50,24 +50,21 @@ pre_datafull_date = None
 for [time, row] in merge_iter(f1, f2):
     # forLoopで読み込まれたタイムスタンプに対応するローカルな日付 < 基準日 + ○分足
     if (datetime.datetime.fromtimestamp(int(row[0])) < iter_date + diff_date):
+        v = int(row[1].replace('.000000000000', ''))
         # Openにレートが入っているか。
+        if v < 10000:
+            continue
         if priceO == 0:
-            priceO = int(row[1].replace('.000000000000', ''))
-            priceH = int(row[1].replace('.000000000000', ''))
-            priceL = int(row[1].replace('.000000000000', ''))
-            priceC = int(row[1].replace('.000000000000', ''))
+            priceO = v
+            priceH = v
+            priceL = v
+            priceC = v
             priceV = float(row[2])
         else:
-            priceH = priceO
-            priceL = priceO
-            # Highのレートより大きいかどうか
-            if priceH < int(row[1].replace('.000000000000', '')):
-                priceH = int(row[1].replace('.000000000000', ''))
-            # Lowのレートより小さいかどうか
-            if priceL > int(row[1].replace('.000000000000', '')):
-                priceL = int(row[1].replace('.000000000000', ''))
+            priceH = max(priceH, v)
+            priceL = min(priceL, v)
             # Closeのレートを更新
-            priceC = int(row[1].replace('.000000000000', ''))
+            priceC = v
             priceV += float(row[2])
     else:
         # ○分足で取引がなかった場合
