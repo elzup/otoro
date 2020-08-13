@@ -105,11 +105,11 @@ class ExecLogic:
             i = size - 1
         elif i < size:
             return False
-        max_v = max(data[i - size + 1:i, 4])
-        min_v = min(data[i - size + 1:i, 4])
+        max_v = max(data[i - size + 1:i, 2])
+        min_v = min(data[i - size + 1:i, 3])
         if tconf.logic_print:
-            print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][4])}")
-        return max_v != min_v and min_v >= data[i][4]
+            print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][2])}")
+        return max_v != min_v and min_v >= data[i][3]
 
     def __buy_judge_channelbreakout(self, i, size, data=None):
         if data is None:
@@ -119,9 +119,9 @@ class ExecLogic:
             i = size - 1
         elif i < size:
             return False
-        max_v = max(data[i - size + 1:i, 4])
-        min_v = min(data[i - size + 1:i, 4])
+        max_v = max(data[i - size + 1:i, 2])
+        min_v = min(data[i - size + 1:i, 3])
 
         if tconf.logic_print:
-            print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][4])}")
-        return max_v != min_v and max_v <= data[i][4]
+            print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(data[i][3])}")
+        return max_v != min_v and max_v <= data[i][2]

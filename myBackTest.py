@@ -152,7 +152,7 @@ def backtest(res, count, size):
             return datetime.fromtimestamp(dt).strftime("%Y-%m-%d")
 
         filename = f"backtest_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{size}.png"
-        fig.savefig(f"img/backtest63/{filename}")
+        fig.savefig(f"img/backtest63b/{filename}")
 
         time.sleep(1)
         plt.close()
@@ -186,14 +186,14 @@ def range_backtest():
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / band))
-    for s in range(1, int(len(data) / band)):
+    for s in range(10, int(len(data) / band)):
         res = np.array(data[band * s: band * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         count = len(res)
         # pprint(count)
         h = int(60 * 60 / tconf.size_candle)
         # h = 1
-        arr.append(list(map(lambda i: backtest(res, count, h * i), [63])))
+        arr.append(list(map(lambda i: backtest(res, count, h * i), range(35, 75, 1))))
         btcrates.append(str(res[-1][4] / res[0][4]))
 
     print("times")
