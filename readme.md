@@ -7,30 +7,36 @@ otoro is BTC auto trading bot.
 
 ### v.bana
 
-Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours).
+Logic: Channel Breakout strategy, 5min range **468** (39 \* 12, 63 hours).
 2017(暴騰前)〜2020 の BackTest では 34 日(50000 分)ごとに平均 10.7% の利回りがでています。  
 2018〜2020 の BackTest では 34 日(50000 分)ごとに平均 5.1% の利回りがでています。  
 手数料計算 0.15%(BitFlyer 取引所)
-[期間ごとのチャート TDOO](./img/backtest63)
+[期間ごとチャート](https://github.com/elzup/otoro/tree/v.bana/img/backtest63),
+[全体チャート](https://github.com/elzup/otoro/tree/v.bana/img)
+
+
+2014-             |  2018-
+:-------------------------:|:-------------------------:
+![](./img/backtest2014-2020.png)  |  ![](./img/backtest2018-2020.png)
 
 ### v.appl
 
 Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours).
 2018〜2020 の BackTest では 34 日(50000 分)ごとに平均 3% の利回りがでています。  
 手数料計算 0.15%(BitFlyer 取引所)
-[期間ごとのチャート](./img/backtest63)
+[期間ごとチャート](https://github.com/elzup/otoro/tree/v.appl/img/backtest63),
+[全体チャート](https://github.com/elzup/otoro/tree/v.appl/img)
 
-<div style="display: flex;">
-<img style="width: 50%;" src="./img/backtest2014-2020.png" />
-<img style="width: 50%;" src="./img/backtest2018-2020.png" />
-</div>
+## Setup
+### bitflyer
 
-<div style="display: flex;">
-<img style="width: 50%;" src="./img/backtest2014-2020.png" />
-<img style="width: 50%;" src="./img/backtest2018-2020.png" />
-</div>
+```
+mv config/Apikey_sample.py config/Apikey.py
+edit config/Apikey.py
+```
 
-## make BackTest data
+
+## Make BackTest data
 
 data source: https://api.bitcoincharts.com/v1/csv/bitflyerJPY.csv.gz  
 初期は bitflyer でやっていましたが 2019 年のデータ抜け(2019-04〜2019-12)がひどいため coincheck のデータに切り替えています。
