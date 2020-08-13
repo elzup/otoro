@@ -168,7 +168,7 @@ def backtest(res, count, size):
     # print(datetime.fromtimestamp(res[-1][0]))
     # print(res[-1][0])
     # print(f"{size},{asset_list[-1]}")
-    return str(asset_list[-1])
+    return str(asset_list[-1] / 100000)
 
 
 def main():
@@ -186,7 +186,7 @@ def range_backtest():
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / band))
-    for s in range(10, int(len(data) / band)):
+    for s in range(1, int(len(data) / band)):
         res = np.array(data[band * s: band * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         count = len(res)
