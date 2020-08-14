@@ -22,6 +22,7 @@ thread_flag = ""
 comm = 1 - trader.wrap.get_my_tradingcommission()["commission_rate"]
 trade_id = [False, ""]
 
+# trader.cancel_all_orders()
 
 r = trader.get_open_order()
 if r is not None:
@@ -36,6 +37,7 @@ else:
     myJPY, myBTC = trader.get_balance()
     if myJPY["amount"] == myJPY["available"] and myBTC["amount"] == myBTC["available"]:
         if myBTC["amount"] > 0.01:
+            # thread_flag = buy_order_check
             raise Exception(
                 "TradeController initialize : You have much BTCs but you dont sell them.")
         else:
@@ -85,8 +87,7 @@ def sell_step():
     elif res[1] == "BUY":
         if not logic.sell_judge():
             return
-        amount = res[3] * comm
-        price = res[2] * Tradeconfig.sell_rate
+        amount, price = trader.calc_sell_amount_price()
 
         result = trader.sell_signal(amount, price, True)
 
