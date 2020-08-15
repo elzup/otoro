@@ -14,10 +14,9 @@ Logic: Channel Breakout strategy, 5min range **468** (39 \* 12, 63 hours).
 [期間ごとチャート](https://github.com/elzup/otoro/tree/v.bana/img/backtest63),
 [全体チャート](https://github.com/elzup/otoro/tree/v.bana/img)
 
-
-2014-             |  2018-
-:-------------------------:|:-------------------------:
-![](./img/backtest2014-2020.png)  |  ![](./img/backtest2018-2020.png)
+|              2014-               |              2018-               |
+| :------------------------------: | :------------------------------: |
+| ![](./img/backtest2014-2020.png) | ![](./img/backtest2018-2020.png) |
 
 ### v.appl
 
@@ -28,13 +27,15 @@ Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours).
 [全体チャート](https://github.com/elzup/otoro/tree/v.appl/img)
 
 ## Setup
+
 ### bitflyer
 
 ```
 mv config/Apikey_sample.py config/Apikey.py
 edit config/Apikey.py
+mv slack_webhook/Apikey_sample.py slack_webhook/Apikey.py
+edit slack_webhook/Apikey.py # if use
 ```
-
 
 ## Make BackTest data
 

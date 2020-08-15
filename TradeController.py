@@ -4,6 +4,7 @@ from config import Tradeconfig
 from ExecLogic import ExecLogic
 # from pprint import pprint
 from TradeMethod import TradeMethod
+from slack_webhook.SlackClient import buy_notice, sell_notice
 
 # フラグ設定
 buy_jdg = "buy_jdg"
@@ -58,6 +59,7 @@ def buy_step():
     if not logic.buy_judge():
         return
     amount, price = trader.calc_buy_amount_price()
+    buy_notice(price, amount)
     result = trader.buy_signal(amount, price, True)
 
     if not result[0]:
@@ -88,6 +90,7 @@ def sell_step():
         if not logic.sell_judge():
             return
         amount, price = trader.calc_sell_amount_price()
+        sell_notice(price, amount)
 
         result = trader.sell_signal(amount, price, True)
 
