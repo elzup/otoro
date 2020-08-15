@@ -18,8 +18,7 @@ Logic: Channel Breakout strategy, 5min range **468** (39 \* 12, 63 hours).
 | :------------------------------: | :------------------------------: |
 | ![](./img/backtest2014-2020.png) | ![](./img/backtest2018-2020.png) |
 
-### v.appl
-
+### v.appl :warning: Deprecated
 Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours).
 2018〜2020 の BackTest では 34 日(50000 分)ごとに平均 3% の利回りがでています。  
 手数料計算 0.15%(BitFlyer 取引所)
