@@ -20,7 +20,9 @@ trader = TradeMethod()
 logic = ExecLogic()
 
 thread_flag = ""
-comm = 1 - trader.wrap.get_my_tradingcommission()["commission_rate"]
+comm_res = trader.wrap.get_my_tradingcommission()
+print(comm_res)
+comm = 1 - comm_res["commission_rate"]
 trade_id = [False, ""]
 
 # trader.cancel_all_orders()
