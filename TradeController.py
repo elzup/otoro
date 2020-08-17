@@ -4,11 +4,11 @@ from config import Tradeconfig
 from ExecLogic import ExecLogic
 # from pprint import pprint
 from TradeMethod import TradeMethod
-from slack_webhook.SlackClient import buy_notice, sell_notice
+from slack_webhook.SlackClient import buy_notice, sell_notice, start_notice
 
 # フラグ設定
 buy_jdg = "buy_jdg"
-buy_order_check = "buy_order_check"
+sell_jdg = "sell_jdg"
 close_sold_check = "close_sold_check"
 
 
@@ -24,6 +24,7 @@ comm_res = trader.wrap.get_my_tradingcommission()
 print(comm_res)
 comm = 1 - comm_res["commission_rate"]
 trade_id = [False, ""]
+start_notice()
 
 # trader.cancel_all_orders()
 
@@ -32,7 +33,7 @@ if r is not None:
     trade_id[0] = True
     trade_id[1] = r["child_order_acceptance_id"]
     if r["side"] == "BUY":
-        thread_flag = buy_order_check
+        thread_flag = sell_jdg
     else:
         thread_flag = close_sold_check
 else:
@@ -40,9 +41,9 @@ else:
     myJPY, myBTC = trader.get_balance()
     if myJPY["amount"] == myJPY["available"] and myBTC["amount"] == myBTC["available"]:
         if myBTC["amount"] > 0.01:
-            # thread_flag = buy_order_check
-            raise Exception(
-                "TradeController initialize : You have much BTCs but you dont sell them.")
+            thread_flag = sell_jdg
+            # raise Exception(
+            #     "TradeController initialize : You have much BTCs but you dont sell them.")
         else:
             thread_flag = buy_jdg
     else:
@@ -70,44 +71,31 @@ def buy_step():
         raise Exception(msg)
     trade_id[0] = True
     trade_id[1] = result[1]
-    thread_flag = buy_order_check
+    thread_flag = sell_jdg
     trader.d_message("Send buy order\nsize: " + str(amount) + "\nprice: " + str(price))
 
 
 def sell_step():
     global thread_flag
-    if not trade_id[0]:
-        msg = "TradeController buy_order_check : Something strange."
-        trader.d_message(msg)
-        raise Exception(msg)
-    res = trader.isCompleted(trade_id[1])
-    if not res[0]:
+    if not logic.sell_judge():
         return
-    trade_id[0] = False
-    if res[1] == "SELL":
-        msg = "TradeController/buy_order_check : Something strange."
+    amount, price = trader.calc_sell_amount_price()
+    sell_notice(price, amount)
+
+    result = trader.sell_signal(amount, price, True)
+
+    if not result[0]:
+        msg = "TradeController sell_jdg : Failed to send sell signal."
         trader.d_message(msg)
         raise Exception(msg)
-    elif res[1] == "BUY":
-        if not logic.sell_judge():
-            return
-        amount, price = trader.calc_sell_amount_price()
-        sell_notice(price, amount)
-
-        result = trader.sell_signal(amount, price, True)
-
-        if not result[0]:
-            msg = "TradeController buy_order_check : Failed to send sell signal."
-            trader.d_message(msg)
-            raise Exception(msg)
-        trade_id[0] = True
-        trade_id[1] = result[1]
-        thread_flag = close_sold_check
-        trader.d_message(
-            "You bought BTC successfully and sent sell order\nsize: " +
-            str(amount) +
-            "\nprice: " +
-            str(price))
+    trade_id[0] = True
+    trade_id[1] = result[1]
+    thread_flag = close_sold_check
+    trader.d_message(
+        "You bought BTC successfully and sent sell order\nsize: " +
+        str(amount) +
+        "\nprice: " +
+        str(price))
 
 
 def sell_comp_step():
@@ -146,7 +134,7 @@ while True:
 
     if thread_flag == buy_jdg:
         buy_step()
-    elif thread_flag == buy_order_check:
+    elif thread_flag == sell_jdg:
         sell_step()
     elif thread_flag == close_sold_check:
         sell_comp_step()

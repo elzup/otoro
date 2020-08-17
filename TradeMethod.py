@@ -292,7 +292,7 @@ class TradeMethod:
         amount = math.floor(amount * 10 ** 8) / 10 ** 8
         print(price, amount)
 
-        return 0.001, price
+        return amount, price
         # return amount, price
 
     def calc_sell_amount_price(self):
@@ -319,7 +319,7 @@ class TradeMethod:
         amount = math.floor(amount * 10 ** 8) / 10 ** 8
         print(price, amount)
 
-        return 0.001, price
+        return amount, price
 
     def shouldsellall(self, price):
         count = 0
