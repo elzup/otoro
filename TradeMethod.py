@@ -314,8 +314,8 @@ class TradeMethod:
             else:
                 break
 
-        price = r["bids"][0]["price"] + 1
-        amount = myBTC["available"] * price
+        price = r["bids"][0]["price"]
+        amount = myBTC["available"]
         amount = math.floor(amount * 10 ** 8) / 10 ** 8
         print(price, amount)
 
