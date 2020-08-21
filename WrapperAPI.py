@@ -65,7 +65,7 @@ class WrapperAPI:
 
     def get_my_tradingcommission(self):
         pc = "?product_code=" + self.product_code
-        return self.get("/v1/me/gettradingcommission" + pc)
+        return self.get("/v1/me/gettradingcommission" + pc)["commission_rate"]
 
     # child_order_type(n), side(n), price(n), size(n), minute_to_expire, time_in_force
 
