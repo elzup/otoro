@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal, get_args
 import time
 import requests
 import numpy as np
@@ -13,10 +14,11 @@ def cryptowat_request(periods: int, after: int):
     return list(data["result"][str(periods)])
 
 
-period_list = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
+PERIOD = Literal[60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 259200, 604800]
+period_list = get_args(PERIOD)
 
 
-def get_ohlc(periods, data_size):
+def get_ohlc(periods: PERIOD, data_size):
     assert periods in period_list, 'invalid periods arg'
 
     after = int(datetime.now().timestamp() - (periods * data_size))
@@ -29,6 +31,5 @@ def get_ohlc(periods, data_size):
             time.sleep(10)
         except BaseException as e:
             print(e)
-            print("ExecLogic/get_price")
-            print("60秒待機してやり直します")
+            print("Retry in 1 minute")
             time.sleep(60)
