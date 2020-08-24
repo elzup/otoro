@@ -1,4 +1,4 @@
-
+import time
 
 # from pprint import pprint
 from TradeMethod import TradeMethod
@@ -11,12 +11,29 @@ def tradingcommission():
     comm_res = trader.wrap.get_my_tradingcommission()
     print(comm_res)
 
+# https://docs.cryptowat.ch/rest-api/rate-limit
+# CPU 4sec/hour/IP
+#  170(more) times
 
-def load_cryptowat():
-    res = get_ohlc(5 * 60, 10)
-    print(res)
+
+def load_cryptowat_large():
+    i = 0
+    while i < 1000:
+        time.sleep(1)
+        get_ohlc(5 * 60, 1)
+        i += 1
+        print(i)
+
+
+def load_cryptowat_short():
+    i = 0
+    while i < 1000:
+        time.sleep(1)
+        get_ohlc(5 * 60, 1)
+        i += 1
+        print(i)
 
 
 if __name__ == "__main__":
     # tradingcommission()
-    load_cryptowat()
+    load_cryptowat_short()
