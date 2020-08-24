@@ -19,7 +19,7 @@ period_list = [60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400, 
 def get_ohlc(periods, data_size):
     assert periods in period_list, 'invalid periods arg'
 
-    after = int(datetime.now().timestamp() - (periods * (data_size + 100)))
+    after = int(datetime.now().timestamp() - (periods * data_size))
     while True:
         try:
             return np.array(cryptowat_request(periods, after))

@@ -34,6 +34,12 @@ def load_cryptowat_short():
         print(i)
 
 
+def load_cryptowat():
+    res = get_ohlc(5 * 60, 157)
+    print(res)
+    print(len(res))
+
+
 if __name__ == "__main__":
     # tradingcommission()
-    load_cryptowat_short()
+    load_cryptowat()
