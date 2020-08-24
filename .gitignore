@@ -1,6 +1,4 @@
-config/Apikey.py
-load_data/Apikey.py
-slack_webhook/Apikey.py
+*/keys.py
 
 __pycache__
 data/*

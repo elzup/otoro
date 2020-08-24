@@ -5,7 +5,7 @@ from datetime import datetime
 
 import requests
 
-from config import Apikey
+from config import keys
 
 
 class WrapperAPI:
@@ -175,8 +175,8 @@ class WrapperAPI:
         return self.__mywrapper(path_url, method, body)
 
     def __mywrapper(self, path_url, method, body):
-        api_key = Apikey.api_key
-        api_secret = Apikey.api_secret
+        api_key = keys.api_key
+        api_secret = keys.api_secret
 
         base_url = "https://api.bitflyer.jp"
 

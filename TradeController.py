@@ -4,7 +4,7 @@ from config import Tradeconfig
 from ExecLogic import ExecLogic
 # from pprint import pprint
 from TradeMethod import TradeMethod
-from slack_webhook.SlackClient import buy_notice, sell_notice, start_notice
+from services.slackcli import buy_notice, sell_notice, start_notice
 
 # フラグ設定
 buy_jdg = "buy_jdg"

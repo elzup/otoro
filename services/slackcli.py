@@ -1,5 +1,5 @@
 import slackweb
-from slack_webhook import Apikey as conf
+from slack_webhook import keys as conf
 
 client = slackweb.Slack(url=conf.slack_webhook_url)
 
