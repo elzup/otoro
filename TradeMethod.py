@@ -315,7 +315,7 @@ class TradeMethod:
                 break
 
         price = r["bids"][0]["price"]
-        amount = myBTC["available"] * 0.9985
+        amount = myBTC["available"]
         amount = math.floor(amount * 10 ** 8) / 10 ** 8
         print(price, amount)
 
