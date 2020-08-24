@@ -7,11 +7,8 @@ import threading
 
 from services.cryptowatcli import cryptowat_request
 
-periods = 300
-size = 39 * 12
-
-
 clients = []
+cache = False
 
 
 class SimpleEcho(WebSocket):
@@ -21,10 +18,13 @@ class SimpleEcho(WebSocket):
                 client.sendMessage(self.data)
 
     def handleConnected(self):
+        global cache
         # print(self.address, 'connected')
-        # for client in clients:
-        #     client.sendMessage(self.address[0] + u' - connected')
         clients.append(self)
+        if cache:
+            print(f'new client {str(len(clients))}')
+            for client in clients:
+                client.sendMessage(cache)
 
     def handleClose(self):
         clients.remove(self)
@@ -38,22 +38,22 @@ class ClientThread(threading.Thread):
         super(ClientThread, self).__init__()
 
     def run(self):
+        global cache
         time.sleep(4)
+        print('start')
         while True:
-            after = int(datetime.now().timestamp() - (periods * size))
-            data = cryptowat_request(periods, after)
-            # data = datetime.now().isoformat()
+            t = datetime.now().timestamp()
+            after = int(t - (300 * 39 * 12))
+            m5data = cryptowat_request(300, after)
+            after = int(t - (3600 * 60))
+            h1data = cryptowat_request(3600, after)
 
-            print(len(data))
             ws = create_connection("ws://localhost:8000/all")
-            ws.send(json.dumps(data))
-            ws.close()
+            cache = json.dumps({"m5": m5data, "h1": h1data})
+            ws.send(cache)
 
-            time.sleep(1)
-            ws = create_connection("ws://localhost:8000/recent")
-            ws.send(json.dumps(data[-1]))
             ws.close()
-            time.sleep(60 * 10)
+            time.sleep(60 * 5)
 
 
 if __name__ == "__main__":
