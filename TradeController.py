@@ -1,6 +1,6 @@
 import time
 
-from config import Tradeconfig
+from config import Tradeconfig as tconf
 from logic import ExecLogic
 # from pprint import pprint
 from TradeMethod import TradeMethod
@@ -58,7 +58,7 @@ class TradeController:
                 self.sell_step()
             elif self.thread_flag == close_sold_check:
                 self.sell_comp_step()
-            time.sleep(Tradeconfig.sleep_time)
+            time.sleep(tconf.sleep_time)
 
     def buy_step(self):
         # データを取得して買い判定か調べる
@@ -66,6 +66,8 @@ class TradeController:
             return
         amount, price = trader.calc_buy_amount_price()
         amount *= TRADE_FEE
+        if tconf.cycle_debug:
+            amount = 0.001
         buy_notice(price, amount)
         result = trader.buy_signal(amount, price, True)
 
@@ -83,6 +85,8 @@ class TradeController:
             return
         amount, price = trader.calc_sell_amount_price()
         amount *= TRADE_FEE
+        if tconf.cycle_debug:
+            amount = 0.001
         sell_notice(price, amount)
         result = trader.sell_signal(amount, price, True)
         if not result[0]:

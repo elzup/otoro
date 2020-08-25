@@ -33,8 +33,8 @@ Logic: Channel Breakout strategy, 5min range **756** (63 \* 12, 63 hours).
 ```
 mv config/keys_sample.py config/keys.py
 edit config/keys.py
-mv slack_webhook/keys_sample.py slack_webhook/keys.py
-edit slack_webhook/keys.py # if use
+mv service/keys_sample.py service/keys.py
+edit service/keys.py # if use
 ```
 
 ## Make BackTest data

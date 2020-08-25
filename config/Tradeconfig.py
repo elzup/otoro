@@ -12,7 +12,10 @@ def getenv(key, defo):
     return os.environ[key] if key in os.environ else defo
 
 
-log = False
+cycle_debug = False
+if cycle_debug:
+    sleep_time = 10
+log = True
 plot = True
 logic_print = getenv("LOGIC_PRINT", True)
 

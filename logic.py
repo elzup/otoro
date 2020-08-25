@@ -9,16 +9,18 @@ class ExecLogic:
     def buy_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
         if data is None:
             data = get_ohlc(tconf.size_candle, size)
+            size = len(data)
             i = size - 1
-        if i < size or size == 0:
+        if i < size - 1 or size == 0:
             return False
         return buy_judge_channelbreakout(i=i, data=data, size=size)
 
     def sell_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
         if data is None:
             data = get_ohlc(tconf.size_candle, size)
+            size = len(data)
             i = size - 1
-        if i < size or size == 0:
+        if i < size - 1 or size == 0:
             return False
 
         return sell_judge_channelbreakout(i=i, data=data, size=size)
@@ -77,6 +79,8 @@ def exec_log(max_v, min_v, current):
 
 
 def sell_judge_channelbreakout(i, size, data):
+    if tconf.cycle_debug:
+        return True
     max_v = max(data[i - size + 1:i, 2])
     min_v = min(data[i - size + 1:i, 3])
     if tconf.logic_print:
@@ -85,6 +89,8 @@ def sell_judge_channelbreakout(i, size, data):
 
 
 def buy_judge_channelbreakout(i, size, data=None):
+    if tconf.cycle_debug:
+        return True
     max_v = max(data[i - size + 1:i, 2])
     min_v = min(data[i - size + 1:i, 3])
 
