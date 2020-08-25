@@ -69,9 +69,15 @@ def get_orders():
     print(orders)
 
 
+def order_wait():
+    # trader.buy_signal(0.001, True)
+    orders = trader.get_open_order()
+    print(orders)
+
+
 if __name__ == "__main__":
     # tradingcommission()
     # load_cryptowat()
-    load_cryptowat_lostcheck()
-    # get_orders()
+    # load_cryptowat_lostcheck()
+    order_wait()
     pass

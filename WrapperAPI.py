@@ -2,6 +2,7 @@ import hashlib
 import hmac
 import json
 from datetime import datetime
+from typing import Literal
 
 import requests
 
@@ -71,7 +72,7 @@ class WrapperAPI:
 
     def post_send_childorder(
             self,
-            child_order_type,
+            child_order_type: Literal["LIMIT", "MARKET"],
             side,
             price,
             size,
@@ -87,7 +88,7 @@ class WrapperAPI:
                 "minute_to_expire": minute_to_expire,
                 "time_in_force": time_in_force
             }
-        elif price is None:
+        elif child_order_type == "MARKET":
             body = {
                 "product_code": self.product_code,
                 "child_order_type": child_order_type,
@@ -97,8 +98,8 @@ class WrapperAPI:
                 "time_in_force": time_in_force
             }
         else:
-            raise Exception(
-                "WrapperAPI/post_send_childorder : Illegal price or order type")
+            m = "WrapperAPI/post_send_childorder : Illegal price or order type"
+            raise Exception(m)
 
         return self.post("/v1/me/sendchildorder", body)
 
