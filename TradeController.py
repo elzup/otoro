@@ -1,7 +1,7 @@
 import time
 
 from config import Tradeconfig
-from ExecLogic import ExecLogic
+from logic import ExecLogic
 # from pprint import pprint
 from TradeMethod import TradeMethod
 from services.slackcli import buy_notice, sell_notice, start_notice

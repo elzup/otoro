@@ -10,7 +10,7 @@ import time
 from datetime import datetime
 
 from config import Tradeconfig as tconf
-from ExecLogic import ExecLogic
+from logic import ExecLogic
 
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
