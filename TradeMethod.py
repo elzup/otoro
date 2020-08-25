@@ -332,10 +332,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.get_board_time)
                 count += 1
                 if count > Tradeconfig.get_board_count:
-                    self.d_message(
-                        "TradeMethod/calc_buy_amount_price : Failed to get board.")
-                    raise Exception(
-                        "TradeMethod/calc_buy_amount_price : Failed to get board.")
+                    message = "TradeMethod/shouldsellall : Failed to get board."
+                    self.d_message(message)
+                    raise Exception(message)
             else:
                 break
         price_board = r["mid_price"]

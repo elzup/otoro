@@ -42,6 +42,13 @@ def load_cryptowat():
         print(len(res))
 
 
+def get_orders():
+    orders = trader.get_open_order()
+    print(orders)
+
+
 if __name__ == "__main__":
     # tradingcommission()
-    load_cryptowat()
+    # load_cryptowat()
+    get_orders()
+    pass

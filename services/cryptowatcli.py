@@ -18,7 +18,7 @@ PERIOD = Literal[60, 180, 300, 900, 1800, 3600, 7200, 14400, 21600, 43200, 86400
 period_list = get_args(PERIOD)
 
 
-def get_ohlc(periods: PERIOD, data_size):
+def get_ohlc(periods, data_size):
     assert periods in period_list, 'invalid periods arg'
 
     after = int(datetime.now().timestamp() - (periods * data_size))
