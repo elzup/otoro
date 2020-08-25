@@ -1,6 +1,6 @@
 import time
 
-from config import Tradeconfig as tconf
+from config import config as tconf
 from logic import ExecLogic
 # from pprint import pprint
 from TradeMethod import TradeMethod
@@ -24,29 +24,28 @@ TRADE_FEE = 1 - trader.wrap.get_my_tradingcommission()
 class TradeController:
     def __init__(self):
         self.thread_flag = buy_jdg
-        self.trade_id = [False, ""]
+        self.trade_comp()
         r = trader.get_open_order()
         if r is not None:
-            self.trade_id[0] = True
-            self.trade_id[1] = r["child_order_acceptance_id"]
+            self.set_trade(r["child_order_acceptance_id"])
             if r["side"] == "BUY":
                 self.thread_flag = sell_jdg
             else:
                 self.thread_flag = close_sold_check
         else:
-            self.trade_id[0] = False
             myJPY, myBTC = trader.get_balance()
             if myJPY["amount"] == myJPY["available"] and myBTC["amount"] == myBTC["available"]:
                 if myBTC["amount"] > 0.01:
                     self.thread_flag = sell_jdg
-                    # raise Exception(
-                    #     "TradeController initialize : You have much BTCs but you dont sell them.")
                 else:
                     self.thread_flag = buy_jdg
-            else:
-                raise Exception(
-                    "TradeController initialize: There are no open order but balance does not match")
         print("Initialize completed")
+
+    def trade_comp(self):
+        self.trade_id = [False, ""]
+
+    def set_trade(self, id):
+        self.trade_id = [True, id]
 
     def run(self):
         while True:
@@ -75,8 +74,7 @@ class TradeController:
             m = "TradeController buy_jdg : Failed to send buy signal."
             trader.d_message(m)
             raise Exception(m)
-        self.trade_id[0] = True
-        self.trade_id[1] = result[1]
+        self.set_trade(result[1])
         self.thread_flag = sell_jdg
         trader.d_message("Send buy order\nsize: " + str(amount) + "\nprice: " + str(price))
 
@@ -93,8 +91,7 @@ class TradeController:
             m = "TradeController sell_jdg : Failed to send sell signal."
             trader.d_message(m)
             raise Exception(m)
-        self.trade_id[0] = True
-        self.trade_id[1] = result[1]
+        self.set_trade(result[1])
         self.thread_flag = close_sold_check
         trader.d_message(
             "You bought BTC successfully and sent sell order\nsize: " +
@@ -103,8 +100,6 @@ class TradeController:
             str(price))
 
     def sell_comp_step(self):
-        if not self.trade_id[0]:
-            raise Exception("TradeController close_sold_check : Something strange.")
         res = trader.get_order(self.trade_id[1])
         if res[0] == "COMPLETED":
             self.trade_id[0] = False

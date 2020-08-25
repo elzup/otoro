@@ -9,7 +9,7 @@ import matplotlib.cm as cm
 import time
 from datetime import datetime
 
-from config import Tradeconfig as tconf
+from config import config as tconf
 from logic import ExecLogic
 
 

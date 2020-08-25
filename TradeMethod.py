@@ -1,7 +1,7 @@
 import time
 import math
 
-from config import Tradeconfig
+from config import config as tconf
 from WrapperAPI import WrapperAPI
 
 
@@ -24,9 +24,9 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.check_sleep_time)
+                time.sleep(tconf.check_sleep_time)
                 count += 1
-                if count > Tradeconfig.check_count:
+                if count > tconf.check_count:
                     m = "TradeMethod/isCompleted : Failed to check that order has completed or not."
                     self.d_message(m)
                     raise Exception(m)
@@ -45,10 +45,10 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.check_sleep_time)
+                time.sleep(tconf.check_sleep_time)
                 # print("Failed to Cancel All Orders")
                 count += 1
-                if count > Tradeconfig.check_count:
+                if count > tconf.check_count:
                     m = "TradeMethod/cancel_all_orders : Failed to Cancel All Orders."
                     self.d_message(m)
                     raise Exception(m)
@@ -56,10 +56,10 @@ class TradeMethod:
                 if 'status' not in result or result["status"] == 200:
                     return True
                 else:
-                    time.sleep(Tradeconfig.check_sleep_time)
+                    time.sleep(tconf.check_sleep_time)
                     # print("Failed to Cancel All Orders")
                     count += 1
-                    if count > Tradeconfig.check_count:
+                    if count > tconf.check_count:
                         m = "TradeMethod/cancel_all_orders : Failed to Cancel All Orders."
                         self.d_message(m)
                         raise Exception(m)
@@ -92,9 +92,9 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.buy_sleep_time)
+                time.sleep(tconf.buy_sleep_time)
                 count += 1
-                if count > Tradeconfig.buy_count:
+                if count > tconf.buy_count:
                     m = "TradeController buy_jdg : Failed to send buy signal."
                     self.d_message(m)
                     raise Exception(m)
@@ -126,9 +126,9 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.sell_sleep_time)
+                time.sleep(tconf.sell_sleep_time)
                 count += 1
-                if count > Tradeconfig.sell_count:
+                if count > tconf.sell_count:
                     m = "TradeMethod/sell_signal : Failed to send sell signal."
                     self.d_message(m)
                     raise Exception(m)
@@ -160,9 +160,9 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.close_sleep_time)
+                time.sleep(tconf.close_sleep_time)
                 count += 1
-                if count > Tradeconfig.close_count:
+                if count > tconf.close_count:
                     m = "TradeMethod/close_Position : Failed to send close signal!!!!!!!!!"
                     self.d_message(m)
                     raise Exception(m)
@@ -182,9 +182,9 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.check_sleep_time)
+                time.sleep(tconf.check_sleep_time)
                 count += 1
-                if count > Tradeconfig.check_count:
+                if count > tconf.check_count:
                     m = "TradeMethod/get_open_order : Failed to check orders."
                     self.d_message(m)
                     raise Exception(m)
@@ -216,10 +216,10 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.check_sleep_time)
+                time.sleep(tconf.check_sleep_time)
                 # print("Failed to check balances")
                 count += 1
-                if count > Tradeconfig.check_count:
+                if count > tconf.check_count:
                     m = "TradeMethod/get_balance : Failed to check balances."
                     self.d_message(m)
                     raise Exception(m)
@@ -245,9 +245,9 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.check_sleep_time)
+                time.sleep(tconf.check_sleep_time)
                 count += 1
-                if count > Tradeconfig.check_count:
+                if count > tconf.check_count:
                     m = "TradeMethod/get_order : Failed to check order ."
                     self.d_message(m)
                     raise Exception(m)
@@ -266,9 +266,9 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.get_board_time)
+                time.sleep(tconf.get_board_time)
                 count += 1
-                if count > Tradeconfig.get_board_count:
+                if count > tconf.get_board_count:
                     m = "TradeMethod/calc_buy_amount_price : Failed to get board."
                     self.d_message(m)
                     raise Exception(m)
@@ -292,9 +292,9 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.get_board_time)
+                time.sleep(tconf.get_board_time)
                 count += 1
-                if count > Tradeconfig.get_board_count:
+                if count > tconf.get_board_count:
                     m = "TradeMethod/calc_buy_amount_price : Failed to get board."
                     self.d_message(m)
                     raise Exception(m)
@@ -316,16 +316,16 @@ class TradeMethod:
             except BaseException as e:
                 print(type(e))
                 print(e)
-                time.sleep(Tradeconfig.get_board_time)
+                time.sleep(tconf.get_board_time)
                 count += 1
-                if count > Tradeconfig.get_board_count:
+                if count > tconf.get_board_count:
                     m = "TradeMethod/shouldsellall : Failed to get board."
                     self.d_message(m)
                     raise Exception(m)
             else:
                 break
         price_board = r["mid_price"]
-        if price * Tradeconfig.close_rate > price_board:
+        if price * tconf.close_rate > price_board:
             return True
         else:
             return False
@@ -334,4 +334,4 @@ class TradeMethod:
         pass
         # Discordで発行したWebhookのURLを入れる
         # data = {"content": " " + message + " "}
-        # requests.post(Tradeconfig.discord_webhook_url, data=data)
+        # requests.post(tconf.discord_webhook_url, data=data)
