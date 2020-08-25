@@ -9,6 +9,7 @@ from services.cryptowatcli import cryptowat_request
 
 clients = []
 cache = False
+queues_h1 = []
 
 
 class SimpleEcho(WebSocket):
@@ -43,13 +44,13 @@ class ClientThread(threading.Thread):
         print('start')
         while True:
             t = datetime.now().timestamp()
-            after = int(t - (300 * 39 * 12))
-            m5data = cryptowat_request(300, after)
-            after = int(t - (3600 * 60))
-            h1data = cryptowat_request(3600, after)
+            after = int(t - (300 * 12 * 39))
+            m5data, _ = cryptowat_request(300, after)
+            after = int(t - (3600 * 39 * 2))
+            h1data, allo = cryptowat_request(3600, after)
 
             ws = create_connection("ws://localhost:8000/all")
-            cache = json.dumps({"m5": m5data, "h1": h1data})
+            cache = json.dumps({"m5": m5data, "h1": h1data, "allo": allo})
             ws.send(cache)
 
             ws.close()
