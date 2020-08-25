@@ -179,6 +179,9 @@ class TradeMethod:
             else:
                 return result
 
+    def check_orderable(self):
+        return self.get_open_order() is None
+
     def get_open_order(self):
         query = "&child_order_state=ACTIVE"
 
