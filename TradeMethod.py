@@ -27,10 +27,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.check_sleep_time)
                 count += 1
                 if count > Tradeconfig.check_count:
-                    self.d_message(
-                        "TradeMethod/isCompleted : Failed to check that order has completed or not.")
-                    raise Exception(
-                        "TradeMethod/isCompleted : Failed to check that order has completed or not.")
+                    m = "TradeMethod/isCompleted : Failed to check that order has completed or not."
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 break
         row = r[0]
@@ -50,10 +49,9 @@ class TradeMethod:
                 # print("Failed to Cancel All Orders")
                 count += 1
                 if count > Tradeconfig.check_count:
-                    self.d_message(
-                        "TradeMethod/cancel_all_orders : Failed to Cancel All Orders.")
-                    raise Exception(
-                        "TradeMethod/cancel_all_orders : Failed to Cancel All Orders.")
+                    m = "TradeMethod/cancel_all_orders : Failed to Cancel All Orders."
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 if 'status' not in result or result["status"] == 200:
                     return True
@@ -62,10 +60,9 @@ class TradeMethod:
                     # print("Failed to Cancel All Orders")
                     count += 1
                     if count > Tradeconfig.check_count:
-                        self.d_message(
-                            "TradeMethod/cancel_all_orders : Failed to Cancel All Orders.")
-                        raise Exception(
-                            "TradeMethod/cancel_all_orders : Failed to Cancel All Orders.")
+                        m = "TradeMethod/cancel_all_orders : Failed to Cancel All Orders."
+                        self.d_message(m)
+                        raise Exception(m)
 
     def __buy_signal(self, amount, price, buy_flag):
         if not buy_flag:
@@ -98,10 +95,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.buy_sleep_time)
                 count += 1
                 if count > Tradeconfig.buy_count:
-                    self.d_message(
-                        "TradeController buy_jdg : Failed to send buy signal.")
-                    raise Exception(
-                        "TradeController buy_jdg : Failed to send buy signal.")
+                    m = "TradeController buy_jdg : Failed to send buy signal."
+                    self.d_message(m)
+                    raise Exception(m)
         return result
 
     def __sell_signal(self, amount, price, sell_flag):
@@ -133,10 +129,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.sell_sleep_time)
                 count += 1
                 if count > Tradeconfig.sell_count:
-                    self.d_message(
-                        "TradeMethod/sell_signal : Failed to send sell signal.")
-                    raise Exception(
-                        "TradeMethod/sell_signal : Failed to send sell signal.")
+                    m = "TradeMethod/sell_signal : Failed to send sell signal."
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 return result
 
@@ -168,14 +163,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.close_sleep_time)
                 count += 1
                 if count > Tradeconfig.close_count:
-                    self.d_message(
-                        "TradeMethod/close_Position : Failed to send close signal!!!!!!!!!")
-                    self.d_message(
-                        "TradeMethod/close_Position : Failed to send close signal!!!!!!!!!")
-                    self.d_message(
-                        "TradeMethod/close_Position : Failed to send close signal!!!!!!!!!")
-                    raise Exception(
-                        "TradeMethod/sell_signal : Failed to send sell signal.")
+                    m = "TradeMethod/close_Position : Failed to send close signal!!!!!!!!!"
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 return result
 
@@ -195,10 +185,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.check_sleep_time)
                 count += 1
                 if count > Tradeconfig.check_count:
-                    self.d_message(
-                        "TradeMethod/get_open_order : Failed to check orders.")
-                    raise Exception(
-                        "TradeMethod/get_open_order  : Failed to check orders.")
+                    m = "TradeMethod/get_open_order : Failed to check orders."
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 break
 
@@ -209,10 +198,9 @@ class TradeMethod:
         else:
             print(type(r))
             print(r)
-            self.d_message(
-                "TradeMethod/get_open_order : Failed to check orders.")
-            raise Exception(
-                "TradeMethod/get_open_order  : Failed to check orders.")
+            m = "TradeMethod/get_open_order: Multiple order."
+            self.d_message(m)
+            raise Exception(m)
 
     def get_balance(self):
         count = 0
@@ -232,10 +220,9 @@ class TradeMethod:
                 # print("Failed to check balances")
                 count += 1
                 if count > Tradeconfig.check_count:
-                    self.d_message(
-                        "TradeMethod/get_balance : Failed to check balances.")
-                    raise Exception(
-                        "TradeMethod/get_balance : Failed to check balances.")
+                    m = "TradeMethod/get_balance : Failed to check balances."
+                    self.d_message(m)
+                    raise Exception(m)
 
             else:
                 myJPY = {
@@ -261,10 +248,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.check_sleep_time)
                 count += 1
                 if count > Tradeconfig.check_count:
-                    self.d_message(
-                        "TradeMethod/get_order : Failed to check order .")
-                    raise Exception(
-                        "TradeMethod/get_order : Failed to check order.")
+                    m = "TradeMethod/get_order : Failed to check order ."
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 break
 
@@ -283,10 +269,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.get_board_time)
                 count += 1
                 if count > Tradeconfig.get_board_count:
-                    self.d_message(
-                        "TradeMethod/calc_buy_amount_price : Failed to get board.")
-                    raise Exception(
-                        "TradeMethod/calc_buy_amount_price : Failed to get board.")
+                    m = "TradeMethod/calc_buy_amount_price : Failed to get board."
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 break
 
@@ -310,10 +295,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.get_board_time)
                 count += 1
                 if count > Tradeconfig.get_board_count:
-                    self.d_message(
-                        "TradeMethod/calc_buy_amount_price : Failed to get board.")
-                    raise Exception(
-                        "TradeMethod/calc_buy_amount_price : Failed to get board.")
+                    m = "TradeMethod/calc_buy_amount_price : Failed to get board."
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 break
 
@@ -335,9 +319,9 @@ class TradeMethod:
                 time.sleep(Tradeconfig.get_board_time)
                 count += 1
                 if count > Tradeconfig.get_board_count:
-                    message = "TradeMethod/shouldsellall : Failed to get board."
-                    self.d_message(message)
-                    raise Exception(message)
+                    m = "TradeMethod/shouldsellall : Failed to get board."
+                    self.d_message(m)
+                    raise Exception(m)
             else:
                 break
         price_board = r["mid_price"]

@@ -72,9 +72,9 @@ class TradeController:
         result = trader.buy_signal(amount, price, True)
 
         if not result[0]:
-            msg = "TradeController buy_jdg : Failed to send buy signal."
-            trader.d_message(msg)
-            raise Exception(msg)
+            m = "TradeController buy_jdg : Failed to send buy signal."
+            trader.d_message(m)
+            raise Exception(m)
         self.trade_id[0] = True
         self.trade_id[1] = result[1]
         self.thread_flag = sell_jdg
@@ -90,9 +90,9 @@ class TradeController:
         sell_notice(price, amount)
         result = trader.sell_signal(amount, price, True)
         if not result[0]:
-            msg = "TradeController sell_jdg : Failed to send sell signal."
-            trader.d_message(msg)
-            raise Exception(msg)
+            m = "TradeController sell_jdg : Failed to send sell signal."
+            trader.d_message(m)
+            raise Exception(m)
         self.trade_id[0] = True
         self.trade_id[1] = result[1]
         self.thread_flag = close_sold_check
