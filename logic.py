@@ -75,7 +75,7 @@ def timestamp():
 
 
 def exec_log(pos, max_v, min_v, current):
-    print(f"{pos}{timestamp()}{fstr(max_v)}{fstr(min_v)}{fstr(current)}")
+    print(f"{pos} {timestamp()}{fstr(max_v)}{fstr(min_v)}{fstr(current)}")
 
 
 def sell_judge_channelbreakout(i, size, data):

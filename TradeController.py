@@ -49,8 +49,6 @@ class TradeController:
 
     def run(self):
         while True:
-            print(self.thread_flag)
-
             if self.thread_flag == buy_jdg:
                 self.buy_step()
             elif self.thread_flag == sell_jdg:
