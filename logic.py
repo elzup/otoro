@@ -71,11 +71,11 @@ def fstr(n):
 
 
 def timestamp():
-    return datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+    return datetime.now().strftime('%m%d_%H%M')
 
 
-def exec_log(max_v, min_v, current):
-    print(f"{timestamp()}|{fstr(max_v)}|{fstr(min_v)}|{fstr(current)}")
+def exec_log(pos, max_v, min_v, current):
+    print(f"{pos}{timestamp()}{fstr(max_v)}{fstr(min_v)}{fstr(current)}")
 
 
 def sell_judge_channelbreakout(i, size, data):
@@ -84,7 +84,7 @@ def sell_judge_channelbreakout(i, size, data):
     max_v = max(data[i - size + 1:i, 2])
     min_v = min(data[i - size + 1:i, 3])
     if tconf.logic_print:
-        exec_log(max_v, min_v, data[i][2])
+        exec_log("s", max_v, min_v, data[i][2])
     return max_v != min_v and min_v >= data[i][3]
 
 
@@ -95,5 +95,5 @@ def buy_judge_channelbreakout(i, size, data=None):
     min_v = min(data[i - size + 1:i, 3])
 
     if tconf.logic_print:
-        exec_log(max_v, min_v, data[i][3])
+        exec_log("b", max_v, min_v, data[i][3])
     return max_v != min_v and max_v <= data[i][2]
