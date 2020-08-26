@@ -1,5 +1,6 @@
 # from pprint import pprint
 
+from services.cryptowatcli import get_ohlc
 import numpy as np
 import pandas as pd
 import requests
@@ -36,20 +37,12 @@ def get_local_data():
 
 
 def get_price_data():
-    response = requests.get(
-        "https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc",
-        params={
-            "periods": period,
-            "after": 1})
-    response = response.json()
-    result = response["result"][str(period)]
-    return np.array(result)
-
+    return get_ohlc(period, 1000)
 
 # --------------------------------------------------------------------
 # 評価値系
 
-# RSIとMACDによる買いサイン
+
 def buy_signal(response, i, size):
     ex = ExecLogic()
     return ex.buy_judge(data=response, i=i, size=size)
@@ -63,76 +56,52 @@ def sell_signal(response, i, size):
 # ここからアルゴリズム
 
 
-comm = 0.0015
+fee = 0.0015
 # 何秒足
 period = tconf.size_candle
-# flag
-# res = get_price_data()
+
+
+INIT_JPY = 100000
 
 
 def backtest(res, count, size):
     # return str(size)
     i = 0
     # profit = loss = count1 = count2 = 0
-    flag = {
-        "check": True,
-        "buy_position": False
-    }
 
-    myjpy = 100000
+    myjpy = INIT_JPY
     mybtc = 0
 
     asset_list = [myjpy]
+    buy_position = True
 
     while i < count - 500:
-        while(flag["check"]):
-            try:
-                asset_list.append(myjpy + mybtc * res[i][4])
-            except BaseException:
-                print(myjpy, mybtc)
-                print(res[i])
+        while buy_position:
+            asset_list.append(myjpy + mybtc * res[i][4])
             if i > count - 500:
-                # asset_list.append(myjpy + mybtc * res[i][4])
                 break
 
             if buy_signal(res, i, size):
-                if tconf.log:
-                    print("Buy order")
-                    print(i)
-                    # print(datetime.fromtimestamp(res[i][0]))
-
                 price = res[i][4]
-                mybtc = myjpy / price * (1 - comm)
+                mybtc = myjpy / price * (1 - fee)
                 myjpy = 0
-                # print(myjpy+mybtc*res[i][4])
-                flag["buy_position"] = True
-                flag["check"] = False
+                buy_position = False
 
             i += 1
 
-        while(flag["buy_position"]):
+        while not buy_position:
             asset_list.append(myjpy + mybtc * res[i][4])
             if sell_signal(res, i, size):
-                if tconf.log:
-                    print("Sell order")
-                    print(i)
-                # print(datetime.fromtimestamp(res[i][0]))
-                # count1 += 1
-                myjpy = mybtc * res[i][4] * (1 - comm)
+                myjpy = mybtc * res[i][4] * (1 - fee)
                 mybtc = 0
-                # print(myjpy+mybtc*res[i][4])
+                buy_position = True
 
-                flag["buy_position"] = False
-                flag["check"] = True
             i += 1
             if i > count - 500:
                 asset_list.append(myjpy + mybtc * res[i][4])
                 break
-    # chart = list(map(lambda v: v[4], res))
-    # ts = pd.Series(chart, index=date_range('2000-01-01', periods=1000))
 
     if tconf.plot:
-        # print(len(asset_list))
         x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
         btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
         yen = np.array(asset_list)
@@ -157,18 +126,7 @@ def backtest(res, count, size):
         time.sleep(1)
         plt.close()
 
-    # print("profit:" + str(profit))
-    # print("loss:" + str(loss))
-    # print("earn:" + str(myjpy + mybtc * res[i][4]))
-    # print("count1:" + str(count1))
-    # print("count2:" + str(count2))
-    # print(datetime.fromtimestamp(res[0][0]))
-    # print(res[0][0])
-    # print("〜")
-    # print(datetime.fromtimestamp(res[-1][0]))
-    # print(res[-1][0])
-    # print(f"{size},{asset_list[-1]}")
-    return str(asset_list[-1] / 100000)
+    return str(asset_list[-1] / INIT_JPY)
 
 
 def main():
@@ -177,23 +135,28 @@ def main():
     backtest(res, count, tconf.channel_breakout_size)
 
 
+ranges = [39]
+
+
 def range_backtest():
     band = 10000
     arr = []
     btcrates = []
     times = []
     data = get_local_data()
+
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / band))
-    for s in range(1, int(len(data) / band)):
+    for s in range(10, 11):
+        # for s in range(10, int(len(data) / band)):
         res = np.array(data[band * s: band * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         count = len(res)
         # pprint(count)
         h = int(60 * 60 / tconf.size_candle)
         # h = 1
-        arr.append(list(map(lambda i: backtest(res, count, h * i), [39])))
+        arr.append(list(map(lambda i: backtest(res, count, h * i), ranges)))
         btcrates.append(str(res[-1][4] / res[0][4]))
 
     print("times")
