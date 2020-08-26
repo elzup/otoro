@@ -74,7 +74,7 @@ class TradeController:
             raise Exception(m)
         self.set_trade(result[1])
         self.thread_flag = sell_jdg
-        trader.d_message("Send buy order\nsize: " + str(amount) + "\nprice: " + str(price))
+        trader.d_message(f"Send buy order\nsize: {amount}\nprice: {price}")
 
     def sell_step(self):
         if not logic.sell_judge():
@@ -91,11 +91,8 @@ class TradeController:
             raise Exception(m)
         self.set_trade(result[1])
         self.thread_flag = close_sold_check
-        trader.d_message(
-            "You bought BTC successfully and sent sell order\nsize: " +
-            str(amount) +
-            "\nprice: " +
-            str(price))
+        m = f"You bought BTC successfully and sent sell order\nsize: {amount}\nprice: {price}"
+        trader.d_message(m)
 
     def sell_comp_step(self):
         res = trader.get_order(self.trade_id[1])

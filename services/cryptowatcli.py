@@ -24,8 +24,8 @@ def get_ohlc(periods, data_size):
     after = int(datetime.now().timestamp() - (periods * data_size))
     while True:
         try:
-            data, _ = cryptowat_request(periods, after)
-            return np.array(data)
+            data, allo = cryptowat_request(periods, after)
+            return np.array(data), allo
         except requests.exceptions.RequestException as e:
             print("Cryptowatchの価格取得でエラー発生 : ", e)
             print("10秒待機してやり直します")

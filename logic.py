@@ -8,7 +8,7 @@ class ExecLogic:
 
     def buy_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
         if data is None:
-            data = get_ohlc(tconf.size_candle, size)
+            data, _ = get_ohlc(tconf.size_candle, size)
             size = len(data)
             i = size - 1
         if i < size - 1 or size == 0:
@@ -17,7 +17,7 @@ class ExecLogic:
 
     def sell_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
         if data is None:
-            data = get_ohlc(tconf.size_candle, size)
+            data, _ = get_ohlc(tconf.size_candle, size)
             size = len(data)
             i = size - 1
         if i < size - 1 or size == 0:
