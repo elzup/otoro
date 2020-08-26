@@ -16,7 +16,6 @@ close_sold_check = "close_sold_check"
 trader = TradeMethod()
 logic = ExecLogic()
 
-TRADE_FEE = 1 - trader.wrap.get_my_tradingcommission()
 
 # trader.cancel_all_orders()
 
@@ -62,7 +61,8 @@ class TradeController:
         if not logic.buy_judge():
             return
         amount, price = trader.calc_buy_amount_price()
-        amount *= TRADE_FEE
+        fee = trader.wrap.get_my_tradingcommission()
+        amount *= (1 - fee)
         if tconf.cycle_debug:
             amount = 0.001
         buy_notice(price, amount)
@@ -80,7 +80,8 @@ class TradeController:
         if not logic.sell_judge():
             return
         amount, price = trader.calc_sell_amount_price()
-        amount *= TRADE_FEE
+        fee = trader.wrap.get_my_tradingcommission()
+        amount *= (1 - fee)
         if tconf.cycle_debug:
             amount = 0.001
         sell_notice(price, amount)
