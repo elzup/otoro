@@ -1,6 +1,6 @@
-from logic import buy_judge_channelbreakout, buy_judge_channelbreakout_i, sell_judge_channelbreakout, sell_judge_channelbreakout_i
 import unittest
 import numpy as np
+from logic import buy_judge_channelbreakout_i, sell_judge_channelbreakout_i
 
 data = np.array([
     [0, 10, 13, 5, 11],
