@@ -3,6 +3,11 @@ from datetime import datetime
 from config import config as tconf
 from services.cryptowatcli import get_ohlc
 
+I_BGN = 1
+I_MAX = 2
+I_MIN = 3
+I_END = 4
+
 
 class ExecLogic:
 
@@ -78,22 +83,21 @@ def exec_log(pos, max_v, min_v, current):
     print(f"{pos} {timestamp()}{fstr(max_v)}{fstr(min_v)}{fstr(current)}")
 
 
-def sell_judge_channelbreakout(i, size, data):
-    if tconf.cycle_debug:
-        return True
-    max_v = max(data[i - size + 1:i, 2])
-    min_v = min(data[i - size + 1:i, 3])
-    if tconf.logic_print:
-        exec_log("s", max_v, min_v, data[i][2])
-    return max_v != min_v and min_v >= data[i][3]
-
-
 def buy_judge_channelbreakout(i, size, data=None):
     if tconf.cycle_debug:
         return True
-    max_v = max(data[i - size + 1:i, 2])
-    min_v = min(data[i - size + 1:i, 3])
-
+    max_v = max(data[i - size + 1:i, I_MAX])
+    min_v = min(data[i - size + 1:i, I_MIN])
     if tconf.logic_print:
-        exec_log("b", max_v, min_v, data[i][3])
-    return max_v != min_v and max_v <= data[i][2]
+        exec_log("b", max_v, min_v, data[i][I_MIN])
+    return max_v != min_v and max_v <= data[i][I_MIN]
+
+
+def sell_judge_channelbreakout(i, size, data):
+    if tconf.cycle_debug:
+        return True
+    max_v = max(data[i - size + 1:i, I_MAX])
+    min_v = min(data[i - size + 1:i, I_MIN])
+    if tconf.logic_print:
+        exec_log("s", max_v, min_v, data[i][I_MAX])
+    return max_v != min_v and min_v >= data[i][I_MAX]
