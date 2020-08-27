@@ -1,5 +1,6 @@
 # from pprint import pprint
 
+from logger import log
 import numpy as np
 import pandas as pd
 import requests
@@ -31,7 +32,6 @@ def get_local_data():
     f.close()
     csvarr = list(map(parse_csv_line, txt.strip().split("\n")))
 
-    # print(len(list(csvarr)))
     return list(csvarr)
 
 
@@ -103,14 +103,10 @@ def backtest(res, count, size):
                 break
 
             if buy_signal(res, i, size):
-                if tconf.log:
-                    print("Buy order")
-                    print(i)
-                    # print(datetime.fromtimestamp(res[i][0]))
+                log(f"Buy order: {i}")
 
                 mybtc = (myjpy * price / change_point) / price * (1 - comm)
                 myjpy = 0
-                # print(myjpy+mybtc*res[i][4])
                 flag["buy_position"] = True
                 flag["check"] = False
 
@@ -121,14 +117,10 @@ def backtest(res, count, size):
                 mybtc *= (1 - 0.00004)
             asset_list.append(myjpy + mybtc * res[i][4])
             if sell_signal(res, i, size):
-                if tconf.log:
-                    print("Sell order")
-                    print(i)
-                # print(datetime.fromtimestamp(res[i][0]))
+                log(f"Sell order: {i}")
                 # count1 += 1
                 myjpy = mybtc * res[i][4] * (1 - comm)
                 mybtc = 0
-                # print(myjpy+mybtc*res[i][4])
 
                 flag["buy_position"] = False
                 flag["check"] = True
@@ -141,7 +133,6 @@ def backtest(res, count, size):
     # ts = pd.Series(chart, index=date_range('2000-01-01', periods=1000))
 
     if tconf.plot:
-        # print(len(asset_list))
         x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
         btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
         yen = np.array(asset_list)

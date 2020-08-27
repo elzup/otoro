@@ -20,7 +20,6 @@ class SimpleEcho(WebSocket):
 
     def handleConnected(self):
         global cache
-        # print(self.address, 'connected')
         clients.append(self)
         if cache:
             print(f'new client {str(len(clients))}')
@@ -29,7 +28,6 @@ class SimpleEcho(WebSocket):
 
     def handleClose(self):
         clients.remove(self)
-        # print(self.address, 'closed')
         # for client in clients:
         #     client.sendMessage(self.address[0] + u' - disconnected')
 

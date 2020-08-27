@@ -18,7 +18,6 @@ def get_local_data():
     f.close()
     csvarr = list(map(parse_csv_line, txt.strip().split("\n")))
 
-    # print(len(list(csvarr)))
     return np.array(csvarr)
 
 

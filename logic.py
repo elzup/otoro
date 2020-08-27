@@ -1,4 +1,5 @@
 from datetime import datetime
+from logger import log
 
 from config import config as tconf
 from services.cryptowatcli import get_ohlc
@@ -12,6 +13,8 @@ I_END = 4
 class ExecLogic:
 
     def buy_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
+        if tconf.cycle_debug:
+            return True
         if data is None:
             data, _ = get_ohlc(tconf.size_candle, size)
             size = len(data)
@@ -21,6 +24,8 @@ class ExecLogic:
         return buy_judge_channelbreakout(i=i, data=data, size=size)
 
     def sell_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
+        if tconf.cycle_debug:
+            return True
         if data is None:
             data, _ = get_ohlc(tconf.size_candle, size)
             size = len(data)
@@ -42,7 +47,6 @@ def __buy_judge_candle(self, i, data):
     limit = tconf.buy_judge_limit
 
     if ((d0 > 0) and (d1 > 0) and (d2 > 0)) and (d0 / d2 > limit and d1 / d2 > limit):
-        # print(datetime.fromtimestamp(data[i][0]))
         return True
     else:
         return False
@@ -80,24 +84,18 @@ def timestamp():
 
 
 def exec_log(pos, max_v, min_v, current):
-    print(f"{pos} {timestamp()}{fstr(max_v)}{fstr(min_v)}{fstr(current)}")
+    log(f"{pos} {timestamp()}{fstr(max_v)}{fstr(min_v)}{fstr(current)}")
 
 
-def buy_judge_channelbreakout(i, size, data=None):
-    if tconf.cycle_debug:
-        return True
+def buy_judge_channelbreakout(i, size, data):
     max_v = max(data[i - size + 1:i, I_MAX])
     min_v = min(data[i - size + 1:i, I_MIN])
-    if tconf.logic_print:
-        exec_log("b", max_v, min_v, data[i][I_MIN])
+    exec_log("b", max_v, min_v, data[i][I_MIN])
     return max_v != min_v and max_v <= data[i][I_MIN]
 
 
 def sell_judge_channelbreakout(i, size, data):
-    if tconf.cycle_debug:
-        return True
     max_v = max(data[i - size + 1:i, I_MAX])
     min_v = min(data[i - size + 1:i, I_MIN])
-    if tconf.logic_print:
-        exec_log("s", max_v, min_v, data[i][I_MAX])
+    exec_log("s", max_v, min_v, data[i][I_MAX])
     return max_v != min_v and min_v >= data[i][I_MAX]

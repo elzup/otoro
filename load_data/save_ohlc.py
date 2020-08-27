@@ -85,11 +85,6 @@ if __name__ == '__main__':
 
     text = convert2csv(hist)
 
-    # fst_time = timeRegex(hist[0]['time_period_start'])
-    # end_time = timeRegex(hist[-1]['time_period_start'])
-    # print(fst_time)
-    # print(end_time)
-
     writeFile(text, PATH, FILE_NAME)
 
     print(str(TimeCurrent()), "Complete")

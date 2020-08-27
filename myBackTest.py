@@ -32,7 +32,6 @@ def get_local_data():
     f.close()
     csvarr = list(map(parse_csv_line, txt.strip().split("\n")))
 
-    # print(len(list(csvarr)))
     return list(csvarr)
 
 
@@ -153,7 +152,6 @@ def range_backtest():
         res = np.array(data[band * s: band * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         count = len(res)
-        # pprint(count)
         h = int(60 * 60 / tconf.size_candle)
         # h = 1
         arr.append(list(map(lambda i: backtest(res, count, h * i), ranges)))
