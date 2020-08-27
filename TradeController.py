@@ -47,6 +47,7 @@ class TradeController:
         self.trade_id = [True, id]
 
     def run(self):
+        print(self.thread_flag)
         while True:
             if self.thread_flag == buy_jdg:
                 self.buy_step()
@@ -70,7 +71,7 @@ class TradeController:
 
         if not result[0]:
             m = "TradeController buy_jdg : Failed to send buy signal."
-            trader.d_message(m)
+            print(m)
             raise Exception(m)
         self.set_trade(result[1])
         self.thread_flag = sell_jdg

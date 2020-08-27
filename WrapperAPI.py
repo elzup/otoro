@@ -1,12 +1,17 @@
 import hashlib
 import hmac
 import json
+import math
 from datetime import datetime
 from typing import Literal
 
 import requests
 
 from config import keys
+
+
+def round(v):
+    return math.floor(v * 10 ** 8) / 10 ** 8
 
 
 class WrapperAPI:
@@ -74,8 +79,8 @@ class WrapperAPI:
             self,
             child_order_type: Literal["LIMIT", "MARKET"],
             side,
-            price,
             size,
+            price=0,
             minute_to_expire=43200,
             time_in_force="GTC"):
         if child_order_type == "LIMIT":
@@ -84,7 +89,7 @@ class WrapperAPI:
                 "child_order_type": child_order_type,
                 "side": side,
                 "price": price,
-                "size": size,
+                "size": round(size),
                 "minute_to_expire": minute_to_expire,
                 "time_in_force": time_in_force
             }
@@ -93,10 +98,11 @@ class WrapperAPI:
                 "product_code": self.product_code,
                 "child_order_type": child_order_type,
                 "side": side,
-                "size": size,
+                "size": round(size),
                 "minute_to_expire": minute_to_expire,
                 "time_in_force": time_in_force
             }
+            print(body)
         else:
             m = "WrapperAPI/post_send_childorder : Illegal price or order type"
             raise Exception(m)

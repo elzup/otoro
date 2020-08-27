@@ -68,14 +68,9 @@ class TradeMethod:
         if not buy_flag:
             return False, None
 
-        try:
-            result = self.wrap.post_send_childorder("LIMIT", "BUY", price, amount)
-        except BaseException as e:
-            # print("注文が失敗しました")
-            print(type(e))
-            print(e)
-            return False, None
+        result = self.wrap.post_send_childorder("MARKET", "BUY", amount)
 
+        print(result)
         if 'status' in result and result["status"] != 200:
             return False, None
 
@@ -104,7 +99,7 @@ class TradeMethod:
         if not sell_flag:
             return False, None
         try:
-            result = self.wrap.post_send_childorder("LIMIT", "SELL", price, amount)
+            result = self.wrap.post_send_childorder("MARKET", "SELL", amount)
             print(result)
         except BaseException as e:
             print(type(e))
@@ -277,7 +272,6 @@ class TradeMethod:
 
         price = r["bids"][0]["price"] + 1
         amount = myJPY["available"] / price
-        amount = math.floor(amount * 10 ** 8) / 10 ** 8
         print(price, amount)
 
         return amount, price
@@ -303,7 +297,6 @@ class TradeMethod:
 
         price = r["bids"][0]["price"]
         amount = myBTC["available"]
-        amount = math.floor(amount * 10 ** 8) / 10 ** 8
         print(price, amount)
 
         return amount, price
