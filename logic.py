@@ -88,14 +88,18 @@ def exec_log(pos, max_v, min_v, current):
 
 
 def buy_judge_channelbreakout(i, size, data):
+    if i < size - 1:
+        return False
     max_v = max(data[i - size + 1:i, I_MAX])
     min_v = min(data[i - size + 1:i, I_MIN])
-    exec_log("b", max_v, min_v, data[i][I_MIN])
-    return max_v != min_v and max_v <= data[i][I_MIN]
+    exec_log("b", max_v, min_v, data[i][I_MAX])
+    return max_v != min_v and max_v <= data[i][I_MAX]
 
 
 def sell_judge_channelbreakout(i, size, data):
+    if i < size - 1:
+        return False
     max_v = max(data[i - size + 1:i, I_MAX])
     min_v = min(data[i - size + 1:i, I_MIN])
-    exec_log("s", max_v, min_v, data[i][I_MAX])
-    return max_v != min_v and min_v >= data[i][I_MAX]
+    exec_log("s", max_v, min_v, data[i][I_MIN])
+    return max_v != min_v and min_v >= data[i][I_MIN]

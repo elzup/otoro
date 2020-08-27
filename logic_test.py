@@ -1,19 +1,29 @@
-from logic import buy_judge_channelbreakout
+from logic import buy_judge_channelbreakout, sell_judge_channelbreakout
 import unittest
+import numpy as np
+
+data = np.array([
+    [0, 10, 13, 5, 11],
+    [1, 11, 14, 11, 13],
+    [2, 13, 14, 10, 11],
+    [3, 10, 13, 9, 16],
+    [4, 16, 17, 9, 11],  # high
+    [5, 11, 13, 7, 15]  # low
+])
 
 
 class TestStringMethods(unittest.TestCase):
 
     def test_buy(self):
-        data = [
-            [0, 10, 13, 9, 11],
-            [1, 11, 14, 11, 13],
-            [2, 13, 14, 15, 11],
-            [3, 10, 13, 9, 17],
-            [4, 17, 17, 9, 11],
-            [5, 11, 13, 9, 11]
-        ]
-        self.assertTrue(buy_judge_channelbreakout(3, 3, data[:3]))
+        self.assertTrue(buy_judge_channelbreakout(4, 3, data))
+        self.assertFalse(buy_judge_channelbreakout(5, 3, data))
+
+    def test_sell(self):
+        self.assertTrue(sell_judge_channelbreakout(5, 5, data))
+        self.assertFalse(sell_judge_channelbreakout(3, 4, data))
+
+    def test_not_fill(self):
+        self.assertFalse(buy_judge_channelbreakout(3, 5, data))
 
 
 if __name__ == '__main__':
