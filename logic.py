@@ -21,7 +21,7 @@ class ExecLogic:
             i = size - 1
         if i < size - 1 or size == 0:
             return False
-        return buy_judge_channelbreakout(i=i, data=data, size=size)
+        return buy_judge_channelbreakout_i(i=i, data=data, size=size)
 
     def sell_judge(self, i=0, data=None, size=tconf.channel_breakout_size):
         if tconf.cycle_debug:
@@ -33,7 +33,7 @@ class ExecLogic:
         if i < size - 1 or size == 0:
             return False
 
-        return sell_judge_channelbreakout(i=i, data=data, size=size)
+        return sell_judge_channelbreakout_i(i=i, data=data, size=size)
 
 
 def __buy_judge_candle(self, i, data):
@@ -87,19 +87,27 @@ def exec_log(pos, max_v, min_v, current):
     log(f"{pos} {timestamp()}{fstr(max_v)}{fstr(min_v)}{fstr(current)}")
 
 
-def buy_judge_channelbreakout(i, size, data):
-    if i < size - 1:
-        return False
-    max_v = max(data[i - size + 1:i, I_MAX])
-    min_v = min(data[i - size + 1:i, I_MIN])
-    exec_log("b", max_v, min_v, data[i][I_MAX])
-    return max_v != min_v and max_v <= data[i][I_MAX]
+def buy_judge_channelbreakout_i(i, size, data):
+    si = i - size + 1
+    return si >= 0 and buy_judge_channelbreakout(data[si:i + 1])
 
 
-def sell_judge_channelbreakout(i, size, data):
-    if i < size - 1:
-        return False
-    max_v = max(data[i - size + 1:i, I_MAX])
-    min_v = min(data[i - size + 1:i, I_MIN])
-    exec_log("s", max_v, min_v, data[i][I_MIN])
-    return max_v != min_v and min_v >= data[i][I_MIN]
+def sell_judge_channelbreakout_i(i, size, data):
+    si = i - size + 1
+    return si >= 0 and sell_judge_channelbreakout(data[si:i + 1])
+
+
+def buy_judge_channelbreakout(data):
+    hv = max(data[:, I_MAX])
+    lv = min(data[:, I_MIN])
+    v = data[-1, I_MAX]
+    exec_log("b", hv, lv, v)
+    return hv <= v
+
+
+def sell_judge_channelbreakout(data):
+    hv = max(data[:, I_MAX])
+    lv = min(data[:, I_MIN])
+    v = data[-1, I_MIN]
+    exec_log("b", hv, lv, v)
+    return lv >= v
