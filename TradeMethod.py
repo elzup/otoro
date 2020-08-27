@@ -65,8 +65,7 @@ class TradeMethod:
                         raise Exception(m)
 
     def __buy_signal(self, amount, price, buy_flag):
-        if not buy_flag:
-            return False, None
+        if not buy_flag: return False, None
 
         result = self.wrap.post_send_childorder("MARKET", "BUY", amount)
 
@@ -96,8 +95,7 @@ class TradeMethod:
         return result
 
     def __sell_signal(self, amount, price, sell_flag):
-        if not sell_flag:
-            return False, None
+        if not sell_flag: return False, None
         try:
             result = self.wrap.post_send_childorder("MARKET", "SELL", amount)
             print(result)
@@ -186,10 +184,8 @@ class TradeMethod:
             else:
                 break
 
-        if len(r) == 0:
-            return None
-        elif len(r) == 1:
-            return r[0]
+        if len(r) == 0: return None
+        elif len(r) == 1: return r[0]
         else:
             print(type(r))
             print(r)

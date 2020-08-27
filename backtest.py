@@ -3,7 +3,6 @@
 from services.cryptowatcli import get_ohlc
 import numpy as np
 import pandas as pd
-import requests
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.cm as cm
@@ -11,7 +10,7 @@ import time
 from datetime import datetime
 
 from config import config as tconf
-from logic import ExecLogic
+from logic import buy_judge_channelbreakout_i, sell_judge_channelbreakout_i
 
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
@@ -43,13 +42,11 @@ def get_price_data():
 
 
 def buy_signal(response, i, size):
-    ex = ExecLogic()
-    return ex.buy_judge(data=response, i=i, size=size)
+    return buy_judge_channelbreakout_i(data=response, i=i, size=size)
 
 
 def sell_signal(response, i, size):
-    ex = ExecLogic()
-    return ex.sell_judge(data=response, i=i, size=size)
+    return sell_judge_channelbreakout_i(data=response, i=i, size=size)
 
 # --------------------------------------------------------------
 # ここからアルゴリズム

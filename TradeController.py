@@ -59,8 +59,7 @@ class TradeController:
 
     def buy_step(self):
         # データを取得して買い判定か調べる
-        if not logic.buy_judge():
-            return
+        if not logic.buy_judge(): return
         amount, price = trader.calc_buy_amount_price()
         fee = trader.wrap.get_my_tradingcommission()
         amount *= (1 - fee)
@@ -78,8 +77,7 @@ class TradeController:
         trader.d_message(f"Send buy order\nsize: {amount}\nprice: {price}")
 
     def sell_step(self):
-        if not logic.sell_judge():
-            return
+        if not logic.sell_judge(): return
         amount, price = trader.calc_sell_amount_price()
         fee = trader.wrap.get_my_tradingcommission()
         amount *= (1 - fee)

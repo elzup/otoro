@@ -5,8 +5,7 @@ client = slackweb.Slack(url=conf.slack_webhook_url)
 
 
 def buy_notice(price, amount):
-    if not conf.slack_webhook_url:
-        return
+    if not conf.slack_webhook_url: return
     client.notify(title="BTC buy event",
                   text=f"BUY  :yen: ¥{price * amount} => :bitcoin: *{amount}* BTC",
                   icon_emoji=":bitcoin",
@@ -15,8 +14,7 @@ def buy_notice(price, amount):
 
 
 def sell_notice(price, amount):
-    if not conf.slack_webhook_url:
-        return
+    if not conf.slack_webhook_url: return
     client.notify(title="BTC sell event",
                   text=f"SELL :yen: *¥{price * amount}* <= :bitcoin: {amount} BTC",
                   icon_emoji=":bitcoin",
@@ -25,8 +23,7 @@ def sell_notice(price, amount):
 
 
 def start_notice():
-    if not conf.slack_webhook_url:
-        return
+    if not conf.slack_webhook_url: return
     client.notify(title="Bot Running",
                   text="Bot Running",
                   icon_emoji=":bitcoin",
