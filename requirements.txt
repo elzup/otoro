@@ -3,3 +3,4 @@ matplotlib==3.3.0
 requests==2.24.0
 pandas==1.0.5
 slackweb==1.0.5
+pep8==1.7.1
