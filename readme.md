@@ -56,7 +56,7 @@ $ python python make_data/convert_ohlc_cc.py
 ## Run backtest
 
 ```sh
-$ LOGIC_PRINT= python myBackTest.py
+$ LOGIC_PRINT= python backtest.py
 ```
 
 ```
