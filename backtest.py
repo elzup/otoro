@@ -62,7 +62,6 @@ INIT_JPY = 100000
 
 
 def backtest(res, count, hsize, lsize = None):
-    clean()
     lsize = lsize or hsize
     i = 0
 
@@ -151,6 +150,7 @@ def range_backtest():
         times.append(str(datetime.fromtimestamp(res[0][0])))
         count = len(res)
         h = int(60 * 60 / tconf.size_candle)
+        clean()
         arr.append(list(map(lambda i: backtest(res, count, 38 * h, 36 * h), ranges)))
         btcrates.append(str(res[-1][4] / res[0][4]))
 
