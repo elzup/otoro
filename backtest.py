@@ -61,7 +61,7 @@ period = tconf.size_candle
 INIT_JPY = 100000
 
 
-def backtest(res, count, hsize, lsize = None):
+def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
     lsize = lsize or hsize
     i = 0
 
@@ -77,7 +77,7 @@ def backtest(res, count, hsize, lsize = None):
             if i > count - 500:
                 break
 
-            if buy_signal(res, i, hsize):
+            if buy_logic(i=i, data=res, size=hsize, margin=hmargin):
                 price = res[i][4]
                 mybtc = myjpy / price * (1 - fee)
                 myjpy = 0
@@ -87,7 +87,8 @@ def backtest(res, count, hsize, lsize = None):
 
         while not buy_position:
             asset_list.append(myjpy + mybtc * res[i][4])
-            if sell_signal(res, i, lsize):
+            
+            if sell_logic(data=res, i=i, size=lsize, margin=lmargin):
                 myjpy = mybtc * res[i][4] * (1 - fee)
                 mybtc = 0
                 buy_position = True
@@ -122,7 +123,8 @@ def backtest(res, count, hsize, lsize = None):
         time.sleep(1)
         plt.close()
 
-    return str(asset_list[-1] / INIT_JPY)
+    return str(round(asset_list[-1] / INIT_JPY, 4))
+    # return str(asset_list[-1] / INIT_JPY)
 
 
 def main():
@@ -174,18 +176,41 @@ def range_hl_backtest():
     for l in ranges:
         count = len(res)
         h = int(60 * 60 / tconf.size_candle)
-        # h = 1
         arr.append([str(l)] + list(map(lambda i: backtest(res, count, h * i, h * l), ranges)))
         btcrates.append(str(res[-1][4] / res[0][4]))
 
-    # print("btc")
-    # print("\t".join(btcrates))
-
-    print("my")
+    print("btc\t" + "\t".join(btcrates))
     print("\n".join(map(lambda a: "\t".join(a), arr)))
+
+def range_hl_margin_backtest():
+    arr = []
+    btcrates = []
+    data = get_local_data()
+    margins = list(map(lambda i: i * 0.5, range(-5, 5)))
+    ranges = list(range(35, 45))
+    # print("\t".join(['lm/hm'] + list(map(str,  margins))))
+    print("\t".join(['ls\\hs'] + list(map(str,  ranges))))
+
+    band = 100000
+    term = 1
+    res = np.array(data[100000:])
+    print(str(datetime.fromtimestamp(res[0][0])))
+    # res = np.array(data[110000:])
+    count = len(res)
+    print("btc\t" + str(res[-1][4] / res[0][4]))
+    # for lm in margins:
+    for lsize in ranges:
+        h = int(60 * 60 / tconf.size_candle)
+        arr.append([str(lsize)] + list(map(lambda hsize: backtest(res, count, hsize * h, lsize * h, -0.05, -0.05), ranges)))
+        # arr.append([str(lm)] + list(map(lambda hm: backtest(res, count, 38 * h, 36 * h, lm, hm), margins)))
+        btcrates.append(str(res[-1][4] / res[0][4]))
+        print("\t".join(arr[-1]))
+
+    # print("\n".join(map(lambda a: "\t".join(a), arr)))
 
 
 if __name__ == "__main__":
     # main()
-    range_backtest()
+    # range_backtest()
     # range_hl_backtest()
+    range_hl_margin_backtest()

@@ -45,19 +45,22 @@ def sell_judge_channelbreakout_i(i, size, data):
 
 
 cmax = {}
+step = 2
 def dmax(a, b, data):
+    global cmax
     if (a, b) in cmax: return cmax[a, b]
-    if (a, b - 1) in cmax:
-        cmax[a, b] = max(cmax[a, b - 1], data[b - 1, I_MAX])
+    if (a, b - step) in cmax:
+        cmax[a, b] = max(cmax[a, b - step], data[b - step, I_MAX])
     else:
         cmax[a, b] = max(data[a:b, I_MAX])
     return cmax[a, b]
 
 cmin = {}
 def dmin(a, b, data):
+    global cmin
     if (a, b) in cmin: return cmin[a, b]
-    if (a, b - 1) in cmin:
-        cmin[a, b] = min(cmin[a, b - 1], data[b - 1, I_MIN])
+    if (a, b - step) in cmin:
+        cmin[a, b] = min(cmin[a, b - step], data[b - step, I_MIN])
     else:
         cmin[a, b] = min(data[a:b, I_MIN])
     return cmin[a, b]
@@ -72,8 +75,8 @@ def buy_judge_channelbreakout_ic(i, size, data, margin=0):
     si = i - size + 1
     if si < 0: return
 
-    hv = dmax(si, i + 1, data)
-    lv = dmin(si, i + 1, data)
+    hv = dmax(si, i, data)
+    lv = dmin(si, i, data)
     v = data[i, I_MAX]
     d = (hv - lv)
     tv = v - lv
@@ -83,12 +86,12 @@ def sell_judge_channelbreakout_ic(i, size, data, margin=0):
     si = i - size + 1
     if si < 0: return
 
-    hv = dmax(si, i + 1, data)
-    lv = dmin(si, i + 1, data)
+    hv = dmax(si, i, data)
+    lv = dmin(si, i, data)
     v = data[i, I_MIN]
     d = (hv - lv)
     tv = v - lv
-    return margin >= tv / d <= margin
+    return tv / d <= margin
 
 
 def buy_judge_channelbreakout(data):
