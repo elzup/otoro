@@ -24,46 +24,10 @@ class ExecLogic:
         return sell_judge_channelbreakout(data)
 
 
-def __buy_judge_candle(self, i, data):
-    min_datasize = 3
-    if i < min_datasize: return False
-    d0 = data[i - 2][1] - data[i - 2][4]
-    d1 = data[i - 1][1] - data[i - 1][4]
-    d2 = data[i][1] - data[i][4]
-
-    limit = tconf.buy_judge_limit
-
-    return ((d0 > 0) and (d1 > 0) and (d2 > 0)) and (d0 / d2 > limit and d1 / d2 > limit)
 
 
-def __buy_judge_goldencross(self, i, data):
-    min_datasize = 11
-    if i < min_datasize: return False
-
-    sm_now = sm_post = wm_now = wm_post = 0  # sm means simplemean and wm means weightmean
-    sum0 = 0
-    for j in range(min_datasize - 1):
-        sm_now += data[i - j][4]
-        sm_post += data[i - j - 1][4]
-        wm_now += data[i - j][4] * (min_datasize - 1 - j)
-        wm_post += data[i - j - 1][4] * (min_datasize - 1 - j)
-        sum0 += min_datasize - 1 - j
-
-    sm_now /= min_datasize - 1
-    sm_post /= min_datasize - 1
-
-    wm_now /= sum0
-    wm_post /= sum0
-
-    return sm_post > wm_post and sm_now < wm_now and sm_now < sm_post
-
-
-def fstr(n):
-    return str(int(n)).rjust(8, ' ')
-
-
-def timestamp():
-    return datetime.now().strftime('%m%d_%H%M')
+fstr = lambda n: str(int(n)).rjust(8, ' ')
+timestamp = lambda: datetime.now().strftime('%m%d_%H%M')
 
 
 def exec_log(pos, max_v, min_v, current):
@@ -78,6 +42,47 @@ def buy_judge_channelbreakout_i(i, size, data):
 def sell_judge_channelbreakout_i(i, size, data):
     si = i - size + 1
     return si >= 0 and sell_judge_channelbreakout(data[si:i + 1])
+
+
+cmax = {}
+def dmax(a, b, data):
+    if (a, b) in cmax: return cmax[a, b]
+    if (a, b - 1) in cmax:
+        cmax[a, b] = max(cmax[a, b - 1], data[b - 1, I_MAX])
+    else:
+        cmax[a, b] = max(data[a:b, I_MAX])
+    return cmax[a, b]
+
+cmin = {}
+def dmin(a, b, data):
+    if (a, b) in cmin: return cmin[a, b]
+    if (a, b - 1) in cmin:
+        cmin[a, b] = min(cmin[a, b - 1], data[b - 1, I_MIN])
+    else:
+        cmin[a, b] = min(data[a:b, I_MIN])
+    return cmin[a, b]
+
+def clean():
+    global cmax, cmin
+    cmax = {}
+    cmin = {}
+
+
+def buy_judge_channelbreakout_ic(i, size, data):
+    si = i - size + 1
+    if si < 0: return
+
+    hv = dmax(si, i + 1, data)
+    v = data[i, I_MAX]
+    return hv <= v
+
+def sell_judge_channelbreakout_ic(i, size, data):
+    si = i - size + 1
+    if si < 0: return
+
+    lv = dmin(si, i + 1, data)
+    v = data[i, I_MIN]
+    return lv >= v
 
 
 def buy_judge_channelbreakout(data):
