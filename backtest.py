@@ -10,7 +10,8 @@ import time
 from datetime import datetime
 
 from config import config as tconf
-from logic import buy_judge_channelbreakout_i, sell_judge_channelbreakout_i
+# from logic import buy_judge_channelbreakout_i as buy_logic, sell_judge_channelbreakout_i as sell_logic
+from logic import buy_judge_channelbreakout_ic as buy_logic, sell_judge_channelbreakout_ic as sell_logic, clean
 
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
@@ -41,12 +42,12 @@ def get_price_data():
 # 評価値系
 
 
-def buy_signal(response, i, size):
-    return buy_judge_channelbreakout_i(data=response, i=i, size=size)
+def buy_signal(data, i, size):
+    return buy_logic(i=i, data=data, size=size)
 
 
-def sell_signal(response, i, size):
-    return sell_judge_channelbreakout_i(data=response, i=i, size=size)
+def sell_signal(data, i, size):
+    return sell_logic(data=data, i=i, size=size)
 
 # --------------------------------------------------------------
 # ここからアルゴリズム
@@ -60,10 +61,10 @@ period = tconf.size_candle
 INIT_JPY = 100000
 
 
-def backtest(res, count, size):
-    # return str(size)
+def backtest(res, count, hsize, lsize = None):
+    clean()
+    lsize = lsize or hsize
     i = 0
-    # profit = loss = count1 = count2 = 0
 
     myjpy = INIT_JPY
     mybtc = 0
@@ -77,7 +78,7 @@ def backtest(res, count, size):
             if i > count - 500:
                 break
 
-            if buy_signal(res, i, size):
+            if buy_signal(res, i, hsize):
                 price = res[i][4]
                 mybtc = myjpy / price * (1 - fee)
                 myjpy = 0
@@ -87,7 +88,7 @@ def backtest(res, count, size):
 
         while not buy_position:
             asset_list.append(myjpy + mybtc * res[i][4])
-            if sell_signal(res, i, size):
+            if sell_signal(res, i, lsize):
                 myjpy = mybtc * res[i][4] * (1 - fee)
                 mybtc = 0
                 buy_position = True
@@ -116,8 +117,8 @@ def backtest(res, count, size):
         def ymdformat(dt):
             return datetime.fromtimestamp(dt).strftime("%Y-%m-%d")
 
-        filename = f"backtest_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{size}.png"
-        fig.savefig(f"img/backtest63/{filename}")
+        filename = f"backtest_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
+        fig.savefig(f"img/backtest/{filename}")
 
         time.sleep(1)
         plt.close()
@@ -131,7 +132,6 @@ def main():
     backtest(res, count, tconf.channel_breakout_size)
 
 
-ranges = [39]
 
 
 def range_backtest():
@@ -140,29 +140,52 @@ def range_backtest():
     btcrates = []
     times = []
     data = get_local_data()
+    ranges = [39]
 
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / band))
-    for s in range(10, 11):
-        # for s in range(10, int(len(data) / band)):
+    # for s in range(10, 11):
+    for s in range(10, int(len(data) / band)):
         res = np.array(data[band * s: band * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         count = len(res)
         h = int(60 * 60 / tconf.size_candle)
-        # h = 1
-        arr.append(list(map(lambda i: backtest(res, count, h * i), ranges)))
+        arr.append(list(map(lambda i: backtest(res, count, 38 * h, 36 * h), ranges)))
         btcrates.append(str(res[-1][4] / res[0][4]))
 
     print("times")
-    print(",".join(times))
+    print("\t".join(times))
     print("btc")
-    print(",".join(btcrates))
+    print("\t".join(btcrates))
 
     print("my")
-    print("\n".join(map(lambda a: ",".join(a), np.transpose(arr))))
+    print("\n".join(map(lambda a: "\t".join(a), np.transpose(arr))))
+
+
+def range_hl_backtest():
+    arr = []
+    btcrates = []
+    data = get_local_data()
+    ranges = list(range(30, 51))
+    print("\t".join(['low/high'] + list(map(str,  ranges))))
+
+    res = np.array(data[110000:])
+    for l in ranges:
+        count = len(res)
+        h = int(60 * 60 / tconf.size_candle)
+        # h = 1
+        arr.append([str(l)] + list(map(lambda i: backtest(res, count, h * i, h * l), ranges)))
+        btcrates.append(str(res[-1][4] / res[0][4]))
+
+    # print("btc")
+    # print("\t".join(btcrates))
+
+    print("my")
+    print("\n".join(map(lambda a: "\t".join(a), arr)))
 
 
 if __name__ == "__main__":
     # main()
     range_backtest()
+    # range_hl_backtest()
