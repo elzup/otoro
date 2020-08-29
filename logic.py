@@ -68,21 +68,27 @@ def clean():
     cmin = {}
 
 
-def buy_judge_channelbreakout_ic(i, size, data):
+def buy_judge_channelbreakout_ic(i, size, data, margin=0):
     si = i - size + 1
     if si < 0: return
 
     hv = dmax(si, i + 1, data)
+    lv = dmin(si, i + 1, data)
     v = data[i, I_MAX]
-    return hv <= v
+    d = (hv - lv)
+    tv = v - lv
+    return (1 - margin) <= tv / d
 
-def sell_judge_channelbreakout_ic(i, size, data):
+def sell_judge_channelbreakout_ic(i, size, data, margin=0):
     si = i - size + 1
     if si < 0: return
 
+    hv = dmax(si, i + 1, data)
     lv = dmin(si, i + 1, data)
     v = data[i, I_MIN]
-    return lv >= v
+    d = (hv - lv)
+    tv = v - lv
+    return margin >= tv / d <= margin
 
 
 def buy_judge_channelbreakout(data):
