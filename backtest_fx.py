@@ -1,24 +1,23 @@
 # from pprint import pprint
 
+import time
+from datetime import datetime
 from typing import Literal
-from logger import log
+
+import matplotlib.cm as cm
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import requests
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import matplotlib.cm as cm
-import time
-from datetime import datetime
-from logic import buy_judge_channelbreakout_ic as buy_logic, sell_judge_channelbreakout_ic as sell_logic, clean
 
 from config import config as tconf
-
+from logic import buy_judge_channelbreakout_ic as buy_logic
+from logic import clean
+from logic import sell_judge_channelbreakout_ic as sell_logic
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
-# -----------------------------------------------------------------
-# 取引所関係のmethod
 
 
 def parse_csv_line(line):
@@ -48,10 +47,7 @@ def ymdformat(dt):
     return datetime.fromtimestamp(dt).strftime("%Y-%m-%d")
 
 
-# 何秒足
 period = tconf.size_candle
-# flag
-# res = get_price_data()
 
 INIT_JPY = 100000
 # comm = 0.0015
@@ -77,7 +73,6 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
                 myjpy = 0
                 position = 'long'
             elif sell_logic(data=res, i=i, size=lsize, margin=lmargin):
-                # TODO
                 position = 'short'
                 out_ypb = ypb
         elif position == 'long':
@@ -91,7 +86,7 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
                 out_ypb = 0
                 position = 'none'
     
-        if position is 'short':
+        if position == 'short':
             asset_list.append((myjpy * out_ypb / ypb))
         else:
             asset_list.append(myjpy + mybtc * ypb)
@@ -105,20 +100,16 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
         x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
         btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
         yen = np.array(asset_list)
-
         df = pd.DataFrame({'i': x, 'btc': btc, 'yen': yen})
-        # df2 = pd.DataFrame(index=x, data=dict(v=v2))
-
         fig, ax = plt.subplots()
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
-
         ax.plot('i', 'btc', data=df, color=cm.Set1.colors[0])
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
         # plt.show()
 
 
-        filename = f"backtest_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
+        filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
         fig.savefig(f"img/backtest/{filename}")
 
         time.sleep(1)
@@ -128,9 +119,14 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
 
 
 def main():
-    res = np.array(get_local_data()[tconf.backtest_bgn:tconf.backtest_end])
-    count = len(res)
-    backtest(res, count, tconf.channel_breakout_size)
+    data = np.array(get_local_data())
+    band = 10000
+    
+    for s in range(11, int(len(data) / band)):
+        res = np.array(data[band * s: band * (s + 1)])
+        count = len(res)
+        clean()
+        backtest(res, count, tconf.channel_breakout_size_fx)
 
 
 def range_backtest():
@@ -138,11 +134,15 @@ def range_backtest():
     arr = []
     btcrates = []
     times = []
+    sizes = range(1, 30)
+    # data = get_price_data()
     data = get_local_data()
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / band))
-    for s in range(1, int(len(data) / band)):
+    arr.append(list(map(str,  sizes)))
+
+    for s in range(11, int(len(data) / band)):
         # for s in range(1, 2):
         res = np.array(data[band * s: band * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
@@ -150,18 +150,19 @@ def range_backtest():
         # pprint(count)
         h = int(60 * 60 / tconf.size_candle)
         # h = 1
-        arr.append(list(map(lambda i: backtest(res, count, h * i), range(5, 41, 5))))
-        btcrates.append(str(res[-1][4] / res[0][4]))
+        clean()
+        # arr.append(list(map(lambda i: str(i), sizes)))
+        arr.append(list(map(lambda i: backtest(res, count, h * i), sizes)))
+        btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
+        
 
-    print("times")
-    print(",".join(times))
-    print("btc")
-    print(",".join(btcrates))
+    print("\t".join(['time'] + times))
+    print("\t".join(['btc'] + btcrates))
 
-    print("my")
-    print("\n".join(map(lambda a: ",".join(a), np.transpose(arr))))
+    print("\n".join(map(lambda a: "\t".join(a), np.transpose(arr))))
+    # print("\n".join(map(lambda a: "\t".join(a), arr)))
 
 
 if __name__ == "__main__":
-    # main()
-    range_backtest()
+    main()
+    # range_backtest()

@@ -16,7 +16,7 @@ cycle_debug = False
 if cycle_debug:
     sleep_time = 10
 log = True
-plot = False
+plot = getenv("PLOT", False)
 logic_print = getenv("LOGIC_PRINT", True)
 
 # x1.5 / 6 month
@@ -27,6 +27,9 @@ logic_print = getenv("LOGIC_PRINT", True)
 size_candle = 60 * 5
 h = int(60 * 60 / size_candle)
 channel_breakout_size = 39 * h
+
+
+channel_breakout_size_fx = 22 * h
 
 backtest_range = 100000
 backtest_season = 3  # 0, 1, 2 ...

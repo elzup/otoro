@@ -80,6 +80,9 @@ def buy_judge_channelbreakout_ic(i, size, data, margin=0):
     v = data[i, I_MAX]
     d = (hv - lv)
     tv = v - lv
+    if d == 0:
+        # print("diff0: ", size, hv, lv)
+        return False
     return (1 - margin) <= tv / d
 
 def sell_judge_channelbreakout_ic(i, size, data, margin=0):
@@ -91,6 +94,9 @@ def sell_judge_channelbreakout_ic(i, size, data, margin=0):
     v = data[i, I_MIN]
     d = (hv - lv)
     tv = v - lv
+    if d == 0:
+        # print("diff0: ", size, hv, lv)
+        return False
     return tv / d <= margin
 
 
