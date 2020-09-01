@@ -1,5 +1,6 @@
 # from pprint import pprint
 
+from typing import Literal
 from logger import log
 import numpy as np
 import pandas as pd
@@ -9,9 +10,9 @@ import matplotlib.dates as mdates
 import matplotlib.cm as cm
 import time
 from datetime import datetime
+from logic import buy_judge_channelbreakout_ic as buy_logic, sell_judge_channelbreakout_ic as sell_logic, clean
 
 from config import config as tconf
-from logic import ExecLogic
 
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
@@ -22,9 +23,6 @@ output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
 
 def parse_csv_line(line):
     return list(map(float, line.split(",")))
-
-# 2017~ からの5分足データ
-
 
 def get_local_data():
     f = open(output_file_name)
@@ -46,91 +44,62 @@ def get_price_data():
     return np.array(result)
 
 
-# --------------------------------------------------------------------
-# 評価値系
-
-# RSIとMACDによる買いサイン
-def buy_signal(response, i, size):
-    ex = ExecLogic()
-    return ex.buy_judge(data=response, i=i, size=size)
+def ymdformat(dt):
+    return datetime.fromtimestamp(dt).strftime("%Y-%m-%d")
 
 
-def sell_signal(response, i, size):
-    ex = ExecLogic()
-    return ex.sell_judge(data=response, i=i, size=size)
-
-# --------------------------------------------------------------
-# ここからアルゴリズム
-
-
-# comm = 0.0015
-comm = 0
 # 何秒足
 period = tconf.size_candle
 # flag
 # res = get_price_data()
 
+INIT_JPY = 100000
+# comm = 0.0015
+DAY_COMM = 1 - 0.0004
+DAY_STEP = 12 * 24
 
-def backtest(res, count, size):
-    # return str(size)
+def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
+    lsize = lsize or hsize
     i = 0
-    # profit = loss = count1 = count2 = 0
-    flag = {
-        "check": True,
-        "buy_position": False
-    }
 
-    myjpy = 100000
+    myjpy = INIT_JPY
     mybtc = 0
 
     asset_list = [myjpy]
-    change_point = res[0][1]
+    position: Literal['none', 'long', 'short'] = 'none'
+    out_ypb = 0
 
-    daystep = 12 * 24
     while i < count - 500:
-        while(flag["check"]):
-
-            if i % daystep == 0:
-                myjpy *= (1 - 0.00004)
-            price = res[i][4]
-            try:
-                asset_list.append((myjpy * change_point / price) + mybtc * price)
-            except BaseException:
-                print(myjpy, mybtc)
-                print(res[i])
-            if i > count - 500:
-                # asset_list.append(myjpy + mybtc * res[i][4])
-                break
-
-            if buy_signal(res, i, size):
-                log(f"Buy order: {i}")
-
-                mybtc = (myjpy * price / change_point) / price * (1 - comm)
+        ypb = res[i][4]
+        if position == 'none':
+            if buy_logic(i=i, data=res, size=hsize, margin=hmargin):
+                mybtc = myjpy / ypb
                 myjpy = 0
-                flag["buy_position"] = True
-                flag["check"] = False
-
-            i += 1
-
-        while(flag["buy_position"]):
-            if i % daystep == 0:
-                mybtc *= (1 - 0.00004)
-            asset_list.append(myjpy + mybtc * res[i][4])
-            if sell_signal(res, i, size):
-                log(f"Sell order: {i}")
-                # count1 += 1
-                myjpy = mybtc * res[i][4] * (1 - comm)
+                position = 'long'
+            elif sell_logic(data=res, i=i, size=lsize, margin=lmargin):
+                # TODO
+                position = 'short'
+                out_ypb = ypb
+        elif position == 'long':
+            if sell_logic(data=res, i=i, size=lsize, margin=0.5):
+                myjpy = mybtc * ypb
                 mybtc = 0
+                position = 'none'
+        elif position == 'short':
+            if buy_logic(i=i, data=res, size=hsize, margin=0.5):
+                myjpy = myjpy * out_ypb / ypb
+                out_ypb = 0
+                position = 'none'
+    
+        if position is 'short':
+            asset_list.append((myjpy * out_ypb / ypb))
+        else:
+            asset_list.append(myjpy + mybtc * ypb)
 
-                flag["buy_position"] = False
-                flag["check"] = True
-                change_point = res[i][4]
-            i += 1
-            if i > count - 500:
-                asset_list.append(myjpy + mybtc * res[i][4])
-                break
-    # chart = list(map(lambda v: v[4], res))
-    # ts = pd.Series(chart, index=date_range('2000-01-01', periods=1000))
+        i += 1
+        if i % DAY_STEP == 0:
+            out_ypb *= DAY_COMM
+            mybtc *= DAY_COMM
 
     if tconf.plot:
         x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
@@ -148,27 +117,14 @@ def backtest(res, count, size):
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
         # plt.show()
 
-        def ymdformat(dt):
-            return datetime.fromtimestamp(dt).strftime("%Y-%m-%d")
 
-        filename = f"backtest_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{size}.png"
-        fig.savefig(f"img/backtest63/{filename}")
+        filename = f"backtest_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
+        fig.savefig(f"img/backtest/{filename}")
 
         time.sleep(1)
         plt.close()
 
-    # print("profit:" + str(profit))
-    # print("loss:" + str(loss))
-    # print("earn:" + str(myjpy + mybtc * res[i][4]))
-    # print("count1:" + str(count1))
-    # print("count2:" + str(count2))
-    # print(datetime.fromtimestamp(res[0][0]))
-    # print(res[0][0])
-    # print("〜")
-    # print(datetime.fromtimestamp(res[-1][0]))
-    # print(res[-1][0])
-    # print(f"{size},{asset_list[-1]}")
-    return str(asset_list[-1] / 100000)
+    return str(round(asset_list[-1] / INIT_JPY, 4))
 
 
 def main():
