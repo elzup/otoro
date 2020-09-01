@@ -1,5 +1,6 @@
 # from pprint import pprint
 
+from services.cryptowatcli import get_ohlc
 import time
 from datetime import datetime
 from typing import Literal
@@ -9,7 +10,6 @@ import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import requests
 
 from config import config as tconf
 from logic import buy_judge_channelbreakout_ic as buy_logic
@@ -31,23 +31,16 @@ def get_local_data():
 
     return list(csvarr)
 
-
 def get_price_data():
-    response = requests.get(
-        "https://api.cryptowat.ch/markets/bitflyer/btcfxjpy/ohlc",
-        params={
-            "periods": period,
-            "after": 1})
-    response = response.json()
-    result = response["result"][str(period)]
-    return np.array(result)
+    data, _ = get_ohlc(tconf.size_candle, 1000)
+    return data
+
 
 
 def ymdformat(dt):
     return datetime.fromtimestamp(dt).strftime("%Y-%m-%d")
 
 
-period = tconf.size_candle
 
 INIT_JPY = 100000
 # comm = 0.0015
@@ -76,12 +69,12 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
                 position = 'short'
                 out_ypb = ypb
         elif position == 'long':
-            if sell_logic(data=res, i=i, size=lsize, margin=0.5):
+            if sell_logic(data=res, i=i, size=lsize, margin=0.25):
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
         elif position == 'short':
-            if buy_logic(i=i, data=res, size=hsize, margin=0.5):
+            if buy_logic(i=i, data=res, size=hsize, margin=0.25):
                 myjpy = myjpy * out_ypb / ypb
                 out_ypb = 0
                 position = 'none'
@@ -110,7 +103,7 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
 
 
         filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
-        fig.savefig(f"img/backtest/{filename}")
+        fig.savefig(f"img/backtestfx/{filename}")
 
         time.sleep(1)
         plt.close()
@@ -120,21 +113,24 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
 
 def main():
     data = np.array(get_local_data())
+    # data = get_price_data()
     band = 10000
-    
-    for s in range(11, int(len(data) / band)):
+    prices = []
+    print(len(data))
+
+    for s in range(0, int(len(data) / band) + 1):
         res = np.array(data[band * s: band * (s + 1)])
         count = len(res)
         clean()
-        backtest(res, count, tconf.channel_breakout_size_fx)
-
+        prices.append(backtest(res, count, tconf.channel_breakout_size_fx))
+    print("\t".join(prices))
 
 def range_backtest():
     band = 10000
     arr = []
     btcrates = []
     times = []
-    sizes = range(1, 30)
+    sizes = range(1, 60)
     # data = get_price_data()
     data = get_local_data()
     print(len(data))
@@ -164,5 +160,5 @@ def range_backtest():
 
 
 if __name__ == "__main__":
-    main()
-    # range_backtest()
+    # main()
+    range_backtest()
