@@ -47,7 +47,7 @@ INIT_JPY = 100000
 DAY_COMM = 1 - 0.0004
 DAY_STEP = 12 * 24
 
-def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
+def backtest(res, hsize, lsize = None, hmargin = 0, lmargin = 0, close_margin=0, wcheck=False):
     count = len(res)
     lsize = lsize or hsize
     i = 0
@@ -65,23 +65,23 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
         is_last = i == count - 501
         date, _, _, _, ypb, _ = res[i]
         if position == 'none':
-            if buy_logic(i=i, data=res, size=hsize, margin=0):
+            if buy_logic(i=i, data=res, size=hsize, margin=hmargin, wcheck=wcheck):
                 mybtc = myjpy / ypb
                 myjpy = 0
                 position = 'long'
                 lngs.append([date])
-            elif sell_logic(data=res, i=i, size=lsize, margin=0):
+            elif sell_logic(data=res, i=i, size=lsize, margin=lmargin, wcheck=wcheck):
                 position = 'short'
                 out_ypb = ypb
                 shts.append([date])
         elif position == 'long':
-            if  is_last or sell_logic(data=res, i=i, size=lsize, margin=0.75):
+            if  is_last or sell_logic(data=res, i=i, size=lsize, margin=close_margin):
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
                 lngs[-1].append(date)
         elif position == 'short':
-            if is_last or buy_logic(i=i, data=res, size=hsize, margin=0.75):
+            if is_last or buy_logic(i=i, data=res, size=hsize, margin=close_margin):
                 myjpy = myjpy * out_ypb / ypb
                 out_ypb = 0
                 position = 'none'
@@ -106,8 +106,10 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
         ax.plot('i', 'btc', data=df, color=cm.Set1.colors[0])
         for lng in lngs:
+            if len(lng) == 1: continue
             plt.axvspan(to_sec(lng[0]), to_sec(lng[1]), color='blue', alpha=0.2, lw=0)
         for sht in shts:
+            if len(sht) == 1: continue
             plt.axvspan(to_sec(sht[0]), to_sec(sht[1]), color='red', alpha=0.2, lw=0)
 
         ax2 = ax.twinx()
@@ -131,38 +133,38 @@ def main():
     prices = []
     print(len(data))
 
+    h = 12
     for s in [22]:
     # for s in range(0, int(len(data) / band) + 1):
         res = np.array(data[band * s: band * (s + 1)])
-        count = len(res)
         clean()
-        prices.append(backtest(res, count, tconf.channel_breakout_size_fx))
+        prices.append(backtest(res, h * 22, close_margin=0.25, wcheck=10000))
     print("\t".join(prices))
 
 def range_backtest():
     band = 10000
     arr = []
-    btcrates = []
-    times = []
-    sizes = range(6, 24)
+    btcrates = ['str', '1']
+    times = ['']
+    sizes = range(20, 31)
     # data = get_price_data()
     data = get_local_data()
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / band))
     arr.append(list(map(str,  sizes)))
+    arr.append(list(map(lambda _: '1',  sizes)))
 
     for s in range(11, int(len(data) / band)):
         # for s in range(1, 2):
         res = np.array(data[band * s: band * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
-        count = len(res)
-        # pprint(count)
         h = int(60 * 60 / tconf.size_candle)
         # h = 1
         clean()
         # arr.append(list(map(lambda i: str(i), sizes)))
-        arr.append(list(map(lambda i: backtest(res, count, i), sizes)))
+
+        arr.append(list(map(lambda i: backtest(res, i * h, close_margin=0.5, wcheck=10000), sizes)))
         btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
         
 
@@ -174,5 +176,5 @@ def range_backtest():
 
 
 if __name__ == "__main__":
-    main()
-    # range_backtest()
+    # main()
+    range_backtest()
