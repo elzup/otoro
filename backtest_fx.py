@@ -47,10 +47,15 @@ INIT_JPY = 100000
 DAY_COMM = 1 - 0.0004
 DAY_STEP = 12 * 24
 
-def backtest(res, hsize, lsize = None, hmargin = 0, lmargin = 0, close_margin=0, wcheck=False):
-    count = len(res)
+BAND = 10000
+HSIZE = int(60 * 60 / tconf.size_candle)
+
+def backtest(res, hsize, start=0, end=None, lsize = None, hmargin = 0, lmargin = 0, close_margin=0, wcheck=False):
+    if end == None:
+        end = len(res)
+
     lsize = lsize or hsize
-    i = 0
+    i = start
 
     myjpy = INIT_JPY
     mybtc = 0
@@ -61,8 +66,8 @@ def backtest(res, hsize, lsize = None, hmargin = 0, lmargin = 0, close_margin=0,
     lngs = []
     shts = []
 
-    while i < count - 500:
-        is_last = i == count - 501
+    while i < end - 500:
+        is_last = i == end - 501
         date, _, _, _, ypb, _ = res[i]
         if position == 'none':
             if buy_logic(i=i, data=res, size=hsize, margin=hmargin, wcheck=wcheck):
@@ -123,26 +128,23 @@ def backtest(res, hsize, lsize = None, hmargin = 0, lmargin = 0, close_margin=0,
         time.sleep(1)
         plt.close()
 
-    return str(round(asset_list[-1] / INIT_JPY, 4))
+    return round(asset_list[-1] / INIT_JPY, 4)
 
 
 def main():
     data = np.array(get_local_data())
     # data = get_price_data()
-    band = 10000
     prices = []
     print(len(data))
 
-    h = 12
     for s in [22]:
-    # for s in range(0, int(len(data) / band) + 1):
-        res = np.array(data[band * s: band * (s + 1)])
+    # for s in range(0, int(len(data) / BAND) + 1):
+        res = np.array(data[BAND * s: BAND * (s + 1)])
         clean()
-        prices.append(backtest(res, h * 22, close_margin=0.25, wcheck=10000))
+        prices.append(str(backtest(res, HSIZE * 22, close_margin=0.25, wcheck=10000)))
     print("\t".join(prices))
 
 def range_backtest():
-    band = 10000
     arr = []
     btcrates = ['str', '1']
     times = ['']
@@ -151,20 +153,18 @@ def range_backtest():
     data = get_local_data()
     print(len(data))
     # for s in range(10, 32):
-    print(int(len(data) / band))
+    print(int(len(data) / BAND))
     arr.append(list(map(str,  sizes)))
     arr.append(list(map(lambda _: '1',  sizes)))
 
-    for s in range(11, int(len(data) / band)):
+    for s in range(11, int(len(data) / BAND)):
         # for s in range(1, 2):
-        res = np.array(data[band * s: band * (s + 1)])
+        res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
-        h = int(60 * 60 / tconf.size_candle)
-        # h = 1
         clean()
         # arr.append(list(map(lambda i: str(i), sizes)))
 
-        arr.append(list(map(lambda i: backtest(res, i * h, close_margin=0.5, wcheck=10000), sizes)))
+        arr.append(list(map(lambda i: str(backtest(res, i * HSIZE, close_margin=0.5, wcheck=10000)), sizes)))
         btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
         
 
@@ -174,7 +174,41 @@ def range_backtest():
     print("\n".join(map(lambda a: "\t".join(a), np.transpose(arr))))
     # print("\n".join(map(lambda a: "\t".join(a), arr)))
 
+def lisprint (name, arr):
+    print("\t".join(map(str, [name, max(arr), min(arr), np.average(arr), np.prod(arr)])))
+def multi_backtest():
+    btcrates = []
+    times = ['']
+    sizes = range(20, 21)
+    # data = get_price_data()
+    data = np.array(get_local_data())
+    print(len(data))
+    # for s in range(10, 32):
+    print(int(len(data) / BAND))
+    seasons = range(11, int(len(data) / BAND))
+
+    for s in seasons:
+        res = np.array(data[BAND * s: BAND * (s + 1)])
+        times.append(str(datetime.fromtimestamp(res[0][0])))
+        btcrates.append(round(res[-1][4] / res[0][4], 4))
+    print("\t".join(['time'] + times))
+    # print("\t".join(['btc'] + btcrates))
+    print("\t".join(["size, max, min, ave, total"]))
+    lisprint('btc', btcrates)
+
+# 0.5, 10000
+    webchecks = [0, 4000, 8000, 10000]
+    cmargins = [0.7, 0.6, 0.5, 0.4, 0.3]
+    for wc in webchecks:
+        for cm in cmargins:
+            for size in sizes:
+                ress = list(map(lambda s: backtest(data, size * HSIZE, start=BAND * s, end=BAND * (s + 1), close_margin=cm, wcheck=wc), seasons))
+                lisprint(f"{wc}_{cm}_{size}", ress)
+
+
+    # print("\n".join(map(lambda a: "\t".join(a), arr)))
 
 if __name__ == "__main__":
     # main()
-    range_backtest()
+    # range_backtest()
+    multi_backtest()
