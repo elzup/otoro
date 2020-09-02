@@ -81,13 +81,13 @@ def backtest(res, hsize, start=0, end=None, lsize = None, hmargin = 0, lmargin =
                 out_ypb = ypb
                 shts.append([date])
         elif position == 'long':
-            if  is_last or sell_logic(data=res, i=i, size=lsize, margin=close_margin):
+            if  is_last or sell_logic(data=res, i=i, size=lsize, margin=close_margin, avgcheck=False):
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
                 lngs[-1].append(date)
         elif position == 'short':
-            if is_last or buy_logic(i=i, data=res, size=hsize, margin=close_margin):
+            if is_last or buy_logic(i=i, data=res, size=hsize, margin=close_margin, avgcheck=False):
                 myjpy = myjpy * out_ypb / ypb
                 out_ypb = 0
                 position = 'none'
@@ -120,7 +120,7 @@ def backtest(res, hsize, start=0, end=None, lsize = None, hmargin = 0, lmargin =
 
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
-        # plt.show()
+        plt.show()
 
 
         filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
@@ -138,8 +138,8 @@ def main():
     prices = []
     print(len(data))
 
-    # for s in [22]:
-    for s in range(11, int(len(data) / BAND) + 1):
+    for s in [31]:
+    # for s in range(11, int(len(data) / BAND) + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
         clean()
         prices.append(str(backtest(res, cbs_fx_size, close_margin=cbs_fx_close_margin)))
