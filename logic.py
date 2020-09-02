@@ -3,6 +3,7 @@ from logger import log
 
 from config import config as tconf
 from services.cryptowatcli import get_ohlc
+import numpy as np
 
 I_BGN = 1
 I_MAX = 2
@@ -71,13 +72,16 @@ def clean():
     cmin = {}
 
 
-def buy_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False):
+def buy_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgcheck=False):
     si = i - size + 1
     if si < 0: return
+    v = data[i, I_MAX]
+    avg = np.average(data[si:i])
+    if avgcheck and v > avg:
+        return True
 
     hv = dmax(si, i, data)
     lv = dmin(si, i, data)
-    v = data[i, I_MAX]
     d = (hv - lv)
     tv = v - lv
     if wcheck and d < wcheck:
@@ -87,13 +91,16 @@ def buy_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False):
         return False
     return (1 - margin) <= tv / d
 
-def sell_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False):
+def sell_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgcheck=False):
     si = i - size + 1
     if si < 0: return
+    v = data[i, I_MIN]
+    avg = np.average(data[si:i])
+    if avgcheck and avg > v:
+        return True
 
     hv = dmax(si, i, data)
     lv = dmin(si, i, data)
-    v = data[i, I_MIN]
     d = (hv - lv)
     tv = v - lv
     if wcheck and d < wcheck:

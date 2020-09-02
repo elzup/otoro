@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "start": "python TradeController.py",
+    "start": "python main.py",
     "backtest": "python backtest.py",
     "download-tradedata": "wget https://api.bitcoincharts.com/v1/csv/bitflyerJPY.csv.gz -P data",
     "download-tradedata-cc": "wget https://api.bitcoincharts.com/v1/csv/coincheckJPY.csv -P data"
