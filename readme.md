@@ -72,7 +72,7 @@ logic_print = getenv("LOGIC_PRINT", True) # range_backtest で OFF 推奨
 
 size_candle = 60 * 5
 h = int(60 * 60 / size_candle)
-channel_breakout_size = 63 * h
+cbs_size = 63 * h
 
 backtest_range = 100000
 backtest_season = 3  # 0, 1, 2 ...

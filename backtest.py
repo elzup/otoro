@@ -130,7 +130,7 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
 def main():
     res = np.array(get_local_data()[tconf.backtest_bgn:tconf.backtest_end])
     count = len(res)
-    backtest(res, count, tconf.channel_breakout_size)
+    backtest(res, count, tconf.cbs_size)
 
 
 

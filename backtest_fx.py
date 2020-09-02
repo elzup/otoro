@@ -1,5 +1,6 @@
 # from pprint import pprint
 
+from config.config import cbs_fx_close_margin, cbs_fx_size
 from services.cryptowatcli import get_ohlc
 import time
 from datetime import datetime
@@ -119,7 +120,7 @@ def backtest(res, hsize, start=0, end=None, lsize = None, hmargin = 0, lmargin =
 
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
-        plt.show()
+        # plt.show()
 
 
         filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
@@ -137,51 +138,19 @@ def main():
     prices = []
     print(len(data))
 
-    for s in [22]:
-    # for s in range(0, int(len(data) / BAND) + 1):
+    # for s in [22]:
+    for s in range(11, int(len(data) / BAND) + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
         clean()
-        prices.append(str(backtest(res, HSIZE * 22, close_margin=0.25, wcheck=10000)))
+        prices.append(str(backtest(res, cbs_fx_size, close_margin=cbs_fx_close_margin)))
     print("\t".join(prices))
 
 def range_backtest():
-    arr = []
-    btcrates = ['str', '1']
-    times = ['']
-    sizes = range(20, 31)
-    # data = get_price_data()
-    data = get_local_data()
-    print(len(data))
-    # for s in range(10, 32):
-    print(int(len(data) / BAND))
-    arr.append(list(map(str,  sizes)))
-    arr.append(list(map(lambda _: '1',  sizes)))
-
-    for s in range(11, int(len(data) / BAND)):
-        # for s in range(1, 2):
-        res = np.array(data[BAND * s: BAND * (s + 1)])
-        times.append(str(datetime.fromtimestamp(res[0][0])))
-        clean()
-        # arr.append(list(map(lambda i: str(i), sizes)))
-
-        arr.append(list(map(lambda i: str(backtest(res, i * HSIZE, close_margin=0.5, wcheck=10000)), sizes)))
-        btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
-        
-
-    print("\t".join(['time'] + times))
-    print("\t".join(['btc'] + btcrates))
-
-    print("\n".join(map(lambda a: "\t".join(a), np.transpose(arr))))
-    # print("\n".join(map(lambda a: "\t".join(a), arr)))
-
-def lisprint (name, arr):
-    print("\t".join(map(str, [name, max(arr), min(arr), np.average(arr), np.prod(arr)])))
-def multi_backtest():
     btcrates = []
     times = ['']
-    sizes = range(20, 21)
+    sizes = range(1, 61)
     # data = get_price_data()
-    data = np.array(get_local_data())
+    data = get_local_data()
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / BAND))
@@ -190,15 +159,42 @@ def multi_backtest():
     for s in seasons:
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
-        btcrates.append(round(res[-1][4] / res[0][4], 4))
+        btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
+
+    print("\t".join(['time', ''] + times))
+    print("\t".join(['btc', '1'] + btcrates))
+    res = np.array(data)
+    for size in sizes:
+        ress = list(map(lambda s: str(backtest(res, size * HSIZE, start=BAND * s, end=BAND * (s + 1), close_margin=0.3)), seasons))
+        print("\t".join([str(size), '1'] + ress))
+
+
+
+def lisprint (name, arr):
+    print("\t".join(map(str, [name, max(arr), min(arr), np.average(arr), np.prod(arr)])))
+def multi_backtest():
+    btcrates = []
+    times = ['']
+    sizes = range(21, 24)
+    webchecks = [0]
+    cmargins = [0.3]
+    # data = get_price_data()
+    data = np.array(get_local_data())
+    print(len(data))
+    # for s in range(10, 32):
+    print(int(len(data) / BAND))
+    seasons = range(0, int(len(data) / BAND))
+
+    for s in seasons:
+        res = np.array(data[BAND * s: BAND * (s + 1)])
+        times.append(str(datetime.fromtimestamp(res[0][0])))
+        btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
     print("\t".join(['time'] + times))
     # print("\t".join(['btc'] + btcrates))
     print("\t".join(["size, max, min, ave, total"]))
     lisprint('btc', btcrates)
 
 # 0.5, 10000
-    webchecks = [0, 4000, 8000, 10000]
-    cmargins = [0.7, 0.6, 0.5, 0.4, 0.3]
     for wc in webchecks:
         for cm in cmargins:
             for size in sizes:
@@ -209,6 +205,6 @@ def multi_backtest():
     # print("\n".join(map(lambda a: "\t".join(a), arr)))
 
 if __name__ == "__main__":
-    # main()
+    main()
     # range_backtest()
-    multi_backtest()
+    # multi_backtest()

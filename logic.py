@@ -12,12 +12,12 @@ I_END = 4
 
 class ExecLogic:
 
-    def buy_judge(self, size=tconf.channel_breakout_size):
+    def buy_judge(self, size=tconf.cbs_size):
         if tconf.cycle_debug: return True
         data, _ = get_ohlc(tconf.size_candle, size)
         return buy_judge_channelbreakout(data)
 
-    def sell_judge(self, size=tconf.channel_breakout_size):
+    def sell_judge(self, size=tconf.cbs_size):
         if tconf.cycle_debug: return True
         data, _ = get_ohlc(tconf.size_candle, size)
 
