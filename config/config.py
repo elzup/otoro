@@ -29,7 +29,7 @@ h = int(60 * 60 / size_candle)
 channel_breakout_size = 39 * h
 
 
-channel_breakout_size_fx = 22 * h
+channel_breakout_size_fx = 1 * h
 
 backtest_range = 100000
 backtest_season = 3  # 0, 1, 2 ...
