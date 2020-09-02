@@ -29,6 +29,7 @@ priceC = 0
 priceV = 0
 pre_datafull_date = None
 
+pending = []
 for row in f1:
     # forLoopで読み込まれたタイムスタンプに対応するローカルな日付 < 基準日 + ○分足
     if (datetime.datetime.fromtimestamp(int(row[0])) < iter_date + diff_date):
@@ -58,9 +59,22 @@ for row in f1:
             priceH = priceO
             priceL = priceO
             priceC = priceO
-        # datalist_new = '{0:%Y%m%d %H:%M:%S}'.format(iter_date + diff_date), priceO, priceH, priceL, priceC, priceV
-        datalist_new = int((iter_date + diff_date).timestamp()), priceO, priceH, priceL, priceC, priceV
-        datalist.append(datalist_new)
+            pending.append(int((iter_date + diff_date).timestamp()))
+        else:
+            if len(pending) > 0:
+                s = datalist[-1][4]
+                e = priceC
+                div = len(pending) + 2
+                dv = (e - s) / div
+                for i, ts in enumerate(pending):
+                    ts = s + dv * (i + 1)
+                    te = s + dv * (i + 2)
+                    datalist_new = int((iter_date + diff_date).timestamp()), ts, max(ts, te), min(ts, te), te, ts
+                    datalist.append(datalist_new)
+                pending = []
+
+            datalist_new = int((iter_date + diff_date).timestamp()), priceO, priceH, priceL, priceC, priceV
+            datalist.append(datalist_new)
         # 次ループの下処理
         iter_date = iter_date + diff_date
         priceO = priceC
