@@ -47,7 +47,18 @@ class WrapperAPI:
     def get_my_balance(self):
         return self.get("/v1/me/getbalance")
 
+    def get_my_collateral(self):
+        return self.get("/v1/me/getcollateral")
+
+    def get_my_positions(self):
+        pc = "?product_code=" + self.product_code
+        return self.get("/v1/me/getpositions" + pc)
+
+    def get_my_permissions(self):
+        return self.get("/v1/me/getpermissions")
+
     # count, before, after, child_order_state, child_order_id, child_order_acceptance_id, parent_order_id
+
     def get_my_childorders(self, query):
         pc = "?product_code=" + self.product_code
         return self.get("/v1/me/getchildorders" + pc + query)

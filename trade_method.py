@@ -14,28 +14,10 @@ class TradeMethod:
 
     # possible return
     # COMPLETED, ACTIVE, CANCELED, EXPIRED, REJECTED, FAILED, UNKNOWN
-    def isCompleted(self, id):
-        query = "&child_order_acceptance_id=" + id
+    def is_completed(self, id):
+        order = self.get_order(id)
 
-        count = 0
-        while True:
-            try:
-                r = self.wrap.get_my_childorders(query)
-            except BaseException as e:
-                print(type(e))
-                print(e)
-                time.sleep(tconf.check_sleep_time)
-                count += 1
-                if count > tconf.check_count:
-                    m = "TradeMethod/isCompleted : Failed to check that order has completed or not."
-                    self.d_message(m)
-                    raise Exception(m)
-            else:
-                break
-        row = r[0]
-        if not r or not row or row["child_order_state"] == "COMPLETED":
-            return False, None
-        return True, row["side"], row["price"], row["size"]
+        return order and order[0] == "COMPLETED"
 
     def cancel_all_orders(self):
         count = 0
@@ -245,6 +227,10 @@ class TradeMethod:
             else:
                 break
 
+        if not r:
+            print('not found order')
+            print(r)
+            return None
         row = r[0]
         return row["child_order_state"], row["side"], row["price"], row["size"]
 

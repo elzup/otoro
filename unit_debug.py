@@ -1,15 +1,15 @@
 import time
 import os
+from config import config as tconf
 
 
 # from pprint import pprint
 from trade_method import TradeMethod
 from services.cryptowatcli import get_ohlc
 
-trader = TradeMethod()
-
 
 def tradingcommission():
+    trader = TradeMethod()
     comm_res = trader.wrap.get_my_tradingcommission()
     print(comm_res)
 
@@ -66,19 +66,51 @@ def load_cryptowat_lostcheck():
 
 
 def get_orders():
+    trader = TradeMethod()
     orders = trader.get_open_order()
     print(orders)
 
 
 def order_wait():
+    trader = TradeMethod()
     # trader.buy_signal(0.001, True)
     orders = trader.get_open_order()
     print(orders)
 
 
+def order_fx():
+    trader = TradeMethod('FX_BTC_JPY')
+    fee = trader.wrap.get_my_tradingcommission()
+    print(fee)
+    assert(fee == 0)
+
+    # permissions  = trader.wrap.get_my_permissions()
+    # print(permissions)
+    collateral = trader.wrap.get_my_collateral()
+    positions = trader.wrap.get_my_positions()
+    print(collateral)
+    print(positions)
+
+    result = trader.buy_signal(0.01, 0, True)
+    while not trader.is_completed(result[1]):
+        print('.', end="")
+        time.sleep(2)
+    print()
+
+    collateral = trader.wrap.get_my_collateral()
+    positions = trader.wrap.get_my_positions()
+    print(collateral)
+    print(positions)
+
+    # buy_notice(price, amount)
+    result = trader.sell_signal(0.01, 0, True)
+    print(result)
+
+
 if __name__ == "__main__":
     # tradingcommission()
     # load_cryptowat()
-    load_cryptowat_lostcheck()
+    # load_cryptowat_lostcheck()
     # order_wait()
+    order_fx()
     pass

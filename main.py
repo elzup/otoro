@@ -94,8 +94,7 @@ class TradeController:
     def wait_comp(self):
         while self.trade_id[0]:
             time.sleep(10)
-            res = trader.get_order(self.trade_id[1])
-            if res[0] == "COMPLETED":
+            if trader.is_completed(self.trade_id[1]):
                 self.trade_comp()
 
 

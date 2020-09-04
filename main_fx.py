@@ -1,3 +1,4 @@
+from typing import Literal
 from main import TradeController
 import time
 
@@ -7,12 +8,6 @@ from logic import ExecLogic
 from trade_method import TradeMethod
 from services.slackcli import buy_notice, sell_notice, start_notice
 
-# フラグ設定
-buy_jdg = "buy_jdg"
-sell_jdg = "sell_jdg"
-close_sold_check = "close_sold_check"
-
-
 # 実行クラス
 trader = TradeMethod("FX_BTC_JPY")
 logic = ExecLogic()
@@ -21,24 +16,22 @@ logic = ExecLogic()
 # trader.cancel_all_orders()
 
 
-class TradeControllerFx:
+class TradeController:
     def __init__(self):
-        self.thread_flag = buy_jdg
+        self.posi: Literal["none", "shor", "long"] = "none"
         self.trade_comp()
         r = trader.get_open_order()
         if r is not None:
             self.set_trade(r["child_order_acceptance_id"])
             if r["side"] == "BUY":
-                self.thread_flag = sell_jdg
-            else:
-                self.thread_flag = close_sold_check
+                self.posi = sell_jdg
         else:
             myJPY, myBTC = trader.get_balance()
             if myJPY["amount"] == myJPY["available"] and myBTC["amount"] == myBTC["available"]:
                 if myBTC["amount"] > 0.01:
-                    self.thread_flag = sell_jdg
+                    self.posi = sell_jdg
                 else:
-                    self.thread_flag = buy_jdg
+                    self.posi = buy_jdg
         print("Initialize completed")
 
     def trade_comp(self):
@@ -48,20 +41,21 @@ class TradeControllerFx:
         self.trade_id = [True, id]
 
     def run(self):
-        print(self.thread_flag)
+        print(self.posi)
         while True:
-            if self.thread_flag == buy_jdg:
+            if self.posi == buy_jdg:
                 self.buy_step()
-            elif self.thread_flag == sell_jdg:
+            elif self.posi == sell_jdg:
                 self.sell_step()
-            elif self.thread_flag == close_sold_check:
-                self.sell_comp_step()
             time.sleep(tconf.sleep_time)
 
     def buy_step(self):
+        self.wait_comp()
         # データを取得して買い判定か調べる
         if not logic.buy_judge(): return
         amount, price = trader.calc_buy_amount_price()
+        fee = trader.wrap.get_my_tradingcommission()
+        amount *= (1 - fee)
         if tconf.cycle_debug:
             amount = 0.001
         buy_notice(price, amount)
@@ -72,12 +66,15 @@ class TradeControllerFx:
             print(m)
             raise Exception(m)
         self.set_trade(result[1])
-        self.thread_flag = sell_jdg
+        self.posi = sell_jdg
         trader.d_message(f"Send buy order\nsize: {amount}\nprice: {price}")
 
     def sell_step(self):
+        self.wait_comp()
         if not logic.sell_judge(): return
         amount, price = trader.calc_sell_amount_price()
+        fee = trader.wrap.get_my_tradingcommission()
+        amount *= (1 - fee)
         if tconf.cycle_debug:
             amount = 0.001
         sell_notice(price, amount)
@@ -86,18 +83,17 @@ class TradeControllerFx:
             m = "TradeController sell_jdg : Failed to send sell signal."
             trader.d_message(m)
             raise Exception(m)
+        self.posi = buy_jdg
         self.set_trade(result[1])
-        self.thread_flag = close_sold_check
         m = f"You bought BTC successfully and sent sell order\nsize: {amount}\nprice: {price}"
         trader.d_message(m)
 
-    def sell_comp_step(self):
-        res = trader.get_order(self.trade_id[1])
-        if res[0] == "COMPLETED":
-            self.trade_id[0] = False
-            self.thread_flag = buy_jdg
-            trader.d_message("You sold BTC successfully.")
-            return
+    def wait_comp(self):
+        while self.trade_id[0]:
+            time.sleep(10)
+            res = trader.get_order(self.trade_id[1])
+            if res[0] == "COMPLETED":
+                self.trade_comp()
 
 
 def main():
