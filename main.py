@@ -9,7 +9,6 @@ from services.slackcli import buy_notice, sell_notice, start_notice
 # フラグ設定
 buy_jdg = "buy_jdg"
 sell_jdg = "sell_jdg"
-close_sold_check = "close_sold_check"
 
 
 # 実行クラス
@@ -29,8 +28,6 @@ class TradeController:
             self.set_trade(r["child_order_acceptance_id"])
             if r["side"] == "BUY":
                 self.thread_flag = sell_jdg
-            else:
-                self.thread_flag = close_sold_check
         else:
             myJPY, myBTC = trader.get_balance()
             if myJPY["amount"] == myJPY["available"] and myBTC["amount"] == myBTC["available"]:
@@ -53,11 +50,10 @@ class TradeController:
                 self.buy_step()
             elif self.thread_flag == sell_jdg:
                 self.sell_step()
-            elif self.thread_flag == close_sold_check:
-                self.sell_comp_step()
             time.sleep(tconf.sleep_time)
 
     def buy_step(self):
+        self.wait_comp()
         # データを取得して買い判定か調べる
         if not logic.buy_judge(): return
         amount, price = trader.calc_buy_amount_price()
@@ -77,6 +73,7 @@ class TradeController:
         trader.d_message(f"Send buy order\nsize: {amount}\nprice: {price}")
 
     def sell_step(self):
+        self.wait_comp()
         if not logic.sell_judge(): return
         amount, price = trader.calc_sell_amount_price()
         fee = trader.wrap.get_my_tradingcommission()
@@ -89,18 +86,17 @@ class TradeController:
             m = "TradeController sell_jdg : Failed to send sell signal."
             trader.d_message(m)
             raise Exception(m)
+        self.thread_flag = buy_jdg
         self.set_trade(result[1])
-        self.thread_flag = close_sold_check
         m = f"You bought BTC successfully and sent sell order\nsize: {amount}\nprice: {price}"
         trader.d_message(m)
 
-    def sell_comp_step(self):
-        res = trader.get_order(self.trade_id[1])
-        if res[0] == "COMPLETED":
-            self.trade_id[0] = False
-            self.thread_flag = buy_jdg
-            trader.d_message("You sold BTC successfully.")
-            return
+    def wait_comp(self):
+        while self.trade_id[0]:
+            time.sleep(10)
+            res = trader.get_order(self.trade_id[1])
+            if res[0] == "COMPLETED":
+                self.trade_comp()
 
 
 def main():
