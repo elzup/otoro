@@ -2,7 +2,7 @@ import time
 import math
 
 from config import config as tconf
-from WrapperAPI import WrapperAPI
+from api import WrapperAPI
 
 
 class TradeMethod:

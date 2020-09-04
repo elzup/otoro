@@ -3,7 +3,7 @@ import time
 from config import config as tconf
 from logic import ExecLogic
 # from pprint import pprint
-from TradeMethod import TradeMethod
+from trade_method import TradeMethod
 from services.slackcli import buy_notice, sell_notice, start_notice
 
 # フラグ設定

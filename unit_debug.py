@@ -3,7 +3,7 @@ import os
 
 
 # from pprint import pprint
-from TradeMethod import TradeMethod
+from trade_method import TradeMethod
 from services.cryptowatcli import get_ohlc
 
 trader = TradeMethod()
