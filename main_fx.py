@@ -13,14 +13,14 @@ close_sold_check = "close_sold_check"
 
 
 # 実行クラス
-trader = TradeMethod()
+trader = TradeMethod("FX_BTC_JPY")
 logic = ExecLogic()
 
 
 # trader.cancel_all_orders()
 
 
-class TradeController:
+class TradeControllerFx:
     def __init__(self):
         self.thread_flag = buy_jdg
         self.trade_comp()
@@ -61,8 +61,6 @@ class TradeController:
         # データを取得して買い判定か調べる
         if not logic.buy_judge(): return
         amount, price = trader.calc_buy_amount_price()
-        fee = trader.wrap.get_my_tradingcommission()
-        amount *= (1 - fee)
         if tconf.cycle_debug:
             amount = 0.001
         buy_notice(price, amount)
@@ -79,8 +77,6 @@ class TradeController:
     def sell_step(self):
         if not logic.sell_judge(): return
         amount, price = trader.calc_sell_amount_price()
-        fee = trader.wrap.get_my_tradingcommission()
-        amount *= (1 - fee)
         if tconf.cycle_debug:
             amount = 0.001
         sell_notice(price, amount)

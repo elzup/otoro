@@ -6,8 +6,8 @@ from WrapperAPI import WrapperAPI
 
 
 class TradeMethod:
-    def __init__(self):
-        self.wrap = WrapperAPI()
+    def __init__(self, product_code="BTC_JPY"):
+        self.wrap = WrapperAPI(product_code)
 
     def set_product_code(self, product_code):
         self.wrap.set_product_code(product_code)

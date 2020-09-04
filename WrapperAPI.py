@@ -22,8 +22,8 @@ class WrapperAPI:
 
     # (n) means that parameter is necessary
 
-    def __init__(self):
-        self.product_code = "BTC_JPY"
+    def __init__(self, product_code = "BTC_JPY"):
+        self.product_code = product_code
 
     def set_product_code(self, product_code):
         self.product_code = product_code
@@ -80,12 +80,13 @@ class WrapperAPI:
             child_order_type: Literal["LIMIT", "MARKET"],
             side,
             size,
+            product_code = self.product_code,
             price=0,
             minute_to_expire=43200,
             time_in_force="GTC"):
         if child_order_type == "LIMIT":
             body = {
-                "product_code": self.product_code,
+                "product_code": product_code,
                 "child_order_type": child_order_type,
                 "side": side,
                 "price": price,

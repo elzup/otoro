@@ -13,16 +13,29 @@ I_END = 4
 
 class ExecLogic:
 
-    def buy_judge(self, size=tconf.cbs_size):
+    def buy_judge(self, size=tconf.cbs_size, margin=0):
         if tconf.cycle_debug: return True
         data, _ = get_ohlc(tconf.size_candle, size)
-        return buy_judge_channelbreakout(data)
+        return buy_judge_channelbreakout(data, margin)
 
-    def sell_judge(self, size=tconf.cbs_size):
+    def sell_judge(self, size=tconf.cbs_size, margin=0):
         if tconf.cycle_debug: return True
         data, _ = get_ohlc(tconf.size_candle, size)
 
-        return sell_judge_channelbreakout(data)
+        return sell_judge_channelbreakout(data, margin)
+
+    def entry_short_judge(self, size=tconf.cbs_fx_size, margin=0):
+        self.sell_judge(size, margin)
+
+    def close_short_judge(self, size=tconf.cbs_fx_size, margin=tconf.cbs_fx_close_margin):
+        self.buy_judge(size, margin)
+
+    def entry_long_judge(self, size=tconf.cbs_fx_size, margin=0):
+        self.buy_judge(size, margin)
+
+    def close_long_judge(self, size=tconf.cbs_fx_size, margin=tconf.cbs_fx_close_margin):
+        self.sell_judge(size, margin)
+
 
 
 
@@ -111,17 +124,21 @@ def sell_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgchec
     return tv / d <= margin
 
 
-def buy_judge_channelbreakout(data):
-    hv = max(data[:, I_MAX])
-    lv = min(data[:, I_MIN])
+def buy_judge_channelbreakout(data, margin=0):
+    hv = max(data[:-1, I_MAX])
+    lv = min(data[:-1, I_MIN])
     v = data[-1, I_MAX]
+    d = (hv - lv)
+    tv = v - lv
     exec_log("b", hv, lv, v)
-    return hv <= v
+    return (1 - margin) <= tv / d
 
 
-def sell_judge_channelbreakout(data):
-    hv = max(data[:, I_MAX])
-    lv = min(data[:, I_MIN])
+def sell_judge_channelbreakout(data, margin=0):
+    hv = max(data[:-1, I_MAX])
+    lv = min(data[:-1, I_MIN])
     v = data[-1, I_MIN]
+    d = (hv - lv)
+    tv = v - lv
     exec_log("b", hv, lv, v)
-    return lv >= v
+    return tv / d <= margin
