@@ -10,7 +10,8 @@ output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 # 集計を開始する日付＋時刻
 # 2017/07/04 17:01:38
 
-iter_date = datetime.datetime.strptime('2017-01-00 00:00:00', '%Y-%m-%d %H:%M:%S')
+iter_date = datetime.datetime.strptime(
+    '2017-01-00 00:00:00', '%Y-%m-%d %H:%M:%S')
 diff_date = datetime.timedelta(minutes=1)
 
 
@@ -73,7 +74,8 @@ for [time, row] in merge_iter(f1, f2):
             priceL = priceO
             priceC = priceO
         # datalist_new = '{0:%Y%m%d %H:%M:%S}'.format(iter_date + diff_date), priceO, priceH, priceL, priceC, priceV
-        datalist_new = int((iter_date + diff_date).timestamp()), priceO, priceH, priceL, priceC, priceV
+        datalist_new = int((iter_date + diff_date).timestamp()
+                           ), priceO, priceH, priceL, priceC, priceV
         datalist.append(datalist_new)
         # 次ループの下処理
         iter_date = iter_date + diff_date

@@ -10,8 +10,7 @@ import requests
 from config import keys
 
 
-def round(v):
-    return math.floor(v * 10 ** 8) / 10 ** 8
+round = lambda v: math.floor(v * 10 ** 8) / 10 ** 8
 
 
 class WrapperAPI:
@@ -22,7 +21,7 @@ class WrapperAPI:
 
     # (n) means that parameter is necessary
 
-    def __init__(self, product_code = "BTC_JPY"):
+    def __init__(self, product_code="BTC_JPY"):
         self.product_code = product_code
 
     def set_product_code(self, product_code):
@@ -80,10 +79,12 @@ class WrapperAPI:
             child_order_type: Literal["LIMIT", "MARKET"],
             side,
             size,
-            product_code = self.product_code,
+            product_code=None,
             price=0,
             minute_to_expire=43200,
             time_in_force="GTC"):
+        if product_code == None:
+            product_code = self.product_code
         if child_order_type == "LIMIT":
             body = {
                 "product_code": product_code,
@@ -94,7 +95,7 @@ class WrapperAPI:
                 "minute_to_expire": minute_to_expire,
                 "time_in_force": time_in_force
             }
-        elif child_order_type == "MARKET":
+        else:  # MARKET
             body = {
                 "product_code": self.product_code,
                 "child_order_type": child_order_type,
@@ -104,34 +105,24 @@ class WrapperAPI:
                 "time_in_force": time_in_force
             }
             print(body)
-        else:
-            m = "WrapperAPI/post_send_childorder : Illegal price or order type"
-            raise Exception(m)
 
         return self.post("/v1/me/sendchildorder", body)
 
-    # child_order_id or child_order_acceptance_id
-    def post_cancel_childorder(
-            self,
-            child_order_acceptance_id,
-            child_order_id=None):
-        if child_order_id is None ^ child_order_acceptance_id is None:
-            raise Exception("WrapperAPI/post_cancel_childorder")
-        elif child_order_acceptance_id is not None:
-            body = {
-                "product_code": self.product_code,
-                "child_order_acceptance_id": child_order_acceptance_id
-            }
-        elif child_order_id is not None:
-            body = {
-                "product_code": self.product_code,
-                "child_order_id": child_order_id
-            }
+    def post_cancel_childorder(self, child_order_id):
+        return self.post("/v1/me/cancelchildorder", {
+            "product_code": self.product_code,
+            "child_order_id": child_order_id
+        })
 
-        return self.post("/v1/me/cancelchildorder", body)
+    def post_cancel_childorder_by_acceptance(self, acceptance_id):
+        return self.post("/v1/me/cancelchildorder", {
+            "product_code": self.product_code,
+            "acceptance_id": acceptance_id
+        })
 
     # order_method,minute_to_expire, time_in_force, parameters(see API
     # reference)
+
     def post_send_parentorder(
             self,
             order_method,
@@ -148,24 +139,17 @@ class WrapperAPI:
         return self.post("/v1/me/sendparentorder", body)
 
     # parent_order_id or parent_order_acceptance_id
-    def post_cancel_parentorder(
-            self,
-            parent_order_acceptance_id,
-            parent_order_id=None):
-        if parent_order_id is None ^ parent_order_acceptance_id is None:
-            raise Exception("WrapperAPI/post_cancel_parentorder")
-        elif parent_order_acceptance_id is not None:
-            body = {
-                "product_code": self.product_code,
-                "parent_order_acceptance_id": parent_order_acceptance_id
-            }
-        elif parent_order_id is not None:
-            body = {
-                "product_code": self.product_code,
-                "parent_order_id": parent_order_id
-            }
+    def post_cancel_parentorder(self, parent_order_id):
+        return self.post("/v1/me/cancelparentorder", {
+            "product_code": self.product_code,
+            "parent_order_id": parent_order_id
+        })
 
-        return self.post("/v1/me/cancelparentorder", body)
+    def post_cancel_parentorder_by_acceptance(self, acceptance_id):
+        return self.post("/v1/me/cancelparentorder", {
+            "product_code": self.product_code,
+            "parent_order_acceptance_id": acceptance_id
+        })
 
     def post_cancel_all_orders(self):
         body = {
@@ -190,6 +174,7 @@ class WrapperAPI:
 
         timestamp = str(datetime.today())
 
+        data = None
         if method == "GET":
             message = timestamp + method + path_url
         elif method == "POST":
@@ -214,6 +199,7 @@ class WrapperAPI:
         if method == "GET":
             response = requests.get(base_url + path_url, headers=headers)
         else:
+            assert(data)
             response = requests.post(
                 base_url + path_url, data=data, headers=headers)
         return response.json()

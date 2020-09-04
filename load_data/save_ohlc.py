@@ -3,7 +3,7 @@ import os
 import re
 
 # import datetime
-import keys as conf
+from load_data import keys as conf
 import datetime
 
 
@@ -76,7 +76,8 @@ if __name__ == '__main__':
     # 例
     # hist = api.ohlcv_historical_data('BITFINEX_SPOT_BTC_USD', {'period_id': '1MIN', 'time_start': start_of, 'limit': 10000})
 
-    hist = api.ohlcv_historical_data(conf.simbpl_id, {'period_id': period_id, 'time_start': start_of, 'limit': 100000})
+    hist = api.ohlcv_historical_data(
+        conf.simbpl_id, {'period_id': period_id, 'time_start': start_of, 'limit': 100000})
     print("len: ", len(hist))
 
     # 保存

@@ -1,4 +1,4 @@
-import keys as conf
+from load_data import keys as conf
 from coinapi_rest_v1 import CoinAPIv1
 
 test_key = conf.coin_api_key

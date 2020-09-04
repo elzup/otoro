@@ -9,7 +9,8 @@ input_file_name2 = "./data/coincheckJPY.csv"
 output_file_name = "./data/btcjpn_skippedrange_merged.csv"
 # 集計を開始する日付＋時刻
 # 2017/07/04 17:01:38
-iter_date = datetime.datetime.strptime('2017-07-04 17:15:00', '%Y-%m-%d %H:%M:%S')
+iter_date = datetime.datetime.strptime(
+    '2017-07-04 17:15:00', '%Y-%m-%d %H:%M:%S')
 diff_date = datetime.timedelta(minutes=1)
 
 

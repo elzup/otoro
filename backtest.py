@@ -61,7 +61,7 @@ period = tconf.size_candle
 INIT_JPY = 100000
 
 
-def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
+def backtest(res, count, hsize, lsize=None, hmargin=0, lmargin=0):
     lsize = lsize or hsize
     i = 0
 
@@ -87,7 +87,7 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
 
         while not buy_position:
             asset_list.append(myjpy + mybtc * res[i][4])
-            
+
             if sell_logic(data=res, i=i, size=lsize, margin=lmargin):
                 myjpy = mybtc * res[i][4] * (1 - fee)
                 mybtc = 0
@@ -99,7 +99,8 @@ def backtest(res, count, hsize, lsize = None, hmargin = 0, lmargin = 0):
                 break
 
     if tconf.plot:
-        x = np.array(list(map(lambda v: pd.to_datetime(v[0], unit="s"), res[:len(asset_list)])))
+        x = np.array(list(map(lambda v: pd.to_datetime(
+            v[0], unit="s"), res[:len(asset_list)])))
         btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
         yen = np.array(asset_list)
 
@@ -133,8 +134,6 @@ def main():
     backtest(res, count, tconf.cbs_size)
 
 
-
-
 def range_backtest():
     band = 10000
     arr = []
@@ -153,7 +152,8 @@ def range_backtest():
         count = len(res)
         h = int(60 * 60 / tconf.size_candle)
         clean()
-        arr.append(list(map(lambda i: backtest(res, count, 38 * h, 36 * h), ranges)))
+        arr.append(
+            list(map(lambda i: backtest(res, count, 38 * h, 36 * h), ranges)))
         btcrates.append(str(res[-1][4] / res[0][4]))
 
     print("times")
@@ -170,17 +170,19 @@ def range_hl_backtest():
     btcrates = []
     data = get_local_data()
     ranges = list(range(30, 51))
-    print("\t".join(['low/high'] + list(map(str,  ranges))))
+    print("\t".join(['low/high'] + list(map(str, ranges))))
 
     res = np.array(data[110000:])
     for l in ranges:
         count = len(res)
         h = int(60 * 60 / tconf.size_candle)
-        arr.append([str(l)] + list(map(lambda i: backtest(res, count, h * i, h * l), ranges)))
+        arr.append(
+            [str(l)] + list(map(lambda i: backtest(res, count, h * i, h * l), ranges)))
         btcrates.append(str(res[-1][4] / res[0][4]))
 
     print("btc\t" + "\t".join(btcrates))
     print("\n".join(map(lambda a: "\t".join(a), arr)))
+
 
 def range_hl_margin_backtest():
     arr = []
@@ -189,7 +191,7 @@ def range_hl_margin_backtest():
     margins = list(map(lambda i: i * 0.5, range(-5, 5)))
     ranges = list(range(35, 45))
     # print("\t".join(['lm/hm'] + list(map(str,  margins))))
-    print("\t".join(['ls\\hs'] + list(map(str,  ranges))))
+    print("\t".join(['ls\\hs'] + list(map(str, ranges))))
 
     band = 100000
     term = 1
@@ -201,7 +203,8 @@ def range_hl_margin_backtest():
     # for lm in margins:
     for lsize in ranges:
         h = int(60 * 60 / tconf.size_candle)
-        arr.append([str(lsize)] + list(map(lambda hsize: backtest(res, count, hsize * h, lsize * h, -0.05, -0.05), ranges)))
+        arr.append([str(lsize)] + list(map(lambda hsize: backtest(res,
+                                                                  count, hsize * h, lsize * h, -0.05, -0.05), ranges)))
         # arr.append([str(lm)] + list(map(lambda hm: backtest(res, count, 38 * h, 36 * h, lm, hm), margins)))
         btcrates.append(str(res[-1][4] / res[0][4]))
         print("\t".join(arr[-1]))

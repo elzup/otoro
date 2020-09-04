@@ -9,7 +9,8 @@ output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
 # 集計を開始する日付＋時刻
 # 2017/07/04 17:01:38
 
-iter_date = datetime.datetime.strptime('2017-01-01 00:00:00', '%Y-%m-%d %H:%M:%S')
+iter_date = datetime.datetime.strptime(
+    '2017-01-01 00:00:00', '%Y-%m-%d %H:%M:%S')
 diff_date = datetime.timedelta(minutes=5)
 
 
@@ -69,11 +70,13 @@ for row in f1:
                 for i, ts in enumerate(pending):
                     ts = s + dv * (i + 1)
                     te = s + dv * (i + 2)
-                    datalist_new = int((iter_date + diff_date).timestamp()), ts, max(ts, te), min(ts, te), te, ts
+                    datalist_new = int(
+                        (iter_date + diff_date).timestamp()), ts, max(ts, te), min(ts, te), te, ts
                     datalist.append(datalist_new)
                 pending = []
 
-            datalist_new = int((iter_date + diff_date).timestamp()), priceO, priceH, priceL, priceC, priceV
+            datalist_new = int((iter_date + diff_date).timestamp()
+                               ), priceO, priceH, priceL, priceC, priceV
             datalist.append(datalist_new)
         # 次ループの下処理
         iter_date = iter_date + diff_date

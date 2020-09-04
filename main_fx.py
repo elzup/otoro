@@ -1,3 +1,4 @@
+from main import TradeController
 import time
 
 from config import config as tconf

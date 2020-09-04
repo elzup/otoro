@@ -26,7 +26,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(buy_judge_channelbreakout_i(3, 5, data))
 
     def test_mergin_buy(self):
-        data = np.array([ 
+        data = np.array([
             [0, 10, 13, 10, 11],
             [1, 11, 20, 11, 13],
             [2, 13, 18, 10, 11],
@@ -35,7 +35,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(buy_judge_channelbreakout_ic(2, 3, data, 0.1))
 
     def test_mergin_sell(self):
-        data = np.array([ 
+        data = np.array([
             [0, 10, 13, 10, 11],
             [1, 11, 20, 11, 13],
             [2, 13, 14, 12, 11],
@@ -46,4 +46,3 @@ class TestStringMethods(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-

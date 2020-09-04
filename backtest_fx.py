@@ -21,8 +21,10 @@ from logic import sell_judge_channelbreakout_ic as sell_logic
 output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
 to_sec = lambda v: pd.to_datetime(v, unit="s")
 
+
 def parse_csv_line(line):
     return list(map(float, line.split(",")))
+
 
 def get_local_data():
     f = open(output_file_name)
@@ -32,15 +34,14 @@ def get_local_data():
 
     return list(csvarr)
 
+
 def get_price_data():
     data, _ = get_ohlc(tconf.size_candle, 1000)
     return data
 
 
-
 def ymdformat(dt):
     return datetime.fromtimestamp(dt).strftime("%Y-%m-%d")
-
 
 
 INIT_JPY = 100000
@@ -51,7 +52,8 @@ DAY_STEP = 12 * 24
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
 
-def backtest(res, hsize, start=0, end=None, lsize = None, hmargin = 0, lmargin = 0, close_margin=0, wcheck=False):
+
+def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, close_margin=0, wcheck=False):
     if end == None:
         end = len(res)
 
@@ -81,7 +83,7 @@ def backtest(res, hsize, start=0, end=None, lsize = None, hmargin = 0, lmargin =
                 out_ypb = ypb
                 shts.append([date])
         elif position == 'long':
-            if  is_last or sell_logic(data=res, i=i, size=lsize, margin=close_margin, avgcheck=False):
+            if is_last or sell_logic(data=res, i=i, size=lsize, margin=close_margin, avgcheck=False):
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
@@ -92,7 +94,7 @@ def backtest(res, hsize, start=0, end=None, lsize = None, hmargin = 0, lmargin =
                 out_ypb = 0
                 position = 'none'
                 shts[-1].append(date)
-    
+
         if position == 'short':
             asset_list.append((myjpy * out_ypb / ypb))
         else:
@@ -113,15 +115,16 @@ def backtest(res, hsize, start=0, end=None, lsize = None, hmargin = 0, lmargin =
         ax.plot('i', 'btc', data=df, color=cm.Set1.colors[0])
         for lng in lngs:
             if len(lng) == 1: continue
-            plt.axvspan(to_sec(lng[0]), to_sec(lng[1]), color='blue', alpha=0.2, lw=0)
+            plt.axvspan(to_sec(lng[0]), to_sec(lng[1]),
+                        color='blue', alpha=0.2, lw=0)
         for sht in shts:
             if len(sht) == 1: continue
-            plt.axvspan(to_sec(sht[0]), to_sec(sht[1]), color='red', alpha=0.2, lw=0)
+            plt.axvspan(to_sec(sht[0]), to_sec(sht[1]),
+                        color='red', alpha=0.2, lw=0)
 
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
         plt.show()
-
 
         filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
         fig.savefig(f"img/backtestfx/{filename}")
@@ -139,11 +142,13 @@ def main():
     print(len(data))
 
     for s in [31]:
-    # for s in range(11, int(len(data) / BAND) + 1):
+        # for s in range(11, int(len(data) / BAND) + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
         clean()
-        prices.append(str(backtest(res, cbs_fx_size, close_margin=cbs_fx_close_margin)))
+        prices.append(
+            str(backtest(res, cbs_fx_size, close_margin=cbs_fx_close_margin)))
     print("\t".join(prices))
+
 
 def range_backtest():
     btcrates = []
@@ -165,13 +170,16 @@ def range_backtest():
     print("\t".join(['btc', '1'] + btcrates))
     res = np.array(data)
     for size in sizes:
-        ress = list(map(lambda s: str(backtest(res, size * HSIZE, start=BAND * s, end=BAND * (s + 1), close_margin=0.3)), seasons))
+        ress = list(map(lambda s: str(backtest(res, size * HSIZE,
+                                               start=BAND * s, end=BAND * (s + 1), close_margin=0.3)), seasons))
         print("\t".join([str(size), '1'] + ress))
 
 
+def lisprint(name, arr):
+    print(
+        "\t".join(map(str, [name, max(arr), min(arr), np.average(arr), np.prod(arr)])))
 
-def lisprint (name, arr):
-    print("\t".join(map(str, [name, max(arr), min(arr), np.average(arr), np.prod(arr)])))
+
 def multi_backtest():
     btcrates = []
     times = ['']
@@ -198,11 +206,12 @@ def multi_backtest():
     for wc in webchecks:
         for cm in cmargins:
             for size in sizes:
-                ress = list(map(lambda s: backtest(data, size * HSIZE, start=BAND * s, end=BAND * (s + 1), close_margin=cm, wcheck=wc), seasons))
+                ress = list(map(lambda s: backtest(data, size * HSIZE, start=BAND * s,
+                                                   end=BAND * (s + 1), close_margin=cm, wcheck=wc), seasons))
                 lisprint(f"{wc}_{cm}_{size}", ress)
 
-
     # print("\n".join(map(lambda a: "\t".join(a), arr)))
+
 
 if __name__ == "__main__":
     main()

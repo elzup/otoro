@@ -37,9 +37,6 @@ class ExecLogic:
         self.sell_judge(size, margin)
 
 
-
-
-
 fstr = lambda n: str(int(n)).rjust(8, ' ')
 timestamp = lambda: datetime.now().strftime('%m%d_%H%M')
 
@@ -60,24 +57,32 @@ def sell_judge_channelbreakout_i(i, size, data):
 
 cmax = {}
 step = 2
+
+
 def dmax(a, b, data):
     global cmax
-    if (a, b) in cmax: return cmax[a, b]
+    if (a, b) in cmax:
+        return cmax[a, b]
     if (a, b - step) in cmax:
         cmax[a, b] = max(cmax[a, b - step], data[b - step, I_MAX])
     else:
         cmax[a, b] = max(data[a:b, I_MAX])
     return cmax[a, b]
 
+
 cmin = {}
+
+
 def dmin(a, b, data):
     global cmin
-    if (a, b) in cmin: return cmin[a, b]
+    if (a, b) in cmin:
+        return cmin[a, b]
     if (a, b - step) in cmin:
         cmin[a, b] = min(cmin[a, b - step], data[b - step, I_MIN])
     else:
         cmin[a, b] = min(data[a:b, I_MIN])
     return cmin[a, b]
+
 
 def clean():
     global cmax, cmin
@@ -87,7 +92,8 @@ def clean():
 
 def buy_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgcheck=False):
     si = i - size + 1
-    if si < 0: return
+    if si < 0:
+        return
     v = data[i, I_MAX]
     avg = np.average(data[si:i])
     if avgcheck and v > avg:
@@ -104,9 +110,11 @@ def buy_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgcheck
         return False
     return (1 - margin) <= tv / d
 
+
 def sell_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgcheck=False):
     si = i - size + 1
-    if si < 0: return
+    if si < 0:
+        return
     v = data[i, I_MIN]
     avg = np.average(data[si:i])
     if avgcheck and avg > v:
