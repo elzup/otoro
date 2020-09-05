@@ -91,19 +91,24 @@ def order_fx():
     print(collateral)
     print(positions)
 
-    result = trader.buy_signal(0.01, 0, True)
+    print(trader.get_position())
+    result = trader.sell_signal(0.01, 0, True)
     while not trader.is_completed(result[1]):
         print('.', end="")
-        time.sleep(2)
+        time.sleep(1)
     print()
+    print(trader.get_position())
 
     collateral = trader.wrap.get_my_collateral()
     positions = trader.wrap.get_my_positions()
     print(collateral)
     print(positions)
 
-    # buy_notice(price, amount)
-    result = trader.sell_signal(0.01, 0, True)
+    result = trader.buy_signal(0.01, 0, True)
+    while not trader.is_completed(result[1]):
+        print('.', end="")
+        time.sleep(1)
+    print(trader.get_position())
     print(result)
 
 

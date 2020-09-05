@@ -23,6 +23,8 @@ class TradeController:
     def __init__(self):
         self.thread_flag = buy_jdg
         self.trade_comp()
+        while trader.get_open_order() is not None:
+            time.sleep(5)
         r = trader.get_open_order()
         if r is not None:
             self.set_trade(r["child_order_acceptance_id"])

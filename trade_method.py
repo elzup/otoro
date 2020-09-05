@@ -1,5 +1,6 @@
 import time
 import math
+from typing import Literal
 
 from config import config as tconf
 from api import WrapperAPI
@@ -174,6 +175,12 @@ class TradeMethod:
             m = "TradeMethod/get_open_order: Multiple order."
             self.d_message(m)
             raise Exception(m)
+
+    def get_position(self) -> Literal["none", "long", "shor"]:
+        col = self.wrap.get_my_positions()
+        if len(col) == 0:
+            return "none"
+        return "shor" if col[0]["side"] == "SELL" else "long"
 
     def get_balance(self):
         count = 0
