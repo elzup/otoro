@@ -156,7 +156,6 @@ class TradeMethod:
             amount *= 0.99
             time.sleep(1)
         while not self.is_completed(result[1]):
-            print('.', end="")
             time.sleep(1)
         return amount, price
 
@@ -177,6 +176,7 @@ class TradeMethod:
         result = trader.sell_signal(amount, 0, True)
         while not trader.is_completed(result[1]):
             time.sleep(1)
+        return amount
 
     def close_full_short(self):
         trader = TradeMethod('FX_BTC_JPY')

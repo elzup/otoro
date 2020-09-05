@@ -1,9 +1,11 @@
+import random
 from datetime import datetime
-from logger import log
+
+import numpy as np
 
 from config import config as tconf
+from logger import log
 from services.cryptowatcli import get_ohlc
-import numpy as np
 
 I_BGN = 1
 I_MAX = 2
@@ -25,16 +27,20 @@ class ExecLogic:
         return sell_judge_channelbreakout(data, margin)
 
     def entry_short_judge(self, size=tconf.cbs_fx_size, margin=0):
-        self.sell_judge(size, margin)
+        if tconf.cycle_debug: return random.getrandbits(1)
+        return self.sell_judge(size, margin)
 
     def close_short_judge(self, size=tconf.cbs_fx_size, margin=tconf.cbs_fx_close_margin):
-        self.buy_judge(size, margin)
+        if tconf.cycle_debug: return True
+        return self.buy_judge(size, margin)
 
     def entry_long_judge(self, size=tconf.cbs_fx_size, margin=0):
-        self.buy_judge(size, margin)
+        if tconf.cycle_debug: return random.getrandbits(1)
+        return self.buy_judge(size, margin)
 
     def close_long_judge(self, size=tconf.cbs_fx_size, margin=tconf.cbs_fx_close_margin):
-        self.sell_judge(size, margin)
+        if tconf.cycle_debug: return True
+        return self.sell_judge(size, margin)
 
 
 fstr = lambda n: str(int(n)).rjust(8, ' ')

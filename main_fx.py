@@ -50,6 +50,7 @@ class TradeController:
         if not logic.close_long_judge(): return
         amount = trader.close_full_long()
         price = trader.get_board_price()
+        print(price, amount)
         close_notice(price, amount)
         self.posi = 'none'
 
@@ -57,6 +58,7 @@ class TradeController:
         if not logic.close_short_judge(): return
         amount = trader.close_full_short()
         price = trader.get_board_price()
+        print(price, amount)
         close_notice(price, amount)
         self.posi = 'none'
 
