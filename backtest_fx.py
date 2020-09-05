@@ -59,6 +59,7 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
 
     lsize = lsize or hsize
     i = start
+    print(start, end)
 
     myjpy = INIT_JPY
     mybtc = 0
@@ -106,8 +107,10 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
             mybtc *= DAY_COMM
 
     if tconf.plot:
-        x = np.array(list(map(lambda v: to_sec(v[0]), res[:len(asset_list)])))
-        btc = np.array(list(map(lambda v: v[4], res[:len(asset_list)])))
+        x = np.array(
+            list(map(lambda v: to_sec(v[0]), res[start:start + len(asset_list)])))
+        btc = np.array(
+            list(map(lambda v: v[4], res[start:start + len(asset_list)])))
         yen = np.array(asset_list)
         df = pd.DataFrame({'i': x, 'btc': btc, 'yen': yen})
         fig, ax = plt.subplots()
@@ -224,7 +227,7 @@ def snake_backtest():
     print(len(data))
     # for s in range(10, 32):
     print(int(len(data) / BAND))
-    seasons = range(20)
+    seasons = range(20, 21)
     # seasons = range(0, int(len(data) / BAND))
 
     for s in seasons:
@@ -236,11 +239,10 @@ def snake_backtest():
     print("\t".join(["size, max, min, ave, total"]))
     # lisprint('btc', btcrates)
     print(f"btc\t" + "\t".join(map(str, btcrates)))
-    bt = lambda s, size, cm: backtest(
-        data, size, start=BAND * s, end=BAND * (s + 1), close_margin=cm)
     for cm in cmargins:
         for size in sizes:
-            ress = list(map(lambda s: bt(s, size, cm), seasons))
+            ress = list(map(lambda s: backtest(data, size, start=BAND *
+                                               s, end=BAND * (s + 1), close_margin=cm), seasons))
             print(f"{size}\t" + "\t".join(map(str, ress)))
             # lisprint(f"{size}", ress)
 
