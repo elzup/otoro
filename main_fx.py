@@ -1,12 +1,13 @@
-from typing import Literal
-from main import TradeController
 import time
+from typing import Literal
 
 from config import config as tconf
 from logic import ExecLogic
+from main import TradeController
+from services.slackcli import (
+    close_notice, long_entry_notice, short_entry_notice, start_notice)
 # from pprint import pprint
 from trade_method import TradeMethod
-from services.slackcli import buy_notice, close_notice, long_entry_notice, sell_notice, short_entry_notice, start_notice
 
 # 実行クラス
 trader = TradeMethod("FX_BTC_JPY")

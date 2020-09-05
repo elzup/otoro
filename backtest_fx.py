@@ -13,9 +13,9 @@ import numpy as np
 import pandas as pd
 
 from config import config as tconf
-from logic import buy_judge_channelbreakout_ic as buy_logic
+from logic import buy_judge_snake as buy_logic
 from logic import clean
-from logic import sell_judge_channelbreakout_ic as sell_logic
+from logic import sell_judge_snake as sell_logic
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
@@ -73,23 +73,23 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
         is_last = i == end - 501
         date, _, _, _, ypb, _ = res[i]
         if position == 'none':
-            if buy_logic(i=i, data=res, size=hsize, margin=hmargin, wcheck=wcheck):
+            if buy_logic(data=res, size=hsize):
                 mybtc = myjpy / ypb
                 myjpy = 0
                 position = 'long'
                 lngs.append([date])
-            elif sell_logic(data=res, i=i, size=lsize, margin=lmargin, wcheck=wcheck):
+            elif sell_logic(data=res[i - 720:i], size=lsize):
                 position = 'short'
                 out_ypb = ypb
                 shts.append([date])
         elif position == 'long':
-            if is_last or sell_logic(data=res, i=i, size=lsize, margin=close_margin, avgcheck=False):
+            if is_last or sell_logic(data=res[i - 720:i], size=lsize):
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
                 lngs[-1].append(date)
         elif position == 'short':
-            if is_last or buy_logic(i=i, data=res, size=hsize, margin=close_margin, avgcheck=False):
+            if is_last or buy_logic(data=res[i - 720:i], size=hsize):
                 myjpy = myjpy * out_ypb / ypb
                 out_ypb = 0
                 position = 'none'
@@ -124,9 +124,10 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
 
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
-        # plt.show()
+        plt.show()
 
-        filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
+        # filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
+        filename = f"backtestfx_snake_{hsize}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
         fig.savefig(f"img/backtestfx_tmp/{filename}")
 
         time.sleep(1)
@@ -212,7 +213,40 @@ def multi_backtest():
     # print("\n".join(map(lambda a: "\t".join(a), arr)))
 
 
+def snake_backtest():
+    btcrates = []
+    times = ['']
+    sizes = [10000]
+    # sizes = range(100000, 100001)
+    cmargins = [0.5]
+    # data = get_price_data()
+    data = np.array(get_local_data())
+    print(len(data))
+    # for s in range(10, 32):
+    print(int(len(data) / BAND))
+    seasons = range(20)
+    # seasons = range(0, int(len(data) / BAND))
+
+    for s in seasons:
+        res = np.array(data[BAND * s: BAND * (s + 1)])
+        times.append(str(datetime.fromtimestamp(res[0][0])))
+        btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
+    print("\t".join(['time'] + times))
+    # print("\t".join(['btc'] + btcrates))
+    print("\t".join(["size, max, min, ave, total"]))
+    # lisprint('btc', btcrates)
+    print(f"btc\t" + "\t".join(map(str, btcrates)))
+    bt = lambda s, size, cm: backtest(
+        data, size, start=BAND * s, end=BAND * (s + 1), close_margin=cm)
+    for cm in cmargins:
+        for size in sizes:
+            ress = list(map(lambda s: bt(s, size, cm), seasons))
+            print(f"{size}\t" + "\t".join(map(str, ress)))
+            # lisprint(f"{size}", ress)
+
+
 if __name__ == "__main__":
-    main()
+    # main()
+    snake_backtest()
     # range_backtest()
     # multi_backtest()

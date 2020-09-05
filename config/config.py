@@ -23,6 +23,7 @@ logic_print = getenv("LOGIC_PRINT", True)
 # size_candle = 60 * 60 * 1
 # cbs_size = 10 * 4
 
+# channel breakout
 # x1
 size_candle = 60 * 5
 h = int(60 * 60 / size_candle)
@@ -31,6 +32,9 @@ cbs_size = 39 * h
 
 cbs_fx_size = 56 * h
 cbs_fx_close_margin = 0.3
+
+# snake
+snake_limit_count = 12 * 60
 
 backtest_range = 100000
 backtest_season = 3  # 0, 1, 2 ...

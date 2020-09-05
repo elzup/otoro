@@ -156,3 +156,39 @@ def sell_judge_channelbreakout(data, margin=0):
     tv = v - lv
     exec_log("b", hv, lv, v)
     return tv / d <= margin
+
+
+def buy_judge_snake(data, size, margin=0):
+    if len(data) < 10: return False
+    hv, lv = snake_max(data, size)
+    v = data[-1, I_MAX]
+    d = (hv - lv)
+    tv = v - lv
+    exec_log("b", hv, lv, v)
+    return (1 - margin) <= tv / d
+
+
+def sell_judge_snake(data, size, margin=0):
+    if len(data) < 10: return False
+    hv, lv = snake_max(data, size)
+    v = data[-1, I_MIN]
+    d = (hv - lv)
+    tv = v - lv
+    exec_log("b", hv, lv, v)
+    return tv / d <= margin
+
+
+def snake_max(data, size):
+    d = 0
+    l = len(data)
+    assert(l >= 10)
+    vmax = 0
+    vmin = 100000000
+    for i in range(l - 1, 0, -1):
+        d += abs(data[i, I_END] - data[i - 1, I_END])
+        if i < l - 1:
+            vmax = max(vmax, data[i, I_MAX])
+            vmin = max(vmin, data[i, I_MIN])
+        if d > size:
+            break
+    return vmax, vmin
