@@ -112,10 +112,42 @@ def order_fx():
     print(result)
 
 
+def get_amount_fx():
+    trader = TradeMethod('FX_BTC_JPY')
+    amount, _ = trader.calc_entry_amount_price()
+    result = trader.buy_signal(amount, 0, True)
+    while not trader.is_completed(result[1]):
+        print('.', end="")
+        time.sleep(1)
+    print(trader.calc_close_amount_price())
+    # result = trader.sell_signal(0.01, 0, True)
+
+
+def full_long():
+    trader = TradeMethod('FX_BTC_JPY')
+    trader.entry_full_long()
+    trader.close_full_long()
+    print(trader.calc_close_amount_price())
+
+
+def full_short():
+    trader = TradeMethod('FX_BTC_JPY')
+    trader.entry_full_short()
+    trader.close_full_short()
+
+
+def current_posision():
+    trader = TradeMethod('FX_BTC_JPY')
+    print(trader.get_position())
+
+
 if __name__ == "__main__":
     # tradingcommission()
     # load_cryptowat()
     # load_cryptowat_lostcheck()
     # order_wait()
-    order_fx()
+    # order_fx()
+    # get_amount_fx()
+    # full_long()
+    current_posision()
     pass

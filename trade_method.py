@@ -148,6 +148,44 @@ class TradeMethod:
     def check_orderable(self):
         return self.get_open_order() is None
 
+    def entry_full_long(self):
+        amount, price = self.calc_entry_amount_price()
+        while True:
+            result = self.buy_signal(amount, 0, True)
+            if result[0]: break
+            amount *= 0.99
+            time.sleep(1)
+        while not self.is_completed(result[1]):
+            print('.', end="")
+            time.sleep(1)
+        return amount, price
+
+    def entry_full_short(self):
+        amount, price = self.calc_entry_amount_price()
+        while True:
+            result = self.sell_signal(amount, 0, True)
+            if result[0]: break
+            amount *= 0.99
+            time.sleep(1)
+        while not self.is_completed(result[1]):
+            time.sleep(1)
+        return amount, price
+
+    def close_full_long(self):
+        trader = TradeMethod('FX_BTC_JPY')
+        amount = trader.calc_close_amount_price()
+        result = trader.sell_signal(amount, 0, True)
+        while not trader.is_completed(result[1]):
+            time.sleep(1)
+
+    def close_full_short(self):
+        trader = TradeMethod('FX_BTC_JPY')
+        amount = trader.calc_close_amount_price()
+        result = trader.buy_signal(amount, 0, True)
+        while not trader.is_completed(result[1]):
+            time.sleep(1)
+        return amount
+
     def get_open_order(self):
         query = "&child_order_state=ACTIVE"
 
@@ -177,6 +215,8 @@ class TradeMethod:
             raise Exception(m)
 
     def get_position(self) -> Literal["none", "long", "shor"]:
+        colsum = self.calc_close_amount_price()
+        if colsum < 0.01: return 'none'
         col = self.wrap.get_my_positions()
         if len(col) == 0:
             return "none"
@@ -241,6 +281,10 @@ class TradeMethod:
         row = r[0]
         return row["child_order_state"], row["side"], row["price"], row["size"]
 
+    def wait_ordarable(self):
+        while not self.check_orderable():
+            time.sleep(5)
+
     def calc_buy_amount_price(self):
         myJPY, _ = self.get_balance()
         count = 0
@@ -289,6 +333,34 @@ class TradeMethod:
         print(price, amount)
 
         return amount, price
+
+    def get_board_price(self):
+        for _ in range(tconf.get_board_count):
+            try:
+                r = self.wrap.get_board("")
+            except BaseException as e:
+                print(type(e))
+                print(e)
+                time.sleep(tconf.get_board_time)
+            else:
+                return r["bids"][0]["price"] + 1
+        m = "TradeMethod/calc_buy_amount_price : Failed to get board."
+        self.d_message(m)
+        raise Exception(m)
+
+    def calc_entry_amount_price(self):
+        col = self.wrap.get_my_collateral()
+        price = self.get_board_price()
+        amount = col['collateral'] / price
+        print(price, amount)
+        if tconf.cycle_debug: amount = 0.01
+
+        return amount, price
+
+    def calc_close_amount_price(self):
+        if tconf.cycle_debug: return 0.01
+        pos = self.wrap.get_my_positions()
+        return sum(map(lambda v: v['size'], pos))
 
     def shouldsellall(self, price):
         count = 0

@@ -22,6 +22,33 @@ def sell_notice(price, amount):
                   username="otoro")
 
 
+def short_entry_notice(price, amount):
+    if not conf.slack_webhook_url: return
+    client.notify(title="BTC short event",
+                  text=f"SHORT :arrow_lower_right: :yen: *¥{price * amount}* => :bitcoin: {amount} BTC",
+                  icon_emoji=":bitcoin",
+                  mrkdwn=True,
+                  username="otoro")
+
+
+def long_entry_notice(price, amount):
+    if not conf.slack_webhook_url: return
+    client.notify(title="BTC long event",
+                  text=f"LONG :arrow_upper_right: :yen: *¥{price * amount}* => :bitcoin: {amount} BTC",
+                  icon_emoji=":bitcoin",
+                  mrkdwn=True,
+                  username="otoro")
+
+
+def close_notice(price, amount):
+    if not conf.slack_webhook_url: return
+    client.notify(title="BTC close event",
+                  text=f":yen: *¥{price * amount}* <= :bitcoin: {amount} BTC",
+                  icon_emoji=":bitcoin",
+                  mrkdwn=True,
+                  username="otoro")
+
+
 def start_notice():
     if not conf.slack_webhook_url: return
     client.notify(title="Bot Running",
