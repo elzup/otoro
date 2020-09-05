@@ -127,7 +127,7 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
         # plt.show()
 
         filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
-        fig.savefig(f"img/backtestfx/{filename}")
+        fig.savefig(f"img/backtestfx_tmp/{filename}")
 
         time.sleep(1)
         plt.close()
