@@ -124,7 +124,7 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
 
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
-        plt.show()
+        # plt.show()
 
         filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
         fig.savefig(f"img/backtestfx/{filename}")
@@ -141,8 +141,7 @@ def main():
     prices = []
     print(len(data))
 
-    for s in [31]:
-        # for s in range(11, int(len(data) / BAND) + 1):
+    for s in range(11, int(len(data) / BAND) + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
         clean()
         prices.append(

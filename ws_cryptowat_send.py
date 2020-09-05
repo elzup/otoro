@@ -10,6 +10,7 @@ from services.cryptowatcli import cryptowat_request
 clients = []
 cache = False
 queues_h1 = []
+SIZE = 56
 
 
 class SimpleEcho(WebSocket):
@@ -42,9 +43,9 @@ class ClientThread(threading.Thread):
         print('start')
         while True:
             t = datetime.now().timestamp()
-            after = int(t - (300 * 12 * 39))
+            after = int(t - (300 * 12 * SIZE))
             m5data, _ = cryptowat_request(300, after)
-            after = int(t - (3600 * 39 * 2))
+            after = int(t - (3600 * SIZE * 2))
             h1data, allo = cryptowat_request(3600, after)
 
             ws = create_connection("ws://localhost:8000/all")
