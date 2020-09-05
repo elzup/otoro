@@ -18,7 +18,7 @@ class TradeMethod:
     def is_completed(self, id):
         order = self.get_order(id)
 
-        return order and order[0] == "COMPLETED"
+        return order == None or order[0] == "COMPLETED"
 
     def cancel_all_orders(self):
         count = 0
@@ -275,8 +275,6 @@ class TradeMethod:
                 break
 
         if not r:
-            print('not found order')
-            print(r)
             return None
         row = r[0]
         return row["child_order_state"], row["side"], row["price"], row["size"]
