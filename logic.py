@@ -99,7 +99,7 @@ def clean():
     cmin = {}
 
 
-def buy_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgcheck=False):
+def buy_judge_channelbreakout_ic(data, size, i, margin=0, wcheck=False, avgcheck=False):
     si = i - size + 1
     if si < 0:
         return
@@ -120,7 +120,7 @@ def buy_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgcheck
     return (1 - margin) <= tv / d
 
 
-def sell_judge_channelbreakout_ic(i, size, data, margin=0, wcheck=False, avgcheck=False):
+def sell_judge_channelbreakout_ic(data, size, i, margin=0, wcheck=False, avgcheck=False):
     si = i - size + 1
     if si < 0:
         return

@@ -1,6 +1,5 @@
 # from pprint import pprint
 
-from config.config import cbs_fx_close_margin, cbs_fx_size
 from services.cryptowatcli import get_ohlc
 import time
 from datetime import datetime
@@ -13,9 +12,9 @@ import numpy as np
 import pandas as pd
 
 from config import config as tconf
-from logic import buy_judge_snake as buy_logic, print_snake_cache
+from logic import buy_judge_channelbreakout_ic as buy_logic
 from logic import clean
-from logic import sell_judge_snake as sell_logic
+from logic import sell_judge_channelbreakout_ic as sell_logic
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
@@ -73,23 +72,23 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
         is_last = i == end - 501
         date, _, _, _, ypb, _ = res[i]
         if position == 'none':
-            if buy_logic(res, lsize, i, withcache=True):
+            if buy_logic(res, lsize, i):
                 mybtc = myjpy / ypb
                 myjpy = 0
                 position = 'long'
                 lngs.append([date])
-            elif sell_logic(res, lsize, i, withcache=True):
+            elif sell_logic(res, lsize, i):
                 position = 'short'
                 out_ypb = ypb
                 shts.append([date])
         elif position == 'long':
-            if is_last or sell_logic(res, lsize, i, margin=close_margin, withcache=True):
+            if is_last or sell_logic(res, lsize, i, margin=close_margin):
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
                 lngs[-1].append(date)
         elif position == 'short':
-            if is_last or buy_logic(res, hsize, i, margin=close_margin, withcache=True):
+            if is_last or buy_logic(res, hsize, i, margin=close_margin):
                 myjpy = myjpy * out_ypb / ypb
                 out_ypb = 0
                 position = 'none'
@@ -139,17 +138,22 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
 
 
 def main():
+    prices = [tconf.cbs_fx_size, 1.0]
+    btcs = ['btc', 1]
+    times = ["time", ""]
     data = np.array(get_local_data())
-    # data = get_price_data()
-    prices = []
-    print(len(data))
+    season_count = int(len(data) / BAND)
 
-    for s in range(11, int(len(data) / BAND) + 1):
+    for s in range(11, season_count + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
+        times.append(str(datetime.fromtimestamp(res[0][0])))
+        btcs.append(str(round(res[-1][4] / res[0][4], 4)))
         clean()
         prices.append(
-            str(backtest(res, cbs_fx_size, close_margin=cbs_fx_close_margin)))
-    print("\t".join(prices))
+            backtest(res, tconf.cbs_fx_size, close_margin=tconf.cbs_fx_close_margin))
+    print("\t".join(times))
+    print("\t".join(map(str, btcs)))
+    print("\t".join(map(str, prices)))
 
 
 def range_backtest():
