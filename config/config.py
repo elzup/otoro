@@ -17,6 +17,7 @@ if cycle_debug:
     sleep_time = 5
 log = True
 plot = getenv("PLOT", False)
+plotshow = getenv("PLOT_SHOW", False)
 logic_print = getenv("LOGIC_PRINT", True)
 
 # x1.5 / 6 month

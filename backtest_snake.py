@@ -129,7 +129,8 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
 
         ax2 = ax.twinx()
         ax2.plot('i', 'yen', data=df, color=cm.Set1.colors[1])
-        # plt.show()
+        if tconf.plotshow:
+            plt.show()
 
         # filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
         filename = f"{bc_id}_{hsize}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
