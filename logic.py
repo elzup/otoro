@@ -211,7 +211,6 @@ def snake_max(data, size, i, withcache=False):
         return vmax, vmin
 
     d = 0
-    assert(i >= 10)
     vmax = 0
     vmin = 100000000
     while i >= 0:

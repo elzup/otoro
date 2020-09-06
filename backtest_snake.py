@@ -52,8 +52,11 @@ DAY_STEP = 12 * 24
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
 
+data = np.array(get_local_data())
+season_count = int(len(data) / BAND)
 
-def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, close_margin=0, wcheck=False, bc_id="backtestfx"):
+
+def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, close_margin=0, bc_id="backtestfx_snake"):
     if end == None:
         end = len(res)
 
@@ -139,17 +142,20 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
 
 
 def main():
-    data = np.array(get_local_data())
-    # data = get_price_data()
-    prices = []
-    print(len(data))
+    prices = [tconf.snake_size, 1.0]
+    btcs = ['btc', 1]
+    times = ["time", ""]
 
-    for s in range(11, int(len(data) / BAND) + 1):
+    for s in range(11, season_count + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
+        times.append(str(datetime.fromtimestamp(res[0][0])))
+        btcs.append(str(round(res[-1][4] / res[0][4], 4)))
         clean()
         prices.append(
-            str(backtest(res, cbs_fx_size, close_margin=cbs_fx_close_margin)))
-    print("\t".join(prices))
+            backtest(res, tconf.snake_size, close_margin=tconf.snake_close_margin))
+    print("\t".join(times))
+    print("\t".join(map(str, btcs)))
+    print("\t".join(map(str, prices)))
 
 
 def range_backtest():
@@ -157,8 +163,7 @@ def range_backtest():
     times = ['']
     sizes = range(1, 61)
     # data = get_price_data()
-    data = get_local_data()
-    print(len(data))
+    print(season_count)
     # for s in range(10, 32):
     print(int(len(data) / BAND))
     seasons = range(11, int(len(data) / BAND))
@@ -185,46 +190,10 @@ def lisprint(name, arr):
 def multi_backtest():
     btcrates = []
     times = ['']
-    sizes = range(21, 24)
-    webchecks = [0]
-    cmargins = [0.3]
-    # data = get_price_data()
-    data = np.array(get_local_data())
-    print(len(data))
-    # for s in range(10, 32):
-    print(int(len(data) / BAND))
-    seasons = range(0, int(len(data) / BAND))
-
-    for s in seasons:
-        res = np.array(data[BAND * s: BAND * (s + 1)])
-        times.append(str(datetime.fromtimestamp(res[0][0])))
-        btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
-    print("\t".join(['time'] + times))
-    # print("\t".join(['btc'] + btcrates))
-    print("\t".join(["size, max, min, ave, total"]))
-    lisprint('btc', btcrates)
-
-# 0.5, 10000
-    for wc in webchecks:
-        for cm in cmargins:
-            for size in sizes:
-                ress = list(map(lambda s: backtest(data, size * HSIZE, start=BAND * s,
-                                                   end=BAND * (s + 1), close_margin=cm, wcheck=wc), seasons))
-                lisprint(f"{wc}_{cm}_{size}", ress)
-
-    # print("\n".join(map(lambda a: "\t".join(a), arr)))
-
-
-def snake_backtest():
-    btcrates = []
-    times = ['']
     sizes = range(10000, 100000, 10000)
     cmargins = [0.3]
     # data = get_price_data()
-    data = np.array(get_local_data())
     print(len(data))
-    # for s in range(10, 32):
-    season_count = int(len(data) / BAND)
     print(season_count)
     # seasons = range(21, 25)
     seasons = range(season_count - 10, season_count)
@@ -252,6 +221,5 @@ def snake_backtest():
 
 if __name__ == "__main__":
     main()
-    # snake_backtest()
     # range_backtest()
     # multi_backtest()
