@@ -1,3 +1,4 @@
+import copy
 import random
 from datetime import datetime
 
@@ -178,6 +179,9 @@ def sell_judge_snake(data, size, margin=0):
     return tv / d <= margin
 
 
+snake_cache = {'out': 0, 0: 0}
+
+
 def snake_max(data, size):
     d = 0
     l = len(data)
@@ -186,9 +190,21 @@ def snake_max(data, size):
     vmin = 100000000
     for i in range(l - 1, 0, -1):
         d += abs(data[i, I_END] - data[i - 1, I_END])
-        if i < l - 1:
-            vmax = max(vmax, data[i, I_MAX])
-            vmin = max(vmin, data[i, I_MIN])
+        vmax = max(vmax, data[i - 1, I_MAX])
+        vmin = min(vmin, data[i - 1, I_MIN])
         if d > size:
+            if i not in snake_cache: snake_cache[i] = 0
+            snake_cache[i] += 1
             break
+    else:
+        snake_cache['out'] += 1
     return vmax, vmin
+
+
+def print_snake_cache():
+    global snake_cache
+    # print(snake_cache)
+    c = copy.copy(snake_cache)
+
+    snake_cache = {}
+    return c

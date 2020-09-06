@@ -133,7 +133,7 @@ def full_long():
 def full_short():
     trader = TradeMethod('FX_BTC_JPY')
     trader.entry_full_short()
-    trader.close_full_short()
+    # trader.close_full_short()
 
 
 def current_posision():
@@ -149,5 +149,6 @@ if __name__ == "__main__":
     # order_fx()
     # get_amount_fx()
     # full_long()
-    current_posision()
+    full_short()
+    # current_posision()
     pass
