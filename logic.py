@@ -1,6 +1,7 @@
 import copy
 import random
 from datetime import datetime
+from collections import Counter
 
 import numpy as np
 
@@ -8,6 +9,7 @@ from config import config as tconf
 from logger import log
 from services.cryptowatcli import get_ohlc
 
+I_TIME = 0
 I_BGN = 1
 I_MAX = 2
 I_MIN = 3
@@ -159,52 +161,83 @@ def sell_judge_channelbreakout(data, margin=0):
     return tv / d <= margin
 
 
-def buy_judge_snake(data, size, margin=0):
+def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
     if len(data) < 10: return False
-    hv, lv = snake_max(data, size)
-    v = data[-1, I_MAX]
+    hv, lv = snake_max(data, size, i - 1, withcache)
+    v = data[i, I_MAX]
     d = (hv - lv)
     tv = v - lv
     exec_log("b", hv, lv, v)
+    if d == 0: return False
     return (1 - margin) <= tv / d
 
 
-def sell_judge_snake(data, size, margin=0):
+def sell_judge_snake(data, size, i=None, margin=0, withcache=False):
     if len(data) < 10: return False
-    hv, lv = snake_max(data, size)
-    v = data[-1, I_MIN]
+    hv, lv = snake_max(data, size, i - 1, withcache)
+    v = data[i, I_MIN]
     d = (hv - lv)
     tv = v - lv
     exec_log("b", hv, lv, v)
+    if d == 0: return False
     return tv / d <= margin
 
 
-snake_cache = {'out': 0, 0: 0}
+sizecounts = Counter()
+scache = {}
 
 
-def snake_max(data, size):
+def snake_max(data, size, i, withcache=False):
+    global scache
+
+    bi = data[i][I_TIME]
+    k = data[i - 1][I_TIME], size
+    if withcache and k in scache:
+        lasti, vmax, vmin, d = scache[k]
+        d += abs(data[i, I_BGN] - data[i, I_END])
+        while True:
+            if data[lasti, I_MAX] == vmax or vmin == data[lasti, I_MIN]:
+                return snake_max(data, size, i, False)
+            db = abs(data[lasti, I_BGN] - data[lasti, I_END])
+            d -= db
+            lasti += 1
+            if d < size:
+                d += db
+                break
+        vmax = max(vmax, data[i][I_MAX])
+        vmin = min(vmin, data[i][I_MIN])
+        scache[bi, size] = (lasti - 1, vmax, vmin, d)
+
+        return vmax, vmin
+
     d = 0
-    l = len(data)
-    assert(l >= 10)
+    assert(i >= 10)
     vmax = 0
     vmin = 100000000
-    for i in range(l - 1, 0, -1):
-        d += abs(data[i, I_END] - data[i - 1, I_END])
-        vmax = max(vmax, data[i - 1, I_MAX])
-        vmin = min(vmin, data[i - 1, I_MIN])
-        if d > size:
-            if i not in snake_cache: snake_cache[i] = 0
-            snake_cache[i] += 1
+    while i >= 0:
+        dd = abs(data[i, I_BGN] - data[i, I_END])
+        d += dd
+        vmax = max(vmax, data[i, I_MAX])
+        vmin = min(vmin, data[i, I_MIN])
+        if d >= size:
+            sizecounts[i] += 1
             break
+        i -= 1
     else:
-        snake_cache['out'] += 1
+        sizecounts['out'] += 1
+    if i > 0:
+        scache[bi, size] = (i, vmax, vmin, d)
     return vmax, vmin
 
 
-def print_snake_cache():
-    global snake_cache
-    # print(snake_cache)
-    c = copy.copy(snake_cache)
+def clean_snake():
+    scache = {}
 
-    snake_cache = {}
+
+def print_snake_cache():
+    global sizecounts
+    # print(sizecounts)
+    c = copy.copy(sizecounts)
+
+    sizecounts = Counter()
     return c

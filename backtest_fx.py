@@ -73,23 +73,23 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
         is_last = i == end - 501
         date, _, _, _, ypb, _ = res[i]
         if position == 'none':
-            if buy_logic(data=res[i - 720:i], size=hsize):
+            if buy_logic(res, lsize, i, withcache=True):
                 mybtc = myjpy / ypb
                 myjpy = 0
                 position = 'long'
                 lngs.append([date])
-            elif sell_logic(data=res[i - 720:i], size=lsize):
+            elif sell_logic(res, lsize, i, withcache=True):
                 position = 'short'
                 out_ypb = ypb
                 shts.append([date])
         elif position == 'long':
-            if is_last or sell_logic(data=res[i - 720:i], size=lsize, margin=close_margin):
+            if is_last or sell_logic(res, lsize, i, margin=close_margin, withcache=True):
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
                 lngs[-1].append(date)
         elif position == 'short':
-            if is_last or buy_logic(data=res[i - 720:i], size=hsize, margin=close_margin):
+            if is_last or buy_logic(res, hsize, i, margin=close_margin, withcache=True):
                 myjpy = myjpy * out_ypb / ypb
                 out_ypb = 0
                 position = 'none'
@@ -231,12 +231,12 @@ def snake_backtest():
     for s in seasons:
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
-        btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
+        btcrates.append(round(res[-1][4] / res[0][4], 4))
     print("\t".join(['time'] + times))
     # print("\t".join(['btc'] + btcrates))
     print("\t".join(["size, max, min, ave, total"]))
-    # lisprint('btc', btcrates)
-    print(f"btc\t" + "\t".join(map(str, btcrates)))
+    lisprint('btc', btcrates)
+    # print(f"btc\t" + "\t".join(map(str, btcrates)))
     for cm in cmargins:
         for size in sizes:
             ress = list(map(lambda s:
