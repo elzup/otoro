@@ -46,6 +46,33 @@ class ExecLogic:
         return self.sell_judge(size, margin)
 
 
+class SnakeLogic:
+
+    def buy_judge(self, size=tconf.snake_size, margin=0):
+        if tconf.cycle_debug: return True
+        data, _ = get_ohlc(tconf.size_candle, tconf.snake_load_size)
+        return buy_judge_snake(data, size, margin=margin)
+
+    def sell_judge(self, size=tconf.cbs_size, margin=0):
+        if tconf.cycle_debug: return True
+        data, _ = get_ohlc(tconf.size_candle, size)
+        return sell_judge_snake(data, size, margin=margin)
+
+    def entry_short_judge(self, size=tconf.snake_size, margin=0):
+        if tconf.cycle_debug: return random.getrandbits(1)
+        return self.sell_judge(size, margin)
+
+    def close_short_judge(self, size=tconf.snake_size, margin=tconf.snake_close_margin):
+        return self.buy_judge(size, margin)
+
+    def entry_long_judge(self, size=tconf.snake_size, margin=0):
+        if tconf.cycle_debug: return random.getrandbits(1)
+        return self.buy_judge(size, margin)
+
+    def close_long_judge(self, size=tconf.snake_size, margin=tconf.snake_close_margin):
+        return self.sell_judge(size, margin)
+
+
 fstr = lambda n: str(int(n)).rjust(8, ' ')
 timestamp = lambda: datetime.now().strftime('%m%d_%H%M')
 
@@ -162,6 +189,7 @@ def sell_judge_channelbreakout(data, margin=0):
 
 
 def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
+    i = len(data) - 1
     if len(data) < 10: return False
     hv, lv = snake_max(data, size, i - 1, withcache)
     v = data[i, I_MAX]
@@ -173,6 +201,7 @@ def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
 
 
 def sell_judge_snake(data, size, i=None, margin=0, withcache=False):
+    i = len(data) - 1
     if len(data) < 10: return False
     hv, lv = snake_max(data, size, i - 1, withcache)
     v = data[i, I_MIN]

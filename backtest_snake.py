@@ -108,7 +108,7 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
             out_ypb *= DAY_COMM
             mybtc *= DAY_COMM
 
-    if tconf.plot:
+    if tconf.plot or tconf.plotshow:
         x = np.array(
             list(map(lambda v: to_sec(v[0]), res[start:start + len(asset_list)])))
         btc = np.array(
@@ -132,11 +132,12 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
         if tconf.plotshow:
             plt.show()
 
-        # filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
-        filename = f"{bc_id}_{hsize}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
-        fig.savefig(f"img/backtestfx_tmp/{filename}")
+        if tconf.plot:
+            # filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
+            filename = f"{bc_id}_{hsize}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
+            fig.savefig(f"img/backtestfx_tmp/{filename}")
+            time.sleep(1)
 
-        time.sleep(1)
         plt.close()
 
     return round(asset_list[-1] / INIT_JPY, 4)
@@ -147,7 +148,8 @@ def main():
     btcs = ['btc', 1]
     times = ["time", ""]
 
-    for s in range(11, season_count + 1):
+    # for s in range(11, season_count + 1):
+    for s in range(season_count - 10, season_count + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
