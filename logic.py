@@ -77,8 +77,21 @@ fstr = lambda n: str(int(n)).rjust(8, ' ')
 timestamp = lambda: datetime.now().strftime('%m%d_%H%M')
 
 
+def strclock():
+    board = list("._____._____")
+    now = datetime.now()
+    board[int(now.minute / 5)] = "|"
+    board[now.hour % 12] = "*"
+
+    return "".join(board)
+
+
 def exec_log(pos, max_v, min_v, current):
     log(f"{pos} {timestamp()}{fstr(max_v)}{fstr(min_v)}{fstr(current)}")
+
+
+def exec_log2(pos, d, current):
+    log(f"{pos} {timestamp()}{fstr(current)}{fstr(d)} {strclock()}")
 
 
 def buy_judge_channelbreakout_i(i, size, data):
@@ -195,7 +208,7 @@ def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
     v = data[i, I_MAX]
     d = (hv - lv)
     tv = v - lv
-    exec_log("b", hv, lv, v)
+    exec_log2("buy", v - (hv - d * margin), v)
     if d == 0: return [False, [hv, lv, w]]
     return [(1 - margin) <= tv / d, [hv, lv, w]]
 
@@ -207,7 +220,7 @@ def sell_judge_snake(data, size, i=None, margin=0, withcache=False):
     v = data[i, I_MIN]
     d = (hv - lv)
     tv = v - lv
-    exec_log("b", hv, lv, v)
+    exec_log2("sel", v - (lv + d * margin), v)
     if d == 0: return [False, [hv, lv, w]]
     return [tv / d <= margin, [hv, lv, w]]
 
