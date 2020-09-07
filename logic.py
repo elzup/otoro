@@ -219,7 +219,8 @@ scache = {}
 def snake_max(data, size, i, withcache=False):
     global scache
 
-    bi = data[i][I_TIME]
+    btime = data[i][I_TIME]
+    bi = i
     k = data[i - 1][I_TIME], size
     if withcache and k in scache:
         lasti, vmax, vmin, d = scache[k]
@@ -235,9 +236,9 @@ def snake_max(data, size, i, withcache=False):
                 break
         vmax = max(vmax, data[i][I_MAX])
         vmin = min(vmin, data[i][I_MIN])
-        scache[bi, size] = (lasti - 1, vmax, vmin, d)
+        scache[btime, size] = (lasti - 1, vmax, vmin, d)
 
-        return vmax, vmin, lasti - 1
+        return vmax, vmin, bi - (lasti - 1)
 
     d = 0
     vmax = 0
@@ -255,7 +256,7 @@ def snake_max(data, size, i, withcache=False):
         sizecounts['out'] += 1
     if i > 0:
         scache[bi, size] = (i, vmax, vmin, d)
-    return vmax, vmin, i
+    return vmax, vmin, bi - i
 
 
 def clean_snake():
