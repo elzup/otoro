@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from config import config as tconf
-from logic import buy_judge_snake as buy_logic, print_snake_cache
+from logic import buy_judge_snake as buy_logic
 from logic import clean
 from logic import sell_judge_snake as sell_logic
 
@@ -76,23 +76,23 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
         is_last = i == end - 501
         date, _, _, _, ypb, _ = res[i]
         if position == 'none':
-            if buy_logic(res, lsize, i, withcache=True):
+            if buy_logic(res, lsize, i, withcache=True)[0]:
                 mybtc = myjpy / ypb
                 myjpy = 0
                 position = 'long'
                 lngs.append([date])
-            elif sell_logic(res, lsize, i, withcache=True):
+            elif sell_logic(res, lsize, i, withcache=True)[0]:
                 position = 'short'
                 out_ypb = ypb
                 shts.append([date])
         elif position == 'long':
-            if is_last or sell_logic(res, lsize, i, margin=close_margin, withcache=True):
+            if is_last or sell_logic(res, lsize, i, margin=close_margin, withcache=True)[0]:
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
                 lngs[-1].append(date)
         elif position == 'short':
-            if is_last or buy_logic(res, hsize, i, margin=close_margin, withcache=True):
+            if is_last or buy_logic(res, hsize, i, margin=close_margin, withcache=True)[0]:
                 myjpy = myjpy * out_ypb / ypb
                 out_ypb = 0
                 position = 'none'

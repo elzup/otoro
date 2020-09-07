@@ -1,9 +1,12 @@
+from config import config
 import json
+from logic import sell_judge_snake
 import time
 from datetime import datetime
 from websocket import create_connection
 from SimpleWebSocketServer import SimpleWebSocketServer, WebSocket
 import threading
+import numpy as np
 
 from services.cryptowatcli import cryptowat_request
 
@@ -33,6 +36,17 @@ class SimpleEcho(WebSocket):
         #     client.sendMessage(self.address[0] + u' - disconnected')
 
 
+def add_logic_res(data):
+    start = int(len(data) / 2)
+    res = []
+    for i in range(start, len(data)):
+        judge, infos = sell_judge_snake(
+            data, config.snake_size, i, withcache=True)
+        vmax, vmin, w = infos
+        res.append([list(data[i]), vmax, vmin, w])
+    return res
+
+
 class ClientThread(threading.Thread):
     def __init__(self):
         super(ClientThread, self).__init__()
@@ -47,7 +61,8 @@ class ClientThread(threading.Thread):
             m5data, allo = cryptowat_request(300, after)
 
             ws = create_connection("ws://localhost:8000/all")
-            cache = json.dumps({"m5": m5data, "h1": [], "allo": allo})
+            cache = json.dumps(
+                {"m5": add_logic_res(np.array(m5data)), "h1": [], "allo": allo})
             ws.send(cache)
 
             ws.close()

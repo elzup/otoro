@@ -51,12 +51,12 @@ class SnakeLogic:
     def buy_judge(self, size=tconf.snake_size, margin=0):
         if tconf.cycle_debug: return True
         data, _ = get_ohlc(tconf.size_candle, tconf.snake_load_size)
-        return buy_judge_snake(data, size, margin=margin)
+        return buy_judge_snake(data, size, margin=margin)[0]
 
     def sell_judge(self, size=tconf.cbs_size, margin=0):
         if tconf.cycle_debug: return True
         data, _ = get_ohlc(tconf.size_candle, size)
-        return sell_judge_snake(data, size, margin=margin)
+        return sell_judge_snake(data, size, margin=margin)[0]
 
     def entry_short_judge(self, size=tconf.snake_size, margin=0):
         if tconf.cycle_debug: return random.getrandbits(1)
@@ -190,26 +190,26 @@ def sell_judge_channelbreakout(data, margin=0):
 
 def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
     i = len(data) - 1
-    if len(data) < 10: return False
-    hv, lv = snake_max(data, size, i - 1, withcache)
+    if len(data) < 10: return [False, None]
+    hv, lv, w = snake_max(data, size, i - 1, withcache)
     v = data[i, I_MAX]
     d = (hv - lv)
     tv = v - lv
     exec_log("b", hv, lv, v)
-    if d == 0: return False
-    return (1 - margin) <= tv / d
+    if d == 0: return [False, [hv, lv, w]]
+    return [(1 - margin) <= tv / d, [hv, lv, w]]
 
 
 def sell_judge_snake(data, size, i=None, margin=0, withcache=False):
     i = len(data) - 1
-    if len(data) < 10: return False
-    hv, lv = snake_max(data, size, i - 1, withcache)
+    if len(data) < 10: return [False, None]
+    hv, lv, w = snake_max(data, size, i - 1, withcache)
     v = data[i, I_MIN]
     d = (hv - lv)
     tv = v - lv
     exec_log("b", hv, lv, v)
-    if d == 0: return False
-    return tv / d <= margin
+    if d == 0: return [False, [hv, lv, w]]
+    return [tv / d <= margin, [hv, lv, w]]
 
 
 sizecounts = Counter()
@@ -237,7 +237,7 @@ def snake_max(data, size, i, withcache=False):
         vmin = min(vmin, data[i][I_MIN])
         scache[bi, size] = (lasti - 1, vmax, vmin, d)
 
-        return vmax, vmin
+        return vmax, vmin, lasti - 1
 
     d = 0
     vmax = 0
@@ -255,10 +255,11 @@ def snake_max(data, size, i, withcache=False):
         sizecounts['out'] += 1
     if i > 0:
         scache[bi, size] = (i, vmax, vmin, d)
-    return vmax, vmin
+    return vmax, vmin, i
 
 
 def clean_snake():
+    global scache
     scache = {}
 
 
