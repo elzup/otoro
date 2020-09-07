@@ -52,7 +52,9 @@ DAY_STEP = 12 * 24
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
 
-data = np.array(get_local_data())
+# data = np.array(get_local_data())
+data = np.array(get_price_data())
+print(data)
 season_count = int(len(data) / BAND)
 
 
@@ -74,7 +76,8 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
 
     while i < end - 500:
         is_last = i == end - 501
-        date, _, _, _, ypb, _ = res[i]
+        date = res[i][0]
+        ypb = res[i][4]
         if position == 'none':
             if buy_logic(res, lsize, i, withcache=True)[0]:
                 mybtc = myjpy / ypb
@@ -149,7 +152,8 @@ def main():
     times = ["time", ""]
 
     # for s in range(11, season_count + 1):
-    for s in range(season_count - 10, season_count + 1):
+    # for s in range(season_count - 10, season_count + 1):
+    for s in [0]:
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))

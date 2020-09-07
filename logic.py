@@ -189,7 +189,7 @@ def sell_judge_channelbreakout(data, margin=0):
 
 
 def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
-    i = len(data) - 1
+    i = i or len(data) - 1
     if len(data) < 10: return [False, None]
     hv, lv, w = snake_max(data, size, i - 1, withcache)
     v = data[i, I_MAX]
@@ -201,7 +201,7 @@ def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
 
 
 def sell_judge_snake(data, size, i=None, margin=0, withcache=False):
-    i = len(data) - 1
+    i = i or len(data) - 1
     if len(data) < 10: return [False, None]
     hv, lv, w = snake_max(data, size, i - 1, withcache)
     v = data[i, I_MIN]
