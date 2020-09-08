@@ -53,8 +53,8 @@ class TradeMethod:
         if not buy_flag: return False, None
 
         result = self.wrap.post_send_childorder("MARKET", "BUY", amount)
+        print("\t".join(map(str, result.values())))
 
-        print(result)
         if 'status' in result and result["status"] != 200:
             return False, None
 
@@ -66,7 +66,6 @@ class TradeMethod:
         while True:
             try:
                 result = self.__buy_signal(amount, price, buy_flag)
-                print(result)
                 break
             except BaseException as e:
                 print(type(e))
@@ -83,7 +82,8 @@ class TradeMethod:
         if not sell_flag: return False, None
         try:
             result = self.wrap.post_send_childorder("MARKET", "SELL", amount)
-            print(result)
+
+            print("\t".join(map(str, result.values())))
         except BaseException as e:
             print(type(e))
             print(e)
