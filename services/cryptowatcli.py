@@ -9,7 +9,7 @@ def cryptowat_request(periods: int, after: int):
     # marcket = 'liquid'
     marcket = 'bitflyer'
     response = requests.get(
-        f"https://api.cryptowat.ch/markets/{marcket}/btcjpy/ohlc",
+        f"https://api.cryptowat.ch/markets/{marcket}/btcfxjpy/ohlc",
         params={"periods": periods, "after": after}, timeout=5)
     response.raise_for_status()
     data = response.json()
