@@ -153,9 +153,14 @@ class TradeMethod:
     def safe_order(self, amount, method):
         while True:
             result = method(amount, 0, True)
+            print(result)
+            i = 20
             if not result[0]:
                 amount *= 0.99
-                time.sleep(1)
+                time.sleep(3)
+                i -= 1
+                if i < 0:
+                    raise Exception('limited retry count')
                 continue
             time.sleep(5)
             if self.is_completed(result[1]):
