@@ -178,11 +178,11 @@ class TradeMethod:
 
     def close_full_long(self):
         amount = self.calc_close_amount_price()
-        return self.safe_buy(amount)
+        return self.safe_sell(amount)
 
     def close_full_short(self):
         amount = self.calc_close_amount_price()
-        return self.safe_sell(amount)
+        return self.safe_buy(amount)
 
     def get_open_order(self):
         query = "&child_order_state=ACTIVE"
