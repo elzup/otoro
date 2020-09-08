@@ -17,8 +17,10 @@ class TradeMethod:
     # COMPLETED, ACTIVE, CANCELED, EXPIRED, REJECTED, FAILED, UNKNOWN
     def is_completed(self, id):
         order = self.get_order(id)
+        if order == None:
+            return False
 
-        return order == None or order[0] == "COMPLETED"
+        return order[0] == "COMPLETED"
 
     def cancel_all_orders(self):
         count = 0
@@ -148,43 +150,39 @@ class TradeMethod:
     def check_orderable(self):
         return self.get_open_order() is None
 
+    def safe_order(self, amount, method):
+        while True:
+            result = method(amount, 0, True)
+            if not result[0]:
+                amount *= 0.99
+                time.sleep(1)
+                continue
+            time.sleep(5)
+            if self.is_completed(result[1]):
+                break
+        return amount
+
+    def safe_buy(self, amount):
+        return self.safe_order(amount, self.buy_signal)
+
+    def safe_sell(self, amount):
+        return self.safe_order(amount, self.sell_signal)
+
     def entry_full_long(self):
         amount, price = self.calc_entry_amount_price()
-        while True:
-            result = self.buy_signal(amount, 0, True)
-            if result[0]: break
-            amount *= 0.99
-            time.sleep(1)
-        while not self.is_completed(result[1]):
-            time.sleep(1)
-        return amount, price
+        return self.safe_buy(amount)
 
     def entry_full_short(self):
         amount, price = self.calc_entry_amount_price()
-        while True:
-            result = self.sell_signal(amount, 0, True)
-            if result[0]: break
-            amount *= 0.99
-            time.sleep(1)
-        while not self.is_completed(result[1]):
-            time.sleep(1)
-        return amount, price
+        return self.safe_sell(amount)
 
     def close_full_long(self):
-        trader = TradeMethod('FX_BTC_JPY')
-        amount = trader.calc_close_amount_price()
-        result = trader.sell_signal(amount, 0, True)
-        while not trader.is_completed(result[1]):
-            time.sleep(1)
-        return amount
+        amount = self.calc_close_amount_price()
+        return self.safe_buy(amount)
 
     def close_full_short(self):
-        trader = TradeMethod('FX_BTC_JPY')
-        amount = trader.calc_close_amount_price()
-        result = trader.buy_signal(amount, 0, True)
-        while not trader.is_completed(result[1]):
-            time.sleep(1)
-        return amount
+        amount = self.calc_close_amount_price()
+        return self.safe_sell(amount)
 
     def get_open_order(self):
         query = "&child_order_state=ACTIVE"

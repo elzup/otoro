@@ -141,6 +141,12 @@ def current_posision():
     print(trader.get_position())
 
 
+def check_trade():
+    trader = TradeMethod('FX_BTC_JPY')
+    trade_id = 'JRF20200908-082627-088433'
+    print(trader.is_completed(trade_id))
+
+
 if __name__ == "__main__":
     # tradingcommission()
     # load_cryptowat()
@@ -149,6 +155,7 @@ if __name__ == "__main__":
     # order_fx()
     # get_amount_fx()
     # full_long()
-    full_short()
+    # full_short()
     # current_posision()
+    check_trade()
     pass
