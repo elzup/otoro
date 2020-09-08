@@ -170,11 +170,11 @@ class TradeMethod:
 
     def entry_full_long(self):
         amount, price = self.calc_entry_amount_price()
-        return self.safe_buy(amount)
+        return self.safe_buy(amount), price
 
     def entry_full_short(self):
         amount, price = self.calc_entry_amount_price()
-        return self.safe_sell(amount)
+        return self.safe_sell(amount), price
 
     def close_full_long(self):
         amount = self.calc_close_amount_price()
