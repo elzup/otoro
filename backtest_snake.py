@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from config import config as tconf
-from logic import buy_judge_snake as buy_logic
+from logic import buy_judge_snake as buy_logic, clean_snake
 from logic import clean
 from logic import sell_judge_snake as sell_logic
 
@@ -52,9 +52,9 @@ DAY_STEP = 12 * 24
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
 
-# data = np.array(get_local_data())
-data = np.array(get_price_data())
-print(data)
+data = np.array(get_local_data())
+# data = np.array(get_price_data())
+# print(data)
 season_count = int(len(data) / BAND)
 
 
@@ -118,7 +118,9 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
             list(map(lambda v: v[4], res[start:start + len(asset_list)])))
         yen = np.array(asset_list)
         df = pd.DataFrame({'i': x, 'btc': btc, 'yen': yen})
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(30, 20))
+        plt.subplots_adjust(left=0.1, right=0.95, bottom=0.1, top=0.95)
+
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
         ax.plot('i', 'btc', data=df, color=cm.Set1.colors[0])
         for lng in lngs:
@@ -151,9 +153,9 @@ def main():
     btcs = ['btc', 1]
     times = ["time", ""]
 
-    # for s in range(11, season_count + 1):
-    # for s in range(season_count - 10, season_count + 1):
-    for s in [0]:
+    for s in range(11, season_count + 1):
+        # for s in range(season_count - 10, season_count + 1):
+        # for s in [0]:
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
@@ -190,20 +192,22 @@ def range_backtest():
 
 
 def lisprint(name, arr):
-    print(
-        "\t".join(map(str, [name, max(arr), min(arr), np.average(arr), np.prod(arr)])))
+    format = lambda v: v if isinstance(v, str) else str(round(float(v), 4))
+    print("\t".join(
+        map(format, [name, max(arr), min(arr), np.average(arr), np.prod(arr)])))
 
 
 def multi_backtest():
     btcrates = []
     times = ['']
-    sizes = range(10000, 100000, 10000)
+    sizes = range(10000, 60000 + 1, 1000)
     cmargins = [0.3]
     # data = get_price_data()
     print(len(data))
     print(season_count)
     # seasons = range(21, 25)
-    seasons = range(season_count - 10, season_count)
+    seasons = range(season_count - 6, season_count)
+    # seasons = range(season_count - 10, season_count)
 
     for s in seasons:
         res = np.array(data[BAND * s: BAND * (s + 1)])
@@ -216,6 +220,7 @@ def multi_backtest():
     # print(f"btc\t" + "\t".join(map(str, btcrates)))
     for cm in cmargins:
         print(f"{cm}")
+        clean_snake()
         for size in sizes:
             ress = list(map(lambda s:
                             backtest(data, size, start=BAND * s,

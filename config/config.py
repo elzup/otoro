@@ -36,9 +36,12 @@ cbs_fx_close_margin = 0.3
 
 # snake
 snake_limit_count = 12 * 60
-snake_size = 30000
 snake_load_size = 12 * 60
+
+snake_size = 30000
 snake_close_margin = 0.3
+# snake_size = 15000
+# snake_close_margin = 0.2
 
 backtest_range = 100000
 backtest_season = 3  # 0, 1, 2 ...
