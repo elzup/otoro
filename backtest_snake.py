@@ -139,7 +139,7 @@ def backtest(res, size, start=0, end=None, hmargin=0, lmargin=0, e_margin=0, c_m
 
         if tconf.plot:
             # filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
-            filename = f"{bc_id}_{size}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
+            filename = f"{bc_id}_{size/1000}k_cm{c_margin}_em{e_margin}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
             fig.savefig(f"img/backtestfx_tmp/{filename}")
             time.sleep(1)
 
@@ -155,8 +155,8 @@ def main():
 
     # for s in [14]:
     for s in range(11, season_count + 1):
-            # for s in range(season_count - 10, season_count + 1):
-            # for s in [0]:
+        # for s in range(season_count - 10, season_count + 1):
+        # for s in [0]:
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
