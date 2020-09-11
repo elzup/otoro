@@ -43,7 +43,7 @@ def long_entry_notice(price, amount):
 def close_notice(price, amount):
     if not conf.slack_webhook_url: return
     client.notify(title="BTC close event",
-                  text=f"CLOSE :end: {price:,} :yen: *¥{price * amount:,.1f}* <= :bitcoin: {amount:8f} BTC",
+                  text=f"CLOSE :end: {price:,} :yen: *¥{price * amount:,.0f}* <= :bitcoin: {amount:8f} BTC",
                   icon_emoji=":bitcoin",
                   mrkdwn=True,
                   username="otoro")

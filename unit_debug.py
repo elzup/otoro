@@ -1,3 +1,4 @@
+from services.slackcli import close_notice, long_entry_notice, short_entry_notice
 import time
 import os
 from config import config as tconf
@@ -12,6 +13,12 @@ def tradingcommission():
     trader = TradeMethod()
     comm_res = trader.wrap.get_my_tradingcommission()
     print(comm_res)
+
+
+def slack_notice():
+    long_entry_notice(1234560, 1.555552313)
+    short_entry_notice(1234560, 1.555552313)
+    close_notice(1234560, 1.555552313)
 
 # https://docs.cryptowat.ch/rest-api/rate-limit
 # CPU 4sec/hour/IP
@@ -157,5 +164,6 @@ if __name__ == "__main__":
     # full_long()
     # full_short()
     # current_posision()
-    check_trade()
+    # check_trade()
+    slack_notice()
     pass
