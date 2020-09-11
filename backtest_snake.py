@@ -58,7 +58,7 @@ data = np.array(get_local_data())
 season_count = int(len(data) / BAND)
 
 
-def backtest(res, size, start=0, end=None, hmargin=0, lmargin=0, c_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
+def backtest(res, size, start=0, end=None, hmargin=0, lmargin=0, e_margin=0, c_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
     if end == None:
         end = len(res)
 
@@ -78,12 +78,12 @@ def backtest(res, size, start=0, end=None, hmargin=0, lmargin=0, c_margin=0, e_w
         date = res[i][0]
         ypb = res[i][4]
         if position == 'none':
-            if buy_logic(res, size, i, withcache=True, entry_min=e_weight_min)[0]:
+            if buy_logic(res, size, i, withcache=True, margin=e_margin, entry_min=e_weight_min)[0]:
                 mybtc = myjpy / ypb
                 myjpy = 0
                 position = 'long'
                 lngs.append([date])
-            elif sell_logic(res, size, i, withcache=True, entry_min=e_weight_min)[0]:
+            elif sell_logic(res, size, i, withcache=True, margin=e_margin, entry_min=e_weight_min)[0]:
                 position = 'short'
                 out_ypb = ypb
                 shts.append([date])
@@ -153,7 +153,8 @@ def main():
     btcs = ['btc', 1]
     times = ["time", ""]
 
-    for s in range(11, season_count + 1):
+    for s in [14]:
+        # for s in range(11, season_count + 1):
         # for s in range(season_count - 10, season_count + 1):
         # for s in [0]:
         res = np.array(data[BAND * s: BAND * (s + 1)])
@@ -161,7 +162,7 @@ def main():
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
         clean()
         prices.append(
-            backtest(res, tconf.snake_size, c_margin=tconf.snake_close_margin, e_weight_min=tconf.snake_entry_min))
+            backtest(res, tconf.snake_size, e_margin=tconf.snake_entry_margin, c_margin=tconf.snake_close_margin, e_weight_min=tconf.snake_entry_min))
     print("\t".join(times))
     print("\t".join(map(str, btcs)))
     print("\t".join(map(str, prices)))
@@ -202,14 +203,15 @@ def multi_backtest():
     times = ['']
     sizes = [30000]
     # sizes = range(50000, 300000 + 1, 10000)
-    cmargins = [0.3]
-    entmins = [0]
+    cmargins = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45]
+    emargins = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45]
     # data = get_price_data()
     print(len(data))
     print(season_count)
     # seasons = range(21, 25)
     # seasons = [22]
-    seasons = range(season_count - 10, season_count)
+    seasons = range(11, season_count)
+    # seasons = range(season_count - 10, season_count)
 
     for s in seasons:
         res = np.array(data[BAND * s: BAND * (s + 1)])
@@ -220,17 +222,16 @@ def multi_backtest():
     print("\t".join(["size, max, min, ave, total"]))
     lisprint('btc', btcrates)
     # print(f"btc\t" + "\t".join(map(str, btcrates)))
-    for em in entmins:
-        print(f"{em}")
+    for em in emargins:
         for cm in cmargins:
-            print(f" {cm}")
-            clean_snake()
+            # print(f"emg: {em}, cmg: {cm}")
+            # clean_snake()
             for size in sizes:
                 ress = list(map(lambda s:
                                 backtest(data, size, start=BAND * s,
-                                         end=BAND * (s + 1), c_margin=cm, e_weight_min=em), seasons))
-                # print(f"{size}\t" + "\t".join(map(str, ress)))
-                lisprint(f"{size}", ress)
+                                         end=BAND * (s + 1), c_margin=cm, e_margin=em), seasons))
+                # print(f"emg: {em}, cmg: {cm} {size}" + "\t".join(map(str, ress)))
+                lisprint(f"emg: {em}, cmg: {cm} {size}", ress)
     # print(
         # "\n".join(map(lambda v: f"{v[0]}\t{v[1]}", print_snake_cache().items())))
 
