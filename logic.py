@@ -201,7 +201,7 @@ def sell_judge_channelbreakout(data, margin=0):
     return tv / d <= margin
 
 
-def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
+def buy_judge_snake(data, size, i=None, margin=0, withcache=False, entry_min=0):
     i = i or len(data) - 1
     if len(data) < 10: return [False, None]
     hv, lv, w = snake_max(data, size, i - 1, withcache)
@@ -210,10 +210,10 @@ def buy_judge_snake(data, size, i=None, margin=0, withcache=False):
     tv = v - lv
     exec_log2("buy", v - (hv - d * margin), v)
     if d == 0: return [False, [hv, lv, w]]
-    return [(1 - margin) <= tv / d, [hv, lv, w]]
+    return [(1 - margin) <= tv / d and d >= entry_min, [hv, lv, w]]
 
 
-def sell_judge_snake(data, size, i=None, margin=0, withcache=False):
+def sell_judge_snake(data, size, i=None, margin=0, withcache=False, entry_min=0):
     i = i or len(data) - 1
     if len(data) < 10: return [False, None]
     hv, lv, w = snake_max(data, size, i - 1, withcache)
@@ -222,7 +222,7 @@ def sell_judge_snake(data, size, i=None, margin=0, withcache=False):
     tv = v - lv
     exec_log2("sel", v - (lv + d * margin), v)
     if d == 0: return [False, [hv, lv, w]]
-    return [tv / d <= margin, [hv, lv, w]]
+    return [tv / d <= margin and d >= entry_min, [hv, lv, w]]
 
 
 sizecounts = Counter()

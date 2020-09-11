@@ -58,7 +58,7 @@ data = np.array(get_local_data())
 season_count = int(len(data) / BAND)
 
 
-def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, close_margin=0, bc_id="backtestfx_snake"):
+def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, close_margin=0, entry_min=0, bc_id="backtestfx_snake"):
     if end == None:
         end = len(res)
 
@@ -79,12 +79,12 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
         date = res[i][0]
         ypb = res[i][4]
         if position == 'none':
-            if buy_logic(res, lsize, i, withcache=True)[0]:
+            if buy_logic(res, lsize, i, withcache=True, entry_min=entry_min)[0]:
                 mybtc = myjpy / ypb
                 myjpy = 0
                 position = 'long'
                 lngs.append([date])
-            elif sell_logic(res, lsize, i, withcache=True)[0]:
+            elif sell_logic(res, lsize, i, withcache=True, entry_min=entry_min)[0]:
                 position = 'short'
                 out_ypb = ypb
                 shts.append([date])
@@ -118,7 +118,8 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
             list(map(lambda v: v[4], res[start:start + len(asset_list)])))
         yen = np.array(asset_list)
         df = pd.DataFrame({'i': x, 'btc': btc, 'yen': yen})
-        fig, ax = plt.subplots(figsize=(30, 20))
+        fig, ax = plt.subplots(figsize=(14, 6))
+        # fig, ax = plt.subplots(figsize=(30, 20))
         plt.subplots_adjust(left=0.1, right=0.95, bottom=0.1, top=0.95)
 
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
@@ -161,7 +162,7 @@ def main():
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
         clean()
         prices.append(
-            backtest(res, tconf.snake_size, close_margin=tconf.snake_close_margin))
+            backtest(res, tconf.snake_size, close_margin=tconf.snake_close_margin, entry_min=tconf.snake_entry_min))
     print("\t".join(times))
     print("\t".join(map(str, btcs)))
     print("\t".join(map(str, prices)))
@@ -200,14 +201,16 @@ def lisprint(name, arr):
 def multi_backtest():
     btcrates = []
     times = ['']
-    sizes = range(10000, 60000 + 1, 1000)
+    sizes = [30000]
+    # sizes = range(50000, 300000 + 1, 10000)
     cmargins = [0.3]
+    entmins = [0]
     # data = get_price_data()
     print(len(data))
     print(season_count)
     # seasons = range(21, 25)
-    seasons = range(season_count - 6, season_count)
-    # seasons = range(season_count - 10, season_count)
+    # seasons = [22]
+    seasons = range(season_count - 10, season_count)
 
     for s in seasons:
         res = np.array(data[BAND * s: BAND * (s + 1)])
@@ -218,20 +221,22 @@ def multi_backtest():
     print("\t".join(["size, max, min, ave, total"]))
     lisprint('btc', btcrates)
     # print(f"btc\t" + "\t".join(map(str, btcrates)))
-    for cm in cmargins:
-        print(f"{cm}")
-        clean_snake()
-        for size in sizes:
-            ress = list(map(lambda s:
-                            backtest(data, size, start=BAND * s,
-                                     end=BAND * (s + 1), close_margin=cm), seasons))
-            # print(f"{size}\t" + "\t".join(map(str, ress)))
-            lisprint(f"{size}", ress)
+    for em in entmins:
+        print(f"{em}")
+        for cm in cmargins:
+            print(f" {cm}")
+            clean_snake()
+            for size in sizes:
+                ress = list(map(lambda s:
+                                backtest(data, size, start=BAND * s,
+                                         end=BAND * (s + 1), close_margin=cm, entry_min=em), seasons))
+                # print(f"{size}\t" + "\t".join(map(str, ress)))
+                lisprint(f"{size}", ress)
     # print(
         # "\n".join(map(lambda v: f"{v[0]}\t{v[1]}", print_snake_cache().items())))
 
 
 if __name__ == "__main__":
-    main()
+    # main()
     # range_backtest()
-    # multi_backtest()
+    multi_backtest()

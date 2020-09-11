@@ -40,6 +40,7 @@ snake_load_size = 12 * 60
 
 snake_size = 30000
 snake_close_margin = 0.3
+snake_entry_min = 10000
 # snake_size = 15000
 # snake_close_margin = 0.2
 
