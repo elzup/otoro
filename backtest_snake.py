@@ -58,11 +58,10 @@ data = np.array(get_local_data())
 season_count = int(len(data) / BAND)
 
 
-def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, close_margin=0, entry_min=0, bc_id="backtestfx_snake"):
+def backtest(res, size, start=0, end=None, hmargin=0, lmargin=0, c_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
     if end == None:
         end = len(res)
 
-    lsize = lsize or hsize
     i = start
 
     myjpy = INIT_JPY
@@ -79,23 +78,23 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
         date = res[i][0]
         ypb = res[i][4]
         if position == 'none':
-            if buy_logic(res, lsize, i, withcache=True, entry_min=entry_min)[0]:
+            if buy_logic(res, size, i, withcache=True, entry_min=e_weight_min)[0]:
                 mybtc = myjpy / ypb
                 myjpy = 0
                 position = 'long'
                 lngs.append([date])
-            elif sell_logic(res, lsize, i, withcache=True, entry_min=entry_min)[0]:
+            elif sell_logic(res, size, i, withcache=True, entry_min=e_weight_min)[0]:
                 position = 'short'
                 out_ypb = ypb
                 shts.append([date])
         elif position == 'long':
-            if is_last or sell_logic(res, lsize, i, margin=close_margin, withcache=True)[0]:
+            if is_last or sell_logic(res, size, i, margin=c_margin, withcache=True)[0]:
                 myjpy = mybtc * ypb
                 mybtc = 0
                 position = 'none'
                 lngs[-1].append(date)
         elif position == 'short':
-            if is_last or buy_logic(res, hsize, i, margin=close_margin, withcache=True)[0]:
+            if is_last or buy_logic(res, size, i, margin=c_margin, withcache=True)[0]:
                 myjpy = myjpy * out_ypb / ypb
                 out_ypb = 0
                 position = 'none'
@@ -140,7 +139,7 @@ def backtest(res, hsize, start=0, end=None, lsize=None, hmargin=0, lmargin=0, cl
 
         if tconf.plot:
             # filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
-            filename = f"{bc_id}_{hsize}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
+            filename = f"{bc_id}_{size}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
             fig.savefig(f"img/backtestfx_tmp/{filename}")
             time.sleep(1)
 
@@ -162,7 +161,7 @@ def main():
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
         clean()
         prices.append(
-            backtest(res, tconf.snake_size, close_margin=tconf.snake_close_margin, entry_min=tconf.snake_entry_min))
+            backtest(res, tconf.snake_size, c_margin=tconf.snake_close_margin, e_weight_min=tconf.snake_entry_min))
     print("\t".join(times))
     print("\t".join(map(str, btcs)))
     print("\t".join(map(str, prices)))
@@ -188,7 +187,7 @@ def range_backtest():
     res = np.array(data)
     for size in sizes:
         ress = list(map(lambda s: str(backtest(res, size * HSIZE,
-                                               start=BAND * s, end=BAND * (s + 1), close_margin=0.3)), seasons))
+                                               start=BAND * s, end=BAND * (s + 1), c_margin=0.3)), seasons))
         print("\t".join([str(size), '1'] + ress))
 
 
@@ -229,7 +228,7 @@ def multi_backtest():
             for size in sizes:
                 ress = list(map(lambda s:
                                 backtest(data, size, start=BAND * s,
-                                         end=BAND * (s + 1), close_margin=cm, entry_min=em), seasons))
+                                         end=BAND * (s + 1), c_margin=cm, e_weight_min=em), seasons))
                 # print(f"{size}\t" + "\t".join(map(str, ress)))
                 lisprint(f"{size}", ress)
     # print(
