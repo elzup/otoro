@@ -153,10 +153,10 @@ def main():
     btcs = ['btc', 1]
     times = ["time", ""]
 
-    for s in [14]:
-        # for s in range(11, season_count + 1):
-        # for s in range(season_count - 10, season_count + 1):
-        # for s in [0]:
+    # for s in [14]:
+    for s in range(11, season_count + 1):
+            # for s in range(season_count - 10, season_count + 1):
+            # for s in [0]:
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
@@ -166,30 +166,6 @@ def main():
     print("\t".join(times))
     print("\t".join(map(str, btcs)))
     print("\t".join(map(str, prices)))
-
-
-def range_backtest():
-    btcrates = []
-    times = ['']
-    sizes = range(1, 61)
-    # data = get_price_data()
-    print(season_count)
-    # for s in range(10, 32):
-    print(int(len(data) / BAND))
-    seasons = range(11, int(len(data) / BAND))
-
-    for s in seasons:
-        res = np.array(data[BAND * s: BAND * (s + 1)])
-        times.append(str(datetime.fromtimestamp(res[0][0])))
-        btcrates.append(str(round(res[-1][4] / res[0][4], 4)))
-
-    print("\t".join(['time', ''] + times))
-    print("\t".join(['btc', '1'] + btcrates))
-    res = np.array(data)
-    for size in sizes:
-        ress = list(map(lambda s: str(backtest(res, size * HSIZE,
-                                               start=BAND * s, end=BAND * (s + 1), c_margin=0.3)), seasons))
-        print("\t".join([str(size), '1'] + ress))
 
 
 def lisprint(name, arr):
@@ -203,14 +179,14 @@ def multi_backtest():
     times = ['']
     sizes = [30000]
     # sizes = range(50000, 300000 + 1, 10000)
-    cmargins = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45]
-    emargins = [0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45]
+    cmargins = [0.3]
+    emargins = [0.3]
     # data = get_price_data()
     print(len(data))
     print(season_count)
     # seasons = range(21, 25)
-    # seasons = [22]
-    seasons = range(11, season_count)
+    seasons = [14]
+    # seasons = range(0, season_count)
     # seasons = range(season_count - 10, season_count)
 
     for s in seasons:
@@ -237,6 +213,5 @@ def multi_backtest():
 
 
 if __name__ == "__main__":
-    # main()
-    # range_backtest()
-    multi_backtest()
+    main()
+    # multi_backtest()

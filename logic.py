@@ -58,14 +58,14 @@ class SnakeLogic:
         data, _ = get_ohlc(tconf.size_candle, size)
         return sell_judge_snake(data, size, margin=margin)[0]
 
-    def entry_short_judge(self, size=tconf.snake_size, margin=0):
+    def entry_short_judge(self, size=tconf.snake_size, margin=tconf.snake_entry_margin):
         if tconf.cycle_debug: return random.getrandbits(1)
         return self.sell_judge(size, margin)
 
     def close_short_judge(self, size=tconf.snake_size, margin=tconf.snake_close_margin):
         return self.buy_judge(size, margin)
 
-    def entry_long_judge(self, size=tconf.snake_size, margin=0):
+    def entry_long_judge(self, size=tconf.snake_size, margin=tconf.snake_entry_margin):
         if tconf.cycle_debug: return random.getrandbits(1)
         return self.buy_judge(size, margin)
 
