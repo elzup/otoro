@@ -1,5 +1,6 @@
 import time
 from typing import Literal
+from util import next_sleep
 
 from config import config as tconf
 from logic import SnakeLogic
@@ -34,7 +35,7 @@ class TradeController:
                 self.long_step()
             elif self.posi == 'shor':
                 self.shor_step()
-            time.sleep(tconf.sleep_time)
+            time.sleep(next_sleep())
 
     def none_step(self):
         # データを取得して買い判定か調べる

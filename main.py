@@ -1,4 +1,5 @@
 import time
+from util import next_sleep
 
 from config import config as tconf
 from logic import ExecLogic
@@ -52,7 +53,7 @@ class TradeController:
                 self.buy_step()
             elif self.thread_flag == sell_jdg:
                 self.sell_step()
-            time.sleep(tconf.sleep_time)
+            time.sleep(next_sleep())
 
     def buy_step(self):
         self.wait_comp()
