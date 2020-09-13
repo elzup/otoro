@@ -5,11 +5,9 @@ import requests
 import numpy as np
 
 
-def cryptowat_request(periods: int, after: int):
-    # marcket = 'liquid'
-    marcket = 'bitflyer'
+def cryptowat_request(periods: int, after: int, market='bitflyer', pair="btcfxjpy"):
     response = requests.get(
-        f"https://api.cryptowat.ch/markets/{marcket}/btcfxjpy/ohlc",
+        f"https://api.cryptowat.ch/markets/{market}/{pair}/ohlc",
         params={"periods": periods, "after": after}, timeout=5)
     response.raise_for_status()
     data = response.json()
