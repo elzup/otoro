@@ -29,9 +29,14 @@ class FtxWrapperAPI:
     def set_product_code(self, product_code):
         self.product_code = product_code
 
-    def get_board(self, query):
-        pc = "?product_code=" + self.product_code
-        return self.get("/v1/getboard" + pc + query)
+    def get_board(self, market=None):
+        return self.get(f"/markets/{market or self.product_code}")
+
+    def sell_amount(self, market=None):
+        return self.get_board(market)['result']['ask']
+
+    def buy_amount(self, market=None):
+        return self.get_board(market)['result']['bid']
 
     def get_ticker(self, query):
         pc = "?product_code=" + self.product_code
@@ -47,10 +52,17 @@ class FtxWrapperAPI:
         return self.get("/v1/gethealth" + pc + query)
 
     def get_my_balance(self):
-        return self.get("/v1/me/getbalance")
+        return self.get("/wallet/balances")
 
-    def get_my_collateral(self):
-        return self.get("/v1/me/getcollateral")
+    def get_my_balance_coin(self, coin):
+        balances = self.get("/wallet/balances")
+        return next(filter(lambda v: v['coin'] == coin, balances['result']))
+
+    def get_my_usd(self):
+        return self.get_my_balance_coin('USD')
+
+    def get_my_yfi(self):
+        return self.get_my_balance_coin('YFI')
 
     def get_my_positions(self):
         pc = "?product_code=" + self.product_code
@@ -92,21 +104,20 @@ class FtxWrapperAPI:
     def get_markets(self):
         return self.get("/markets")
 
-    def post_order_limit(self, side, size, price=0, product_code=None):
-        return self.post_order(side, size, "limit", price, product_code)
+    def post_order_limit(self, side, size, price, market=None):
+        return self.post_order(side, size, "limit", price, market)
 
-    def post_order_market(self, side, size, product_code=None):
-        return self.post_order(side, size, "market", None, product_code)
+    def post_order_market(self, side, size, market):
+        return self.post_order(side, size, "market", None, market)
 
-    def post_order(self, side: Literal["sell", "buy"], size, mtype: Literal["market", "limit"], price, product_code=None):
+    def post_order(self, side: Literal["sell", "buy"], size, mtype: Literal["market", "limit"], price, market=None):
         body = {
-            "market": product_code or self.product_code,
+            "market": market,
             "side": side,
             "price": price,
             "type": mtype,
             "size": round(size)
         }
-
         return self.post("/orders", body)
 
     def post_cancel_childorder(self, child_order_id):
@@ -159,26 +170,29 @@ class FtxWrapperAPI:
         return self.post("/v1/me/cancelallchildorders", body)
 
     def get(self, path_url):
-        method = "GET"
-        body = {}
-        return self.__mywrapper(path_url, method, body)
+        return self.__mywrapper(path_url, "GET", {})
 
     def post(self, path_url, body):
-        method = "POST"
-        return self.__mywrapper(path_url, method, body)
+        return self.__mywrapper(path_url, "POST", body or {})
 
     def __mywrapper(self, path_url, method, body):
 
         base_url = 'https://ftx.com/api'
+        url = base_url + path_url
 
         data = None
         if method == "POST":
             data = json.dumps(body)
 
-        request = requests.Request(method, base_url + path_url)
+        request = requests.Request(method, url, data=data)
         ts = int(time() * 1000)
         prepared = request.prepare()
-        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'.encode()
+        if prepared.body:
+            signature_payload = f'{ts}{prepared.method}{prepared.path_url}{prepared.body}'.encode(
+            )
+        else:
+            signature_payload = f'{ts}{prepared.method}{prepared.path_url}'.encode(
+            )
         signature = hmac.new(keys.ftx_api_secret.encode(),
                              signature_payload, 'sha256').hexdigest()
 
@@ -189,10 +203,9 @@ class FtxWrapperAPI:
         }
 
         if method == "GET":
-            response = requests.get(base_url + path_url, headers=headers)
+            response = requests.get(url, headers=headers)
         else:
             assert(data)
-            response = requests.post(
-                base_url + path_url, data=data, headers=headers)
+            response = requests.post(url, data=data, headers=headers)
 
         return response.json()

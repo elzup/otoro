@@ -158,7 +158,15 @@ def check_trade():
 
 def ftx_order():
     api = FtxWrapperAPI("YFI/USD")
-    print(api.get_open_orders())
+    print(api.get_my_balance())
+    size = api.buy_amount()
+    usd = api.get_my_usd()['free']
+    print(usd)
+    print(size)
+    amount = usd / size
+    print(amount)
+    # res = api.post_order_market('buy', amount, "YFI/USD")
+    # print(res)
 
 
 if __name__ == "__main__":
