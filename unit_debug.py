@@ -1,5 +1,7 @@
+from api_ftx import FtxWrapperAPI
 from services.slackcli import close_notice, long_entry_notice, short_entry_notice
 import time
+import json
 import os
 from config import config as tconf
 
@@ -154,6 +156,11 @@ def check_trade():
     print(trader.is_completed(trade_id))
 
 
+def ftx_order():
+    api = FtxWrapperAPI("YFI/USD")
+    print(api.get_open_orders())
+
+
 if __name__ == "__main__":
     # tradingcommission()
     # load_cryptowat()
@@ -165,5 +172,6 @@ if __name__ == "__main__":
     # full_short()
     # current_posision()
     # check_trade()
-    slack_notice()
+    # slack_notice()
+    ftx_order()
     pass

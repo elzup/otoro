@@ -1,3 +1,4 @@
+from util import next_sleep
 from config import config
 import json
 from logic import sell_judge_snake
@@ -14,6 +15,7 @@ clients = []
 cache = False
 queues_h1 = []
 SIZE = 120
+
 
 
 class SimpleEcho(WebSocket):
@@ -66,7 +68,7 @@ class ClientThread(threading.Thread):
             ws.send(cache)
 
             ws.close()
-            time.sleep(60 * 5)
+            time.sleep(next_sleep())
 
 
 if __name__ == "__main__":
