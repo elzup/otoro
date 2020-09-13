@@ -92,39 +92,22 @@ class FtxWrapperAPI:
     def get_markets(self):
         return self.get("/markets")
 
-    def post_order(
-            self,
-            child_order_type: Literal["LIMIT", "MARKET"],
-            side,
-            size,
-            product_code=None,
-            price=0,
-            minute_to_expire=43200,
-            time_in_force="GTC"):
-        if product_code == None:
-            product_code = self.product_code
-        if child_order_type == "LIMIT":
-            body = {
-                "market": product_code,
-                "child_order_type": child_order_type,
-                "side": side,
-                "price": price,
-                "size": round(size),
-                "minute_to_expire": minute_to_expire,
-                "time_in_force": time_in_force
-            }
-        else:  # MARKET
-            body = {
-                "market": product_code,
-                "child_order_type": child_order_type,
-                "side": side,
-                "size": round(size),
-                "minute_to_expire": minute_to_expire,
-                "time_in_force": time_in_force
-            }
-            print(body)
+    def post_order_limit(self, side, size, price=0, product_code=None):
+        return self.post_order(side, size, "limit", price, product_code)
 
-        return self.post("/v1/me/sendchildorder", body)
+    def post_order_market(self, side, size, product_code=None):
+        return self.post_order(side, size, "market", None, product_code)
+
+    def post_order(self, side: Literal["sell", "buy"], size, mtype: Literal["market", "limit"], price, product_code=None):
+        body = {
+            "market": product_code or self.product_code,
+            "side": side,
+            "price": price,
+            "type": mtype,
+            "size": round(size)
+        }
+
+        return self.post("/orders", body)
 
     def post_cancel_childorder(self, child_order_id):
         return self.post("/v1/me/cancelchildorder", {
