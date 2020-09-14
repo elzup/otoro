@@ -156,13 +156,13 @@ class TradeMethod:
             print(result)
             i = 20
             if not result[0]:
-                amount *= 0.99
+                amount *= 0.95
                 time.sleep(3)
                 i -= 1
                 if i < 0:
                     raise Exception('limited retry count')
                 continue
-            time.sleep(5)
+            time.sleep(3)
             if self.is_completed(result[1]):
                 break
         return amount

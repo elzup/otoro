@@ -1,3 +1,4 @@
+from api import WrapperAPI
 from api_ftx import FtxWrapperAPI
 from services.slackcli import close_notice, long_entry_notice, short_entry_notice
 import time
@@ -169,6 +170,12 @@ def ftx_order():
     # print(res)
 
 
+def bf_balance():
+    api = WrapperAPI('FX_BTC_JPY')
+    balances = api.get_my_balance()
+    print(balances)
+
+
 if __name__ == "__main__":
     # tradingcommission()
     # load_cryptowat()
@@ -181,5 +188,6 @@ if __name__ == "__main__":
     # current_posision()
     # check_trade()
     # slack_notice()
-    ftx_order()
+    # ftx_order()
+    bf_balance()
     pass
