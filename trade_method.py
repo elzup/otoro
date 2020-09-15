@@ -352,7 +352,7 @@ class TradeMethod:
     def calc_entry_amount_price(self):
         col = self.wrap.get_my_collateral()
         price = self.get_board_price()
-        amount = col['collateral'] / price
+        amount = col['collateral'] * tconf.order_leverage / price
         print(price, amount)
         if tconf.cycle_debug: amount = 0.01
 

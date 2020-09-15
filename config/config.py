@@ -30,6 +30,7 @@ size_candle = 60 * 5
 h = int(60 * 60 / size_candle)
 cbs_size = 39 * h
 
+order_leverage = 1.5
 
 cbs_fx_size = 56 * h
 cbs_fx_close_margin = 0.3
