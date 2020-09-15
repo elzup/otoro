@@ -5,6 +5,7 @@ from services.cryptowatcli import get_ohlc
 import time
 from datetime import datetime
 from typing import Literal
+import sys
 
 import matplotlib.cm as cm
 import matplotlib.dates as mdates
@@ -35,8 +36,14 @@ def get_local_data():
     return list(csvarr)
 
 
-def get_price_data():
-    data, _ = get_ohlc(tconf.size_candle, 1000)
+print(sys.argv[1])
+market = sys.argv[1] if len(sys.argv) >= 1 else 'bitflyer'
+pair = sys.argv[2] if len(sys.argv) >= 2 else 'btcfxjpy'
+
+
+def get_recent_data():
+    print(market, pair)
+    data, _ = get_ohlc(tconf.size_candle, 1000, market, pair)
     return data
 
 
@@ -52,9 +59,8 @@ DAY_STEP = 12 * 24
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
 
-data = np.array(get_local_data())
-# data = np.array(get_price_data())
-# print(data)
+# data = np.array(get_local_data())
+data = np.array(get_recent_data())
 season_count = int(len(data) / BAND)
 
 
@@ -154,7 +160,8 @@ def main():
     times = ["time", ""]
 
     # for s in [14]:
-    for s in range(11, season_count + 1):
+    for s in range(season_count + 1):
+        # for s in range(11, season_count + 1):
         # for s in range(season_count - 10, season_count + 1):
         # for s in [0]:
         res = np.array(data[BAND * s: BAND * (s + 1)])
@@ -181,7 +188,6 @@ def multi_backtest():
     # sizes = range(50000, 300000 + 1, 10000)
     cmargins = [0.3]
     emargins = [0.3]
-    # data = get_price_data()
     print(len(data))
     print(season_count)
     # seasons = range(21, 25)

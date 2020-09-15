@@ -19,13 +19,13 @@ PERIOD = Literal[60, 180, 300, 900, 1800, 3600,
 period_list = get_args(PERIOD)
 
 
-def get_ohlc(periods, data_size):
+def get_ohlc(periods, data_size, market='bitflyer', pair="btcfxjpy"):
     assert periods in period_list, 'invalid periods arg'
 
     after = int(datetime.now().timestamp() - (periods * data_size))
     while True:
         try:
-            data, allo = cryptowat_request(periods, after)
+            data, allo = cryptowat_request(periods, after, market, pair)
             return np.array(data), allo
         except requests.exceptions.RequestException as e:
             print("Cryptowatchの価格取得でエラー発生 : ", e)
