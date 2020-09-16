@@ -55,10 +55,9 @@ class TradeMethod:
 
     def safe_order(self, amount, method):
         while True:
-            result = method(amount, 0)
-            print(result)
+            [result, order_id] = method(amount, 0)
             i = 20
-            if not result[0]:
+            if not result:
                 amount *= 0.95
                 time.sleep(3)
                 i -= 1
@@ -67,7 +66,7 @@ class TradeMethod:
                 continue
             while True:
                 time.sleep(2)
-                st = self.wrap.get_order_status(id)
+                st = self.wrap.get_order_status(order_id)
                 if st != "NEW": break
 
             if st == "COMP":
