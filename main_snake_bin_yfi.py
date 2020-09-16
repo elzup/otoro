@@ -1,3 +1,4 @@
+from api_binance import BinanceWrapperAPI
 import time
 from typing import Literal
 from util import next_sleep
@@ -7,11 +8,12 @@ from logic import SnakeLogic
 from services.slackcli import (
     close_notice, long_entry_notice, short_entry_notice, start_notice)
 # from pprint import pprint
-from trade_method_old import TradeMethod
+from trade_method import TradeMethod
 
 # 実行クラス
-trader = TradeMethod("FX_BTC_JPY")
-logic = SnakeLogic(tconf.snake_size, market='binance', pair="yfiusdt")
+wrapper = BinanceWrapperAPI('YFIUSDT')
+trader = TradeMethod(wrapper, leverage=2)
+logic = SnakeLogic(3000, market='binance', pair="yfiusdt")
 
 
 class TradeController:
@@ -46,16 +48,14 @@ class TradeController:
 
     def long_step(self):
         if not logic.close_long_judge(): return
-        amount = trader.close_full_long()
-        price = trader.get_board_price()
+        amount, price = trader.close_full_long()
         print(price, amount)
         close_notice(price, amount)
         self.posi = 'none'
 
     def shor_step(self):
         if not logic.close_short_judge(): return
-        amount = trader.close_full_short()
-        price = trader.get_board_price()
+        amount, price = trader.close_full_short()
         print(price, amount)
         close_notice(price, amount)
         self.posi = 'none'

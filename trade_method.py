@@ -1,14 +1,14 @@
-from services.api_abs import WrapperAPI
 import time
-import math
 from typing import Literal
 
 from config import config as tconf
+from services.api_abs import WrapperAPI
 
 
 class TradeMethod:
-    def __init__(self, wrapper: WrapperAPI, product_code="BTC_JPY"):
+    def __init__(self, wrapper: WrapperAPI, leverage=1):
         self.wrap = wrapper
+        self.leverage = leverage
 
     def __buy_signal(self, amount, price):
         return self.wrap.buy_order(amount)
@@ -105,8 +105,8 @@ class TradeMethod:
 
     def calc_entry_amount_price(self):
         coin = self.wrap.get_mycoin()
-        # price = self.wrap.get_myinte()
-        amount = coin * tconf.order_leverage / price
+        price = self.wrap.get_ask()
+        amount = coin * self.leverage / price
 
         print(price, amount)
         if tconf.cycle_debug: amount = 0.01
@@ -114,7 +114,7 @@ class TradeMethod:
 
     def calc_close_amount_price(self):
         if tconf.cycle_debug: return 0.01
-        return self.wrap.get_myinte()
+        return self.wrap.get_balance_interest(), self.wrap.get_bid()
 
     def d_message(self, message):
         pass

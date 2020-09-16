@@ -24,9 +24,8 @@ class BinanceWrapperAPI(WrapperAPI):
 
     # (n) means that parameter is necessary
 
-    def __init__(self, product_code="BTC_JPY"):
-        self.product_code = product_code
-        self.pair = product_code
+    def __init__(self, pair):
+        self.pair = pair
         self.client = Client(keys.binance_api_key, keys.binance_api_secret)
 
     def get_my_balance_coin(self, coin):
