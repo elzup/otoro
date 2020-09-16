@@ -4,7 +4,7 @@ import math
 from datetime import datetime
 from services.api_abs import WrapperAPI
 from time import time
-from typing import Literal
+from typing import Literal, Tuple
 import hmac
 from util import find
 
@@ -37,9 +37,15 @@ class BinanceWrapperAPI(WrapperAPI):
     def get_mycoin(self):
         return self.get_my_balance_coin('USDT')
 
-    def get_myinte(self):
-        # self.client.open
-        return self.get_my_balance_coin('YFI')
+    def get_position_targ(self) -> Tuple[float, bool]:
+        risks = self.client.futures_position_information(symbol="YFI")
+        position = find(lambda v: v['symbol'] == 'YFIUSDT', risks)
+        amt = float(position['positionAmt'])
+        return abs(amt), amt >= 0
+
+    def get_balance_interest(self):
+        amount, _ = self.get_position_targ()
+        return amount
 
     def buy_order(self, amount: float):
         return self.post_order_market("BUY", amount)
@@ -64,8 +70,10 @@ class BinanceWrapperAPI(WrapperAPI):
         return self.client.get_open_orders(symbol=self.pair)
 
     def get_position(self) -> Literal["none", "long", "shor"]:
-        # TODO
-        return 'none'
+        amount, posi = self.get_position_targ()
+        if amount == 0:
+            return 'none'
+        return "long" if posi else "shor"
 
     def get_ask(self):
         return float(self.client.get_ticker(symbol=self.pair)['askPrice'])

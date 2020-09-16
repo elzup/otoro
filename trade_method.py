@@ -105,7 +105,7 @@ class TradeMethod:
 
     def calc_entry_amount_price(self):
         coin = self.wrap.get_mycoin()
-        price = self.wrap.get_myinte()
+        # price = self.wrap.get_myinte()
         amount = coin * tconf.order_leverage / price
 
         print(price, amount)

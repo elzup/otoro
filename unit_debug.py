@@ -182,7 +182,10 @@ def bn_order():
     api = BinanceWrapperAPI('YFIUSDT')
     # orders = api.get_open_orders()
     # print(orders)
-    print(api.get_open_orders())
+    # print(api.get_open_orders())
+    print(api.get_balance_interest())
+    print(api.get_position())
+    print(api.get_position_targ())
 
     # print(api.get_my_balance_coin('YFI'))
     # main = api.get_my_balance_coin('USDT')

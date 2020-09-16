@@ -25,7 +25,7 @@ class WrapperAPI(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def get_myinte(self) -> float:
+    def get_balance_interest(self) -> float:
         pass
 
     @abstractmethod
