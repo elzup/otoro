@@ -39,7 +39,7 @@ cbs_fx_close_margin = 0.3
 snake_limit_count = 12 * 60
 snake_load_size = 12 * 60
 
-snake_size = 30000
+snake_size = int(getenv("SNAKE_SIZE", 30000))
 snake_close_margin = 0.3
 snake_entry_margin = 0.3
 snake_entry_min = 0

@@ -10,9 +10,6 @@ class TradeMethod:
     def __init__(self, product_code="BTC_JPY"):
         self.wrap = WrapperAPI(product_code)
 
-    def set_product_code(self, product_code):
-        self.wrap.set_product_code(product_code)
-
     # possible return
     # COMPLETED, ACTIVE, CANCELED, EXPIRED, REJECTED, FAILED, UNKNOWN
     def is_completed(self, id):
@@ -21,33 +18,6 @@ class TradeMethod:
             return False
 
         return order[0] == "COMPLETED"
-
-    def cancel_all_orders(self):
-        count = 0
-        while True:
-            try:
-                result = self.wrap.post_cancel_all_orders()
-            except BaseException as e:
-                print(type(e))
-                print(e)
-                time.sleep(tconf.check_sleep_time)
-                # print("Failed to Cancel All Orders")
-                count += 1
-                if count > tconf.check_count:
-                    m = "TradeMethod/cancel_all_orders : Failed to Cancel All Orders."
-                    self.d_message(m)
-                    raise Exception(m)
-            else:
-                if 'status' not in result or result["status"] == 200:
-                    return True
-                else:
-                    time.sleep(tconf.check_sleep_time)
-                    # print("Failed to Cancel All Orders")
-                    count += 1
-                    if count > tconf.check_count:
-                        m = "TradeMethod/cancel_all_orders : Failed to Cancel All Orders."
-                        self.d_message(m)
-                        raise Exception(m)
 
     def __buy_signal(self, amount, price, buy_flag):
         if not buy_flag: return False, None

@@ -1,5 +1,6 @@
 from api import WrapperAPI
-from api_ftx import FtxWrapperAPI
+from _api_ftx import FtxWrapperAPI
+from api_binance import BinanceWrapperAPI
 from services.slackcli import close_notice, long_entry_notice, short_entry_notice
 import time
 import json
@@ -176,6 +177,23 @@ def bf_balance():
     print(balances)
 
 
+def bn_order():
+    api = BinanceWrapperAPI('YFIUSDT')
+    # orders = api.get_open_orders()
+    # print(orders)
+
+    print(api.get_my_balance_coin('YFI'))
+    main = api.get_my_balance_coin('USDT')
+    print(main)
+    price = api.get_ask()
+    print(price)
+
+    size = main / price
+    print(size)
+    # res = api.post_order_market("BUY", size)
+    # print(res)
+
+
 if __name__ == "__main__":
     # tradingcommission()
     # load_cryptowat()
@@ -189,5 +207,6 @@ if __name__ == "__main__":
     # check_trade()
     # slack_notice()
     # ftx_order()
-    bf_balance()
+    # bf_balance()
+    bn_order()
     pass

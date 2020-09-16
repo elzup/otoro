@@ -11,7 +11,7 @@ from trade_method import TradeMethod
 
 # 実行クラス
 trader = TradeMethod("FX_BTC_JPY")
-logic = SnakeLogic(tconf.snake_size, market='bitflyer', pair="btcfxjpy")
+logic = SnakeLogic(tconf.snake_size, market='binance', pair="yfiusdt")
 
 
 class TradeController:

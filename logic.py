@@ -47,30 +47,35 @@ class ExecLogic:
 
 
 class SnakeLogic:
+    def __init__(self, size: int, market: str, pair: str) -> None:
+        self.size = size
+        self.market = market
+        self.pair = pair
 
-    def buy_judge(self, size=tconf.snake_size, margin=0):
+    def buy_judge(self, margin=0):
         if tconf.cycle_debug: return True
-        data, _ = get_ohlc(tconf.size_candle, tconf.snake_load_size)
-        return buy_judge_snake(data, size, margin=margin)[0]
+        data, _ = get_ohlc(tconf.size_candle,
+                           tconf.snake_load_size, self.market, self.pair)
+        return buy_judge_snake(data, self.size, margin=margin)[0]
 
-    def sell_judge(self, size=tconf.cbs_size, margin=0):
+    def sell_judge(self, margin=0):
         if tconf.cycle_debug: return True
-        data, _ = get_ohlc(tconf.size_candle, size)
-        return sell_judge_snake(data, size, margin=margin)[0]
+        data, _ = get_ohlc(tconf.size_candle, self.size, self.market, self.pair)
+        return sell_judge_snake(data, self.size, margin=margin)[0]
 
-    def entry_short_judge(self, size=tconf.snake_size, margin=tconf.snake_entry_margin):
+    def entry_short_judge(self, margin=tconf.snake_entry_margin):
         if tconf.cycle_debug: return random.getrandbits(1)
-        return self.sell_judge(size, margin)
+        return self.sell_judge(margin)
 
-    def close_short_judge(self, size=tconf.snake_size, margin=tconf.snake_close_margin):
-        return self.buy_judge(size, margin)
+    def close_short_judge(self, margin=tconf.snake_close_margin):
+        return self.buy_judge(margin)
 
-    def entry_long_judge(self, size=tconf.snake_size, margin=tconf.snake_entry_margin):
+    def entry_long_judge(self, margin=tconf.snake_entry_margin):
         if tconf.cycle_debug: return random.getrandbits(1)
-        return self.buy_judge(size, margin)
+        return self.buy_judge(margin)
 
-    def close_long_judge(self, size=tconf.snake_size, margin=tconf.snake_close_margin):
-        return self.sell_judge(size, margin)
+    def close_long_judge(self, margin=tconf.snake_close_margin):
+        return self.sell_judge(margin)
 
 
 fstr = lambda n: str(int(n)).rjust(8, ' ')
