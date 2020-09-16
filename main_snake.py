@@ -7,7 +7,7 @@ from logic import SnakeLogic
 from services.slackcli import (
     close_notice, long_entry_notice, short_entry_notice, start_notice)
 # from pprint import pprint
-from trade_method import TradeMethod
+from trade_method_old import TradeMethod
 
 # 実行クラス
 trader = TradeMethod("FX_BTC_JPY")
