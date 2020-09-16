@@ -10,11 +10,12 @@ from config import config as tconf
 
 # from pprint import pprint
 from trade_method import TradeMethod
+from trade_method_old import TradeMethod as TradeMethodOld
 from services.cryptowatcli import get_ohlc
 
 
 def tradingcommission():
-    trader = TradeMethod()
+    trader = TradeMethodOld()
     comm_res = trader.wrap.get_my_tradingcommission()
     print(comm_res)
 
@@ -77,20 +78,20 @@ def load_cryptowat_lostcheck():
 
 
 def get_orders():
-    trader = TradeMethod()
+    trader = TradeMethodOld()
     orders = trader.get_open_order()
     print(orders)
 
 
 def order_wait():
-    trader = TradeMethod()
+    trader = TradeMethodOld()
     # trader.buy_signal(0.001, True)
     orders = trader.get_open_order()
     print(orders)
 
 
 def order_fx():
-    trader = TradeMethod('FX_BTC_JPY')
+    trader = TradeMethodOld('FX_BTC_JPY')
     fee = trader.wrap.get_my_tradingcommission()
     print(fee)
     assert(fee == 0)
@@ -124,7 +125,7 @@ def order_fx():
 
 
 def get_amount_fx():
-    trader = TradeMethod('FX_BTC_JPY')
+    trader = TradeMethodOld('FX_BTC_JPY')
     amount, _ = trader.calc_entry_amount_price()
     result = trader.buy_signal(amount, 0, True)
     while not trader.is_completed(result[1]):
@@ -135,25 +136,25 @@ def get_amount_fx():
 
 
 def full_long():
-    trader = TradeMethod('FX_BTC_JPY')
+    trader = TradeMethodOld('FX_BTC_JPY')
     trader.entry_full_long()
     trader.close_full_long()
     print(trader.calc_close_amount_price())
 
 
 def full_short():
-    trader = TradeMethod('FX_BTC_JPY')
+    trader = TradeMethodOld('FX_BTC_JPY')
     trader.entry_full_short()
     # trader.close_full_short()
 
 
 def current_posision():
-    trader = TradeMethod('FX_BTC_JPY')
+    trader = TradeMethodOld('FX_BTC_JPY')
     print(trader.get_position())
 
 
 def check_trade():
-    trader = TradeMethod('FX_BTC_JPY')
+    trader = TradeMethodOld('FX_BTC_JPY')
     trade_id = 'JRF20200908-082627-088433'
     print(trader.is_completed(trade_id))
 
@@ -181,15 +182,16 @@ def bn_order():
     api = BinanceWrapperAPI('YFIUSDT')
     # orders = api.get_open_orders()
     # print(orders)
+    print(api.get_open_orders())
 
-    print(api.get_my_balance_coin('YFI'))
-    main = api.get_my_balance_coin('USDT')
-    print(main)
-    price = api.get_ask()
-    print(price)
+    # print(api.get_my_balance_coin('YFI'))
+    # main = api.get_my_balance_coin('USDT')
+    # print(main)
+    # price = api.get_ask()
+    # print(price)
 
-    size = main / price
-    print(size)
+    # size = main / price
+    # print(size)
     # res = api.post_order_market("BUY", size)
     # print(res)
 
