@@ -4,7 +4,7 @@ from config.config import cbs_fx_close_margin, cbs_fx_size
 from services.cryptowatcli import get_ohlc
 import time
 from datetime import datetime
-from typing import Literal
+from typing import List, Literal, Tuple
 import sys
 
 import matplotlib.cm as cm
@@ -17,6 +17,21 @@ from config import config as tconf
 from logic import buy_judge_snake as buy_logic, clean_snake
 from logic import clean
 from logic import sell_judge_snake as sell_logic
+
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-m", "--market", type=str,
+                    default='bitflyer', help="market name")
+parser.add_argument("-p", "--pair", type=str,
+                    default='btcfxjpy', help="pair name")
+parser.add_argument("-r", "--realtime", action="store_true",
+                    help="get data from cryptowat")
+args = parser.parse_args()
+
+market = args.market
+pair = args.pair
+use_recent = args.realtime
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
@@ -34,10 +49,6 @@ def get_local_data():
     csvarr = list(map(parse_csv_line, txt.strip().split("\n")))
 
     return list(csvarr)
-
-
-market = sys.argv[1] if len(sys.argv) >= 2 else 'bitflyer'
-pair = sys.argv[2] if len(sys.argv) >= 3 else 'btcfxjpy'
 
 
 def get_recent_data():
@@ -58,61 +69,76 @@ DAY_STEP = 12 * 24
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
 
-# data = np.array(get_local_data())
-data = np.array(get_recent_data())
+if use_recent:
+    data = np.array(get_recent_data())
+else:
+    data = np.array(get_local_data())
 season_count = int(len(data) / BAND)
 
 
-def backtest(res, size, start=0, end=None, hmargin=0, lmargin=0, e_margin=0, c_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
+def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
+    attack = 0.3
+    # attack = 0.8
     if end == None:
         end = len(res)
 
     i = start
 
-    myjpy = INIT_JPY
+    myjpy: float = INIT_JPY
     mybtc = 0
 
     asset_list = [myjpy]
     position: Literal['none', 'long', 'short'] = 'none'
-    out_ypb = 0
-    lngs = []
-    shts = []
+    sht_ypbs: List[Tuple[float, float]] = []
+    lngs = [[]]
+    shts = [[]]
 
     while i < end - 500:
         is_last = i == end - 501
         date = res[i][0]
         ypb = res[i][4]
-        if position == 'none':
-            if buy_logic(res, size, i, withcache=True, margin=e_margin, entry_min=e_weight_min)[0]:
-                mybtc = myjpy / ypb
-                myjpy = 0
-                position = 'long'
-                lngs.append([date])
-            elif sell_logic(res, size, i, withcache=True, margin=e_margin, entry_min=e_weight_min)[0]:
-                position = 'short'
-                out_ypb = ypb
-                shts.append([date])
-        elif position == 'long':
-            if is_last or sell_logic(res, size, i, margin=c_margin, withcache=True)[0]:
-                myjpy = mybtc * ypb
-                mybtc = 0
-                position = 'none'
-                lngs[-1].append(date)
-        elif position == 'short':
-            if is_last or buy_logic(res, size, i, margin=c_margin, withcache=True)[0]:
-                myjpy = myjpy * out_ypb / ypb
-                out_ypb = 0
-                position = 'none'
-                shts[-1].append(date)
+
+        hi_touch = buy_logic(res, size, i, withcache=True,
+                             margin=e_margin, entry_min=e_weight_min)[0]
+        lo_touch = sell_logic(res, size, i, withcache=True,
+                              margin=e_margin, entry_min=e_weight_min)[0]
+
+        if is_last or position == 'long' and lo_touch:
+            myjpy += mybtc * ypb
+            mybtc = 0
+            position = 'none'
+            lngs[-1].append(date)
+            lngs.append([])
+        if is_last or position == 'short' and hi_touch:
+            myjpy += sum(map(lambda pa: pa[1] * pa[0] / ypb, sht_ypbs))
+            sht_ypbs = []
+            position = 'none'
+            shts[-1].append(date)
+            shts.append([])
+        elif hi_touch:
+            pay = myjpy * attack
+            myjpy -= pay
+            amount = pay / ypb
+            mybtc += amount
+            position = 'long'
+            lngs[-1].append(date)
+        elif lo_touch:
+            pay = myjpy * attack
+            myjpy -= pay
+            position = 'short'
+            sht_ypbs.append((ypb, pay))
+            shts[-1].append(date)
 
         if position == 'short':
-            asset_list.append((myjpy * out_ypb / ypb))
+            asset_list.append(
+                myjpy + sum(map(lambda pa: pa[1] * pa[0] / ypb, sht_ypbs)))
         else:
             asset_list.append(myjpy + mybtc * ypb)
 
         i += 1
         if i % DAY_STEP == 0:
-            out_ypb *= DAY_COMM
+            # sht_ypbs = list(map(lambda v: (v[0] * DAY_COMM, v[1]), sht_ypbs))
+            # sht_ypbs *= DAY_COMM
             mybtc *= DAY_COMM
 
     if tconf.plot or tconf.plotshow:
@@ -129,12 +155,12 @@ def backtest(res, size, start=0, end=None, hmargin=0, lmargin=0, e_margin=0, c_m
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%d'))
         ax.plot('i', 'btc', data=df, color=cm.Set1.colors[0])
         for lng in lngs:
-            if len(lng) == 1: continue
-            plt.axvspan(to_sec(lng[0]), to_sec(lng[1]),
+            if len(lng) < 2: continue
+            plt.axvspan(to_sec(lng[0]), to_sec(lng[-1]),
                         color='blue', alpha=0.2, lw=0)
         for sht in shts:
-            if len(sht) == 1: continue
-            plt.axvspan(to_sec(sht[0]), to_sec(sht[1]),
+            if len(sht) < 2: continue
+            plt.axvspan(to_sec(sht[0]), to_sec(sht[-1]),
                         color='red', alpha=0.2, lw=0)
 
         ax2 = ax.twinx()
@@ -185,8 +211,7 @@ def multi_backtest():
     times = ['']
     sizes = [30000]
     # sizes = range(50000, 300000 + 1, 10000)
-    cmargins = [0.3]
-    emargins = [0.3]
+    margins = [0.3]
     print(len(data))
     print(season_count)
     # seasons = range(21, 25)
@@ -203,20 +228,18 @@ def multi_backtest():
     print("\t".join(["size, max, min, ave, total"]))
     lisprint('btc', btcrates)
     # print(f"btc\t" + "\t".join(map(str, btcrates)))
-    for em in emargins:
-        for cm in cmargins:
-            # print(f"emg: {em}, cmg: {cm}")
-            # clean_snake()
-            for size in sizes:
-                ress = list(map(lambda s:
-                                backtest(data, size, start=BAND * s,
-                                         end=BAND * (s + 1), c_margin=cm, e_margin=em), seasons))
-                # print(f"emg: {em}, cmg: {cm} {size}" + "\t".join(map(str, ress)))
-                lisprint(f"emg: {em}, cmg: {cm} {size}", ress)
+    for mrg in margins:
+        # print(f"emg: {em}, cmg: {cm}")
+        # clean_snake()
+        for size in sizes:
+            ress = list(map(lambda s:
+                            backtest(data, size, start=BAND * s, end=BAND * (s + 1), c_margin=mrg, e_margin=mrg), seasons))
+            # print(f"emg: {em}, cmg: {cm} {size}" + "\t".join(map(str, ress)))
+            lisprint(f"mrg: {mrg} {size}", ress)
     # print(
         # "\n".join(map(lambda v: f"{v[0]}\t{v[1]}", print_snake_cache().items())))
 
 
 if __name__ == "__main__":
-    main()
-    # multi_backtest()
+    # main()
+    multi_backtest()
