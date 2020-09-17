@@ -17,7 +17,7 @@ import binance
 from config import keys
 
 
-roundt = lambda v: "{:0.0{}f}".format(v, 3)
+roundt = lambda v: "{:0.0{}f}".format(float(v), 3)
 
 
 class BinanceWrapperAPI(WrapperAPI):

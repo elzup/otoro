@@ -13,7 +13,7 @@ from trade_method import TradeMethod
 # 実行クラス
 wrapper = BinanceWrapperAPI('YFIUSDT')
 trader = TradeMethod(wrapper, leverage=2)
-logic = SnakeLogic(3000, market='binance', pair="yfiusdt")
+logic = SnakeLogic(10000, market='binance', pair="yfiusdt")
 
 
 class TradeController:

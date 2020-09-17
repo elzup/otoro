@@ -36,14 +36,13 @@ def get_local_data():
     return list(csvarr)
 
 
-print(sys.argv[1])
-market = sys.argv[1] if len(sys.argv) >= 1 else 'bitflyer'
-pair = sys.argv[2] if len(sys.argv) >= 2 else 'btcfxjpy'
+market = sys.argv[1] if len(sys.argv) >= 2 else 'bitflyer'
+pair = sys.argv[2] if len(sys.argv) >= 3 else 'btcfxjpy'
 
 
 def get_recent_data():
     print(market, pair)
-    data, _ = get_ohlc(tconf.size_candle, 1000, market, pair)
+    data, _ = get_ohlc(tconf.size_candle, 40000, market, pair)
     return data
 
 

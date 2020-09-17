@@ -88,12 +88,12 @@ class TradeMethod:
         return self.safe_sell(amount), price
 
     def close_full_long(self):
-        amount = self.calc_close_amount_price()
-        return self.safe_sell(amount)
+        amount, price = self.calc_close_amount_price()
+        return self.safe_sell(amount), price
 
     def close_full_short(self):
-        amount = self.calc_close_amount_price()
-        return self.safe_buy(amount)
+        amount, price = self.calc_close_amount_price()
+        return self.safe_buy(amount), price
 
     def get_position(self) -> Literal["none", "long", "shor"]:
         return self.wrap.get_position()
@@ -112,8 +112,9 @@ class TradeMethod:
         return amount, price
 
     def calc_close_amount_price(self):
-        if tconf.cycle_debug: return 0.01
-        return self.wrap.get_balance_interest(), self.wrap.get_bid()
+        bid = self.wrap.get_bid()
+        if tconf.cycle_debug: return 0.01, bid
+        return self.wrap.get_balance_interest(), bid
 
     def d_message(self, message):
         pass
