@@ -1,14 +1,22 @@
 from datetime import datetime
+from services.keys import cryptowat_api_public
 from typing import Literal, get_args
 import time
 import requests
 import numpy as np
 
 
+cache = []
+
+
 def cryptowat_request(periods: int, after: int, market='bitflyer', pair="btcfxjpy"):
-    response = requests.get(
-        f"https://api.cryptowat.ch/markets/{market}/{pair}/ohlc",
-        params={"periods": periods, "after": after}, timeout=5)
+    url = f"https://api.cryptowat.ch/markets/{market}/{pair}/ohlc"
+    params = {"periods": periods, "after": after}
+    headers = {}
+    if cryptowat_api_public:
+        headers["X-CW-API-Key"] = cryptowat_api_public
+
+    response = requests.get(url, params=params, headers=headers, timeout=5)
     response.raise_for_status()
     data = response.json()
     return list(data["result"][str(periods)]), data["allowance"]
