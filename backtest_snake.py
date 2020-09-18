@@ -26,9 +26,11 @@ parser.add_argument("-p", "--pair", type=str,
                     default='btcfxjpy', help="pair name")
 parser.add_argument("-r", "--realtime", action="store_true",
                     help="get data from cryptowat")
+parser.add_argument("-c", "--candle", help="candle size",
+                    default=tconf.size_candle)
 args = parser.parse_args()
 
-candle = 60
+candle = args.candle
 # candle = tconf.size_candle
 market = args.market
 pair = args.pair
@@ -54,7 +56,7 @@ def get_local_data():
 
 def get_recent_data():
     print(market, pair)
-    data, _ = get_ohlc(candle, 10000, market, pair)
+    data, _ = get_ohlc(candle, 100000, market, pair)
     return data
 
 
@@ -79,8 +81,8 @@ season_count = int(len(data) / BAND)
 
 
 def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
-    # attack = 1
-    attack = 0.5
+    attack = 1
+    # attack = 0.5
     # attack = 0.8
     if end == None:
         end = len(res)
