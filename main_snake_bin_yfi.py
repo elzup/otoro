@@ -13,7 +13,9 @@ from trade_method import TradeMethod
 # 実行クラス
 wrapper = BinanceWrapperAPI('YFIUSDT')
 trader = TradeMethod(wrapper, leverage=2)
-logic = SnakeLogic(10000, market='binance', pair="yfiusdt")
+logic = SnakeLogic(3000, market='binance', pair="yfiusdt", size_candle=60)
+
+SLEEP_TIME = 60
 
 
 class TradeController:
@@ -33,7 +35,7 @@ class TradeController:
                 self.long_step()
             elif self.posi == 'shor':
                 self.shor_step()
-            time.sleep(next_sleep())
+            time.sleep(next_sleep(SLEEP_TIME))
 
     def none_step(self):
         # データを取得して買い判定か調べる

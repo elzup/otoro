@@ -19,7 +19,6 @@ from logic import clean
 from logic import sell_judge_snake as sell_logic
 
 import argparse
-
 parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--market", type=str,
                     default='bitflyer', help="market name")
@@ -29,6 +28,8 @@ parser.add_argument("-r", "--realtime", action="store_true",
                     help="get data from cryptowat")
 args = parser.parse_args()
 
+candle = 60
+# candle = tconf.size_candle
 market = args.market
 pair = args.pair
 use_recent = args.realtime
@@ -53,7 +54,7 @@ def get_local_data():
 
 def get_recent_data():
     print(market, pair)
-    data, _ = get_ohlc(tconf.size_candle, 40000, market, pair)
+    data, _ = get_ohlc(candle, 10000, market, pair)
     return data
 
 
@@ -65,6 +66,7 @@ INIT_JPY = 100000
 # comm = 0.0015
 DAY_COMM = 1 - 0.0004
 DAY_STEP = 12 * 24
+FEE = 0.001
 
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
@@ -77,7 +79,8 @@ season_count = int(len(data) / BAND)
 
 
 def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
-    attack = 0.3
+    # attack = 1
+    attack = 0.5
     # attack = 0.8
     if end == None:
         end = len(res)
@@ -118,7 +121,7 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
         elif hi_touch:
             pay = myjpy * attack
             myjpy -= pay
-            amount = pay / ypb
+            amount = pay / ypb * (1 - FEE)
             mybtc += amount
             position = 'long'
             lngs[-1].append(date)
@@ -126,7 +129,7 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
             pay = myjpy * attack
             myjpy -= pay
             position = 'short'
-            sht_ypbs.append((ypb, pay))
+            sht_ypbs.append((ypb, pay * (1 - FEE)))
             shts[-1].append(date)
 
         if position == 'short':
@@ -137,7 +140,7 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
 
         i += 1
         if i % DAY_STEP == 0:
-            # sht_ypbs = list(map(lambda v: (v[0] * DAY_COMM, v[1]), sht_ypbs))
+            sht_ypbs = list(map(lambda v: (v[0] * DAY_COMM, v[1]), sht_ypbs))
             # sht_ypbs *= DAY_COMM
             mybtc *= DAY_COMM
 
@@ -212,6 +215,7 @@ def multi_backtest():
     sizes = [30000]
     # sizes = range(50000, 300000 + 1, 10000)
     margins = [0.3]
+    # margins = [0, 0.1, 0.2, 0.3]
     print(len(data))
     print(season_count)
     # seasons = range(21, 25)
@@ -241,5 +245,5 @@ def multi_backtest():
 
 
 if __name__ == "__main__":
-    # main()
-    multi_backtest()
+    main()
+    # multi_backtest()

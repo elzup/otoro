@@ -1,8 +1,9 @@
+from backtest import tconf
 import time
 
 
-def next_sleep():
-    return (300 - time.time() % 300) + 10
+def next_sleep(step_time=tconf.sleep_time):
+    return (step_time - time.time() % step_time) + 10
 
 
 def find(func, arr):
