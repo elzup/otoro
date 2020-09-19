@@ -120,44 +120,40 @@ class TradeMethod:
     def check_orderable(self):
         return self.get_open_order() is None
 
-    def safe_order(self, amount, method):
+    def safe_order(self, amount_method, method):
+        i = 0
         while True:
+            amount = amount_method() * ((0.95) ** i)
             result = method(amount, 0, True)
             print(result)
-            i = 20
             if not result[0]:
-                amount *= 0.95
-                time.sleep(3)
-                i -= 1
-                if i < 0:
+                i += 1
+                if i >= 20:
                     raise Exception('limited retry count')
+                time.sleep(3)
                 continue
             time.sleep(3)
             if self.is_completed(result[1]):
                 break
         return amount
 
-    def safe_buy(self, amount):
-        return self.safe_order(amount, self.buy_signal)
+    def safe_buy(self, amount_method):
+        return self.safe_order(amount_method, self.buy_signal)
 
-    def safe_sell(self, amount):
-        return self.safe_order(amount, self.sell_signal)
+    def safe_sell(self, amount_method):
+        return self.safe_order(amount_method, self.sell_signal)
 
     def entry_full_long(self):
-        amount, price = self.calc_entry_amount_price()
-        return self.safe_buy(amount), price
+        return self.safe_buy(self.calc_entry_amount_price)
 
     def entry_full_short(self):
-        amount, price = self.calc_entry_amount_price()
-        return self.safe_sell(amount), price
+        return self.safe_sell(self.calc_entry_amount_price)
 
     def close_full_long(self):
-        amount = self.calc_close_amount_price()
-        return self.safe_sell(amount)
+        return self.safe_sell(self.calc_close_amount_price)
 
     def close_full_short(self):
-        amount = self.calc_close_amount_price()
-        return self.safe_buy(amount)
+        return self.safe_buy(self.calc_close_amount_price)
 
     def get_open_order(self):
         query = "&child_order_state=ACTIVE"
@@ -326,7 +322,7 @@ class TradeMethod:
         print(price, amount)
         if tconf.cycle_debug: amount = 0.01
 
-        return amount, price
+        return amount
 
     def calc_close_amount_price(self):
         if tconf.cycle_debug: return 0.01
