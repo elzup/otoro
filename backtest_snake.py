@@ -103,18 +103,23 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
         date = res[i][0]
         ypb = res[i][4]
 
-        hi_touch = buy_logic(res, size, i, withcache=True,
-                             margin=e_margin, entry_min=e_weight_min)[0]
-        lo_touch = sell_logic(res, size, i, withcache=True,
-                              margin=e_margin, entry_min=e_weight_min)[0]
+        hi_touch, hhlw = buy_logic(res, size, i, withcache=True,
+                                   margin=e_margin, entry_min=e_weight_min)
+        lo_touch, lhlw = sell_logic(res, size, i, withcache=True,
+                                    margin=e_margin, entry_min=e_weight_min)
+        # d = hhlw[0] - hhlw[1]
+        # hvp = hhlw[1] + (1 - e_margin) * d
+        # lvp = hhlw[1] + e_margin * d
 
         if is_last or position == 'long' and lo_touch:
+            # myjpy += mybtc * lvp
             myjpy += mybtc * ypb
             mybtc = 0
             position = 'none'
             lngs[-1].append(date)
             lngs.append([])
         if is_last or position == 'short' and hi_touch:
+            # myjpy += sum(map(lambda pa: pa[1] * pa[0] / hvp, sht_ypbs))
             myjpy += sum(map(lambda pa: pa[1] * pa[0] / ypb, sht_ypbs))
             sht_ypbs = []
             position = 'none'
@@ -123,6 +128,7 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
         elif hi_touch:
             pay = myjpy * attack
             myjpy -= pay
+            # amount = pay / hvp * (1 - FEE)
             amount = pay / ypb * (1 - FEE)
             mybtc += amount
             position = 'long'
@@ -131,6 +137,7 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
             pay = myjpy * attack
             myjpy -= pay
             position = 'short'
+            # sht_ypbs.append((lvp, pay * (1 - FEE)))
             sht_ypbs.append((ypb, pay * (1 - FEE)))
             shts[-1].append(date)
 
@@ -191,8 +198,8 @@ def main():
 
     # for s in [14]:
     for s in range(season_count + 1):
-        # for s in range(11, season_count + 1):
         # for s in range(season_count - 10, season_count + 1):
+        # for s in range(11, season_count + 1):
         # for s in [0]:
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
