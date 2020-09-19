@@ -26,7 +26,7 @@ parser.add_argument("-p", "--pair", type=str,
                     default='btcfxjpy', help="pair name")
 parser.add_argument("-r", "--realtime", action="store_true",
                     help="get data from cryptowat")
-parser.add_argument("-c", "--candle", help="candle size",
+parser.add_argument("-c", "--candle", type=int, help="candle size",
                     default=tconf.size_candle)
 args = parser.parse_args()
 
