@@ -58,6 +58,15 @@ def start_notice():
                   username="otoro")
 
 
+def error_notice(text):
+    if not conf.slack_webhook_url: return
+    client.notify(title="Error",
+                  text=f"Error: {text}",
+                  icon_emoji=":bitcoin",
+                  mrkdwn=True,
+                  username="otoro")
+
+
 if __name__ == "__main__":
     client.notify(title="BTC buy event",
                   text=":yen: ¥100000 => :bitcoin: 0.3313312 BTC",

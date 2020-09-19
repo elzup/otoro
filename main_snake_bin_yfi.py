@@ -6,7 +6,7 @@ from util import next_sleep
 from config import config as tconf
 from logic import SnakeLogic
 from services.slackcli import (
-    close_notice, long_entry_notice, short_entry_notice, start_notice)
+    close_notice, error_notice, long_entry_notice, short_entry_notice, start_notice)
 # from pprint import pprint
 from trade_method import TradeMethod
 
@@ -70,4 +70,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        error_notice(str(e))
