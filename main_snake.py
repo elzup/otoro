@@ -46,16 +46,14 @@ class TradeController:
 
     def long_step(self):
         if not logic.close_long_judge(): return
-        amount = trader.close_full_long()
-        price = trader.get_board_price()
+        amount, price = trader.close_full_long()
         print(price, amount)
         close_notice(price, amount)
         self.posi = 'none'
 
     def shor_step(self):
         if not logic.close_short_judge(): return
-        amount = trader.close_full_short()
-        price = trader.get_board_price()
+        amount, price = trader.close_full_short()
         print(price, amount)
         close_notice(price, amount)
         self.posi = 'none'
