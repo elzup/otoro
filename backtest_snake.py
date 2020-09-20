@@ -98,8 +98,8 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
     lngs = [[]]
     shts = [[]]
 
-    while i < end - 500:
-        is_last = i == end - 501
+    while i < end - 10:
+        is_last = i == end - 10 - 1
         date = res[i][0]
         ypb = res[i][4]
 
