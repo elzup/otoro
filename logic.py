@@ -47,7 +47,7 @@ class ExecLogic:
 
 
 class SnakeLogic:
-    def __init__(self, size: int, market: str, pair: str, minsize: int = 0, size_candle=tconf.size_candle) -> None:
+    def __init__(self, size: float, market: str, pair: str, minsize: int = 0, size_candle=tconf.size_candle) -> None:
         self.size = size
         self.market = market
         self.pair = pair
@@ -56,8 +56,7 @@ class SnakeLogic:
 
     def buy_judge(self, margin=0):
         if tconf.cycle_debug: return True
-        data, _ = get_ohlc(self.size_candle,
-                           tconf.snake_load_size, self.market, self.pair)
+        data, _ = get_ohlc(self.size_candle, self.size, self.market, self.pair)
         return buy_judge_snake(data, self.size, margin=margin, entry_min=self.minsize)[0]
 
     def sell_judge(self, margin=0):

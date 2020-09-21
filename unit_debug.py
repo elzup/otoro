@@ -179,7 +179,7 @@ def bf_balance():
 
 
 def bn_order():
-    api = BinanceWrapperAPI('YFIUSDT')
+    api = BinanceWrapperAPI('YFIUSDT', "YFI")
     # orders = api.get_open_orders()
     # print(orders)
     # print(api.get_open_orders())

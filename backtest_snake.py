@@ -27,6 +27,8 @@ parser.add_argument("-r", "--realtime", action="store_true",
                     help="get data from cryptowat")
 parser.add_argument("-c", "--candle", type=int, help="candle size",
                     default=tconf.size_candle)
+parser.add_argument("-s", "--snake-size", type=float, help="snake size",
+                    default=tconf.snake_size)
 args = parser.parse_args()
 
 candle = args.candle
@@ -34,6 +36,7 @@ candle = args.candle
 market = args.market
 pair = args.pair
 use_recent = args.realtime
+snake_size = args.snake_size
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
@@ -191,22 +194,22 @@ def backtest(res, size, start=0, end=None, e_margin=0, e_weight_min=0, bc_id="ba
 
 
 def main():
-    prices = [tconf.snake_size, 1.0]
+    prices = [snake_size, 1.0]
     btcs = ['btc', 1]
     times = ["time", ""]
 
     # for s in [14]:
-    # for s in range(season_count + 1):
-    # for s in range(11, season_count + 1):
-    # for s in [0]:
-    for s in range(season_count - 10, season_count + 1):
+    for s in range(season_count + 1):
+        # for s in range(11, season_count + 1):
+        # for s in [0]:
+        # for s in range(season_count - 10, season_count + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
         clean()
         prices.append(backtest(
             res,
-            tconf.snake_size,
+            snake_size,
             e_margin=tconf.snake_entry_margin,
             e_weight_min=tconf.snake_entry_min
         ))

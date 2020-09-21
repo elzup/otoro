@@ -11,9 +11,10 @@ from services.slackcli import (
 from trade_method import TradeMethod
 
 # 実行クラス
-wrapper = BinanceWrapperAPI('YFIUSDT')
+wrapper = BinanceWrapperAPI('TRXUSDT', 'TRX', 0)
+# wrapper = BinanceWrapperAPI('YFIUSDT', "YFI", 3)
 trader = TradeMethod(wrapper, leverage=2)
-logic = SnakeLogic(3000, market='binance', pair="yfiusdt", size_candle=60)
+logic = SnakeLogic(0.004, market='binance', pair="trxusdt", size_candle=60)
 
 SLEEP_TIME = 60
 
@@ -74,3 +75,4 @@ if __name__ == "__main__":
         main()
     except Exception as e:
         error_notice(str(e))
+        raise e

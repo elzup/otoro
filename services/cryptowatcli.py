@@ -30,7 +30,7 @@ period_list = get_args(PERIOD)
 def get_ohlc(periods, data_size, market='bitflyer', pair="btcfxjpy"):
     assert periods in period_list, 'invalid periods arg'
 
-    after = int(datetime.now().timestamp() - (periods * data_size))
+    after = int(datetime.now().timestamp() - (periods * 5000))
     while True:
         try:
             data, allo = cryptowat_request(periods, after, market, pair)

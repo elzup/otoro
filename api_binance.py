@@ -17,15 +17,17 @@ import binance
 from config import keys
 
 
-roundt = lambda v: "{:0.0{}f}".format(float(v), 3)
+roundt = lambda v, pres: "{:0.0{}f}".format(float(v), pres)
 
 
 class BinanceWrapperAPI(WrapperAPI):
 
     # (n) means that parameter is necessary
 
-    def __init__(self, pair):
+    def __init__(self, pair, target, precision):
         self.pair = pair
+        self.precision = precision
+        self.target = target
         self.client = Client(keys.binance_api_key, keys.binance_api_secret)
 
     def get_my_balance_coin(self, coin):
@@ -37,8 +39,8 @@ class BinanceWrapperAPI(WrapperAPI):
         return self.get_my_balance_coin('USDT')
 
     def get_position_targ(self) -> Tuple[float, bool]:
-        risks = self.client.futures_position_information(symbol="YFI")
-        position = find(lambda v: v['symbol'] == 'YFIUSDT', risks)
+        risks = self.client.futures_position_information(symbol=self.target)
+        position = find(lambda v: v['symbol'] == self.pair, risks)
         amt = float(position['positionAmt'])
         return abs(amt), amt >= 0
 
@@ -59,10 +61,11 @@ class BinanceWrapperAPI(WrapperAPI):
                 side=side,
                 type="MARKET",
                 # positionSide=pside,
-                quantity=roundt(quantity)
+                quantity=roundt(quantity, self.precision)
             )
             return [True, res['orderId']]
         except BinanceAPIException as e:
+            raise(e)
             return [False, e]
 
     def get_open_orders(self):
