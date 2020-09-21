@@ -135,7 +135,8 @@ class TradeMethod:
             time.sleep(3)
             if self.is_completed(result[1]):
                 break
-        return amount
+        price = self.get_board_price()
+        return amount, price
 
     def safe_buy(self, amount_method):
         return self.safe_order(amount_method, self.buy_signal)
