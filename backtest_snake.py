@@ -1,6 +1,5 @@
 # from pprint import pprint
 
-from config.config import cbs_fx_close_margin, cbs_fx_size
 from services.cryptowatcli import get_ohlc
 import time
 from datetime import datetime
@@ -68,7 +67,7 @@ INIT_JPY = 100000
 # comm = 0.0015
 DAY_COMM = 1 - 0.0004
 DAY_STEP = 12 * 24
-FEE = 0.001
+FEE = 0
 
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
@@ -80,7 +79,7 @@ else:
 season_count = int(len(data) / BAND)
 
 
-def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
+def backtest(res, size, start=0, end=None, e_margin=0, e_weight_min=0, bc_id="backtestfx_snake"):
     attack = 1
     # attack = 0.5
     # attack = 0.8
@@ -103,10 +102,10 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
         date = res[i][0]
         ypb = res[i][4]
 
-        hi_touch, hhlw = buy_logic(res, size, i, withcache=True,
-                                   margin=e_margin, entry_min=e_weight_min)
-        lo_touch, lhlw = sell_logic(res, size, i, withcache=True,
-                                    margin=e_margin, entry_min=e_weight_min)
+        hi_touch, hhlw = buy_logic(
+            res, size, i, withcache=True, margin=e_margin, entry_min=e_weight_min)
+        lo_touch, lhlw = sell_logic(
+            res, size, i, withcache=True, margin=e_margin, entry_min=e_weight_min)
         # d = hhlw[0] - hhlw[1]
         # hvp = hhlw[1] + (1 - e_margin) * d
         # lvp = hhlw[1] + e_margin * d
@@ -182,7 +181,7 @@ def backtest(res, size, start=0, end=None, e_margin=0, c_margin=0, e_weight_min=
 
         if tconf.plot:
             # filename = f"backtestfx_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}_{hsize}_{lsize}.png"
-            filename = f"{bc_id}_{size/1000}k_cm{c_margin}_em{e_margin}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
+            filename = f"{bc_id}_{size/1000}k_em{e_margin}_{ymdformat(res[0][0])}_{ymdformat(res[-1][0])}.png"
             fig.savefig(f"img/backtestfx_tmp/{filename}")
             time.sleep(1)
 
@@ -197,17 +196,23 @@ def main():
     times = ["time", ""]
 
     # for s in [14]:
-    for s in range(season_count + 1):
-        # for s in range(season_count - 10, season_count + 1):
-        # for s in range(11, season_count + 1):
-        # for s in [0]:
+    # for s in range(season_count + 1):
+    # for s in range(11, season_count + 1):
+    # for s in [0]:
+    for s in range(season_count - 10, season_count + 1):
         res = np.array(data[BAND * s: BAND * (s + 1)])
         times.append(str(datetime.fromtimestamp(res[0][0])))
         btcs.append(str(round(res[-1][4] / res[0][4], 4)))
         clean()
-        prices.append(
-            backtest(res, tconf.snake_size, e_margin=tconf.snake_entry_margin, c_margin=tconf.snake_close_margin, e_weight_min=tconf.snake_entry_min))
+        prices.append(backtest(
+            res,
+            tconf.snake_size,
+            e_margin=tconf.snake_entry_margin,
+            e_weight_min=tconf.snake_entry_min
+        ))
+        # prices.append(str(round((res[-1][1] + res[0][1]) / 2, 4)))
     print("\t".join(times))
+    # print("\t".join(prices))
     print("\t".join(map(str, btcs)))
     print("\t".join(map(str, prices)))
 
@@ -246,7 +251,7 @@ def multi_backtest():
         # clean_snake()
         for size in sizes:
             ress = list(map(lambda s:
-                            backtest(data, size, start=BAND * s, end=BAND * (s + 1), c_margin=mrg, e_margin=mrg), seasons))
+                            backtest(data, size, start=BAND * s, end=BAND * (s + 1), e_margin=mrg), seasons))
             # print(f"emg: {em}, cmg: {cm} {size}" + "\t".join(map(str, ress)))
             lisprint(f"mrg: {mrg} {size}", ress)
     # print(
