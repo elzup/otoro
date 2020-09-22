@@ -11,12 +11,16 @@ from services.slackcli import (
 from trade_method import TradeMethod
 
 # 実行クラス
-wrapper = BinanceWrapperAPI('TRXUSDT', 'TRX', 0)
+wrapper = BinanceWrapperAPI('TRBUSDT', 'TRB', 1)
+# wrapper = BinanceWrapperAPI('TRXUSDT', 'TRX', 0)
 # wrapper = BinanceWrapperAPI('YFIUSDT', "YFI", 3)
 trader = TradeMethod(wrapper, leverage=2)
-logic = SnakeLogic(0.004, market='binance', pair="trxusdt", size_candle=60)
+# logic = SnakeLogic(0.004, market='binance', pair="trxusdt", size_candle=60)
+size_candle = 300
+logic = SnakeLogic(20, market='binance', pair="trbusdt",
+                   size_candle=size_candle)
 
-SLEEP_TIME = 60
+SLEEP_TIME = size_candle
 
 
 class TradeController:

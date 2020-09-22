@@ -179,7 +179,7 @@ def bf_balance():
 
 
 def bn_order():
-    api = BinanceWrapperAPI('YFIUSDT', "YFI")
+    api = BinanceWrapperAPI('YFIUSDT', "YFI", 3)
     # orders = api.get_open_orders()
     # print(orders)
     # print(api.get_open_orders())
@@ -199,6 +199,20 @@ def bn_order():
     # print(res)
 
 
+def bn_trx():
+    wrapper = BinanceWrapperAPI('TRXUSDT', 'TRX', 0)
+    # wrapper = BinanceWrapperAPI('YFIUSDT', "YFI", 3)
+    trader = TradeMethod(wrapper, leverage=2)
+    wrapper.get_ask()
+
+    coin = wrapper.get_mycoin()
+    price = wrapper.get_ask()
+    print(f"coin: {coin}, price: {price}")
+    leverage = 2
+    amount = coin * leverage / price
+    print(amount)
+
+
 if __name__ == "__main__":
     # tradingcommission()
     # load_cryptowat()
@@ -213,5 +227,6 @@ if __name__ == "__main__":
     # slack_notice()
     # ftx_order()
     # bf_balance()
-    bn_order()
+    # bn_order()
+    bn_trx()
     pass
