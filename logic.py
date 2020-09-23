@@ -145,8 +145,8 @@ def clean():
     cmin = {}
 
 
-def buy_judge_channelbreakout_ic(data, size, i, margin=0, wcheck=False, avgcheck=False):
-    si = i - size + 1
+def buy_judge_channelbreakout_ic(data, size, i: int, margin=0, wcheck=False, avgcheck=False):
+    si = int(i - size + 1)
     if si < 0:
         return
     v = data[i, I_MAX]
@@ -167,7 +167,7 @@ def buy_judge_channelbreakout_ic(data, size, i, margin=0, wcheck=False, avgcheck
 
 
 def sell_judge_channelbreakout_ic(data, size, i, margin=0, wcheck=False, avgcheck=False):
-    si = i - size + 1
+    si = int(i - size + 1)
     if si < 0:
         return
     v = data[i, I_MIN]
