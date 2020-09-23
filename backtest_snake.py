@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from config import config as tconf
-from logic import buy_judge_snake as buy_logic, clean_snake
+from logic import buy_judge_channelbreakout_ic, buy_judge_snake as buy_logic, clean_snake, sell_judge_channelbreakout_ic
 from logic import clean
 from logic import sell_judge_snake as sell_logic
 
@@ -70,7 +70,7 @@ INIT_JPY = 100000
 # comm = 0.0015
 DAY_COMM = 1 - 0.0004
 DAY_STEP = 12 * 24
-FEE = 0
+FEE = 0.00003
 
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
@@ -86,7 +86,7 @@ def backtest(res, size, start=0, end=None, e_margin=0, e_weight_min=0, bc_id="ba
     attack = 1
     # attack = 0.5
     # attack = 0.8
-    if end == None:
+    if end == None or end >= len(res):
         end = len(res)
 
     i = start
@@ -100,14 +100,16 @@ def backtest(res, size, start=0, end=None, e_margin=0, e_weight_min=0, bc_id="ba
     lngs = [[]]
     shts = [[]]
 
-    while i < end - 10:
-        is_last = i == end - 10 - 1
+    while i < end - 1:
+        is_last = i == end - 1 - 1
         date = res[i][0]
         ypb = res[i][4]
 
-        hi_touch, hhlw = buy_logic(
+        # hi_touch = buy_judge_channelbreakout_ic(res, size, i, e_margin)
+        # lo_touch = sell_judge_channelbreakout_ic(res, size, i, e_margin)
+        hi_touch, _ = buy_logic(
             res, size, i, withcache=True, margin=e_margin, entry_min=e_weight_min)
-        lo_touch, lhlw = sell_logic(
+        lo_touch, _ = sell_logic(
             res, size, i, withcache=True, margin=e_margin, entry_min=e_weight_min)
         # d = hhlw[0] - hhlw[1]
         # hvp = hhlw[1] + (1 - e_margin) * d
@@ -229,15 +231,15 @@ def lisprint(name, arr):
 def multi_backtest():
     btcrates = []
     times = ['']
-    sizes = [30000]
-    # sizes = range(50000, 300000 + 1, 10000)
+    # sizes = [30000]
+    sizes = range(50, 200 + 1, 10)
     margins = [0.3]
     # margins = [0, 0.1, 0.2, 0.3]
     print(len(data))
     print(season_count)
     # seasons = range(21, 25)
-    seasons = [14]
-    # seasons = range(0, season_count)
+    # seasons = [14]
+    seasons = range(0, season_count + 1)
     # seasons = range(season_count - 10, season_count)
 
     for s in seasons:
