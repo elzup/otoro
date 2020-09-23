@@ -10,25 +10,17 @@ from services.slackcli import (
 # from pprint import pprint
 from trade_method import TradeMethod
 
-# 実行クラス
-wrapper = BinanceWrapperAPI('TRBUSDT', 'TRB', 1)
-# wrapper = BinanceWrapperAPI('TRXUSDT', 'TRX', 0)
-# wrapper = BinanceWrapperAPI('YFIUSDT', "YFI", 3)
-trader = TradeMethod(wrapper, leverage=2)
-# logic = SnakeLogic(0.004, market='binance', pair="trxusdt", size_candle=60)
-size_candle = 300
-logic = SnakeLogic(20, market='binance', pair="trbusdt",
-                   size_candle=size_candle)
-
-SLEEP_TIME = size_candle
-
 
 class TradeController:
-    def __init__(self):
-        self.posi: Literal["none", "shor", "long"] = "none"
-        trader.wait_ordarable()
+    def __init__(self, pair: str, cur_symbol: str, tar_symbol: str, precision: int, leverage: int, size_candle: int, snake_size: int, market: str):
+        wrapper = BinanceWrapperAPI(pair.upper(), tar_symbol.upper(), precision)
+        self.trader = TradeMethod(wrapper, leverage=leverage)
+        self.trader.wait_ordarable()
+        self.logic = SnakeLogic(snake_size, market=market, pair=pair.lower(),
+                                size_candle=size_candle)
 
-        self.posi = trader.get_position()
+        self.size_candle = size_candle
+        self.posi: Literal["none", "shor", "long"] = self.trader.get_position()
         print("Initialize completed")
 
     def run(self):
@@ -40,36 +32,37 @@ class TradeController:
                 self.long_step()
             elif self.posi == 'shor':
                 self.shor_step()
-            time.sleep(next_sleep(SLEEP_TIME))
+            time.sleep(next_sleep(self.size_candle))
 
     def none_step(self):
         # データを取得して買い判定か調べる
-        if logic.entry_long_judge():
-            amount, price = trader.entry_full_long()
+        if self.logic.entry_long_judge():
+            amount, price = self.trader.entry_full_long()
             long_entry_notice(price, amount)
             self.posi = 'long'
-        elif logic.entry_short_judge():
-            amount, price = trader.entry_full_short()
+        elif self.logic.entry_short_judge():
+            amount, price = self.trader.entry_full_short()
             short_entry_notice(price, amount)
             self.posi = 'shor'
 
     def long_step(self):
-        if not logic.close_long_judge(): return
-        amount, price = trader.close_full_long()
+        if not self.logic.close_long_judge(): return
+        amount, price = self.trader.close_full_long()
         print(price, amount)
         close_notice(price, amount)
         self.posi = 'none'
 
     def shor_step(self):
-        if not logic.close_short_judge(): return
-        amount, price = trader.close_full_short()
+        if not self.logic.close_short_judge(): return
+        amount, price = self.trader.close_full_short()
         print(price, amount)
         close_notice(price, amount)
         self.posi = 'none'
 
 
 def main():
-    tc = TradeController()
+    tc = TradeController('TRBUSDT', 'USDT', 'TRB', 1, 2, 300, 20, 'binance')
+    # tc = TradeController('TRXUSDT', 'USDT', 'TRX', 0, 2, 60, 0.004, 'binance')
     start_notice()
     tc.run()
 
