@@ -15,20 +15,20 @@ class SlackNoticeClient:
                 text=text,
                 icon_emoji=f":{tar_symbol}",
                 mrkdwn=True,
-                username="otoro {cur_sybmol}{tar_symbol}"
+                username=f"otoro {cur_symbol}{tar_symbol}"
             )
 
     def short_entry_notice(self, price, amount, cur):
-        self.notify(self.trade_message(price, amount, cur, ":short:", "=>"))
+        self.notify(self.trade_message(price, amount, cur, ":short:", "→"))
 
     def long_entry_notice(self, price, amount, cur):
-        self.notify(self.trade_message(price, amount, cur, ":long:", "=>"))
+        self.notify(self.trade_message(price, amount, cur, ":long:", "←"))
 
     def close_notice(self, price, amount, cur):
-        self.notify(self.trade_message(price, amount, cur, ":close:", "<="))
+        self.notify(self.trade_message(price, amount, cur, ":close:", "←"))
 
     def trade_message(self, price, amount, cur, icon, arrow):
-        return f"{icon} {price:,} :{self.cur_symbol}:/:{self.tar_symbol}: {self.cur_symbol.upper()} *¥{cur:,}* {arrow} {amount:,} {self.tar_symbol.upper()}"
+        return f"{icon} {price:,} :{self.cur_symbol}: {self.cur_symbol.upper()} *¥{cur:,}* {arrow} {amount:,} {self.tar_symbol.upper()} :{self.tar_symbol}:"
 
     def start_notice(self):
         self.notify("Bot Running")

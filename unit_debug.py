@@ -130,7 +130,7 @@ def order_fx():
 
 def get_amount_fx():
     trader = TradeMethodOld('FX_BTC_JPY')
-    amount, _ = trader.calc_entry_amount_price()
+    amount = trader.calc_entry_amount_price()
     result = trader.buy_signal(amount, 0, True)
     while not trader.is_completed(result[1]):
         print('.', end="")
@@ -199,8 +199,8 @@ def bn_order():
 
     # size = main / price
     # print(size)
-    # res = api.post_order_market("BUY", size)
-    # print(res)
+    res = api.post_order_market("SELL", 0.001)
+    print(res)
 
 
 def bn_trx():
