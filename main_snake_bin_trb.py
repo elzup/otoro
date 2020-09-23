@@ -5,7 +5,6 @@ from trade_controller import TradeController
 def main():
     tc = TradeController('TRBUSDT', 'USDT', 'TRB', 1, 2, 300, 20, 'binance')
     # tc = TradeController('TRXUSDT', 'USDT', 'TRX', 0, 2, 60, 0.004, 'binance')
-    start_notice()
     tc.run()
 
 

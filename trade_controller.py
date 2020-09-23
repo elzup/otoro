@@ -14,6 +14,7 @@ class TradeController:
         wrapper = BinanceWrapperAPI(pair.upper(), tar_symbol.upper(), precision)
         self.precision = precision
         self.slackcli = SlackNoticeClient(cur_symbol, tar_symbol)
+        self.slackcli.start_notice()
         self.trader = TradeMethod(wrapper, leverage=leverage)
         self.trader.wait_ordarable()
         self.logic = SnakeLogic(snake_size, market=market, pair=pair.lower(),
