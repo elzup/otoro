@@ -1,7 +1,7 @@
 from api import WrapperAPI
 from _api_ftx import FtxWrapperAPI
 from api_binance import BinanceWrapperAPI
-from services.slackcli import close_notice, long_entry_notice, short_entry_notice
+from services.slackcli import SlackNoticeClient, close_notice, long_entry_notice, short_entry_notice
 import time
 import json
 import os
@@ -21,9 +21,13 @@ def tradingcommission():
 
 
 def slack_notice():
-    long_entry_notice(1234560, 1.555552313)
-    short_entry_notice(1234560, 1.555552313)
-    close_notice(1234560, 1.555552313)
+    cli = SlackNoticeClient("usdt", "eth")
+    # cli = SlackNoticeClient("eth", "usd")
+    cli.close_notice(400.12, 1.10, 440.111)
+    cli.long_entry_notice(400.12, 1.10, 440.111)
+    cli.short_entry_notice(400.12, 1.10, 440.111)
+    # short_entry_notice(1234560, 1.555552313)
+    # close_notice(1234560, 1.555552313)
 
 # https://docs.cryptowat.ch/rest-api/rate-limit
 # CPU 4sec/hour/IP
@@ -224,9 +228,9 @@ if __name__ == "__main__":
     # full_short()
     # current_posision()
     # check_trade()
-    # slack_notice()
+    slack_notice()
     # ftx_order()
     # bf_balance()
     # bn_order()
-    bn_trx()
+    # bn_trx()
     pass
