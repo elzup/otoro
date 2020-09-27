@@ -37,6 +37,7 @@ market = args.market
 pair = args.pair
 use_recent = args.realtime
 snake_size = args.snake_size
+print(snake_size)
 
 # output_file_name = "./data/btcjpn_2017_2020_5m_full.csv"
 output_file_name = "./data/btcjpn_2015_2020_5m_cc.csv"
@@ -70,7 +71,7 @@ INIT_JPY = 100000
 # comm = 0.0015
 DAY_COMM = 1 - 0.0004
 DAY_STEP = 12 * 24
-FEE = 0.00003
+FEE = 0.0004
 
 BAND = 10000
 HSIZE = int(60 * 60 / tconf.size_candle)
