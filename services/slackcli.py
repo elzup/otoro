@@ -66,7 +66,7 @@ def short_entry_notice(price, amount):
 
 def long_entry_notice(price, amount):
     if not conf.slack_webhook_url: return
-    client.notify(text=f"TEST :long: {price:,} :yen: *¥{price * amount:,.0f}* => :bitcoin: {amount:8f} BTC",
+    client.notify(text=f":long: {price:,} :yen: *¥{price * amount:,.0f}* => :bitcoin: {amount:8f} BTC",
                   icon_emoji=":bitcoin",
                   mrkdwn=True,
                   username="otoro test")
