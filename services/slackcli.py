@@ -93,7 +93,7 @@ def start_notice():
 def error_notice(text):
     if not conf.slack_webhook_url: return
     client.notify(title="Error",
-                  text=f"Error: @here {text}",
+                  text=f"Error: <!here> {text}",
                   icon_emoji=":bitcoin",
                   mrkdwn=True,
                   username="otoro")
